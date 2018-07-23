@@ -1,0 +1,24 @@
+---
+# handlers file for /etc/ansible/roles/master
+- name: create_osp_local_fs
+  hosts: created_master_nodes
+  become: yes
+  become_method: sudo
+  pause:
+    minutes: 2
+  filesystem:
+    force: yes
+    fstype: xfs
+    dev: /dev/vdc
+  command: mount -a
+- name: create_etcd_fs
+  hosts: created_master_nodes
+  become: yes
+  become_method: sudo
+  pause:
+    minute: 2
+  filesystem:
+    force: yes
+    fstype: xfs
+    dev: /dev/vdd
+  command: mount -a

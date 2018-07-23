@@ -1,0 +1,36 @@
+nodes:
+    - name: gluster01
+      driver: ipmi
+      driver_info:
+        ipmi_address: 172.16.0.1
+        ipmi_username: admin
+        ipmi_password: admin_r3dh4t1!
+        ipmi_port: 6247
+      resource_class: baremetal
+      ports:
+        - address: 52:54:00:59:2a:7c
+          pxe_enabled: true
+    
+    - name: gluster02
+      driver: ipmi
+      driver_info:
+        ipmi_address: 172.16.0.1
+        ipmi_username: admin
+        ipmi_password: admin_r3dh4t1!
+        ipmi_port: 6248
+      resource_class: baremetal
+      ports:
+        - address: 52:54:00:96:8a:fc
+          pxe_enabled: true
+
+    - name: gluster03
+      driver: ipmi
+      driver_info:
+        ipmi_address: 172.16.0.1
+        ipmi_username: admin
+        ipmi_password: admin_r3dh4t1!
+        ipmi_port: 6249
+      resource_class: baremetal
+      ports:
+        - address: 52:54:00:cd:69:f9
+          pxe_enabled: true

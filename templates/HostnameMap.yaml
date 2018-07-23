@@ -1,0 +1,8 @@
+parameter_defaults:
+  HostnameMap:
+    overcloud-controller-0: ocp-ctrl01
+    overcloud-compute-0: ocp-node01
+    overcloud-compute-1: ocp-node02
+    overcloud-cephstorage-0: ocp-ceph01
+    overcloud-cephstorage-1: ocp-ceph02
+    overcloud-cephstorage-2: ocp-ceph03

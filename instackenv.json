@@ -1,0 +1,76 @@
+{
+  "nodes": [
+    {
+      "pm_user": "admin",
+      "mac": [
+        "52:54:00:8f:ef:bd"
+      ],
+      "pm_type": "ipmi",
+      "pm_addr": "192.168.0.1",
+      "pm_port": "6240",
+      "pm_password": "admin_r3dh4t1!",
+      "capabilities": "profile:control",
+      "name": "ctrl01"
+    },
+    {
+      "pm_user": "admin",
+      "mac": [
+        "52:54:00:e9:c7:a9"
+      ],
+      "pm_type": "ipmi",
+      "pm_addr": "192.168.0.1",
+      "pm_port": "6241",
+      "pm_password": "admin_r3dh4t1!",
+      "capabilities": "profile:compute",
+      "name": "compute01"
+    },
+    {
+      "pm_user": "admin",
+      "mac": [
+        "52:54:00:a7:31:e7"
+      ],
+      "pm_type": "ipmi",
+      "pm_addr": "192.168.0.1",
+      "pm_port": "6242",
+      "pm_password": "admin_r3dh4t1!",
+      "capabilities": "profile:compute",
+      "name": "compute02"
+    },
+    {
+      "pm_user": "admin",
+      "mac": [
+        "52:54:00:ee:91:7f"
+      ],
+      "pm_type": "ipmi",
+      "pm_addr": "192.168.0.1",
+      "pm_port": "6243",
+      "pm_password": "admin_r3dh4t1!",
+      "capabilities": "profile:ceph-storage",
+      "name": "ceph01"
+    },
+    {
+      "pm_user": "admin",
+      "mac": [
+        "52:54:00:ad:bd:c1"
+      ],
+      "pm_type": "ipmi",
+      "pm_password": "admin_r3dh4t1!",
+      "pm_addr": "192.168.0.1",
+      "pm_port": "6244",
+      "capabilities": "profile:ceph-storage",
+      "name": "ceph02"
+    },
+    {
+      "pm_user": "admin",
+      "mac": [
+        "52:54:00:1f:96:a4"
+      ],
+      "pm_type": "ipmi",
+      "pm_password": "admin_r3dh4t1!",
+      "pm_addr": "192.168.0.1",
+      "pm_port": "6245",
+      "capabilities": "profile:ceph-storage",
+      "name": "ceph03"
+    }
+  ]
+}

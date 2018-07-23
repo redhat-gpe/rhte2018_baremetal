@@ -1,0 +1,16 @@
+parameter_defaults:
+  DockerCephDaemonImage: registry.access.redhat.com/rhceph/rhceph-3-rhel7:3-8
+  CephAnsiblePlaybookVerbosity: 3
+  CephAnsibleExtraConfig:
+    ceph_osd_docker_memory_limit: 2g
+    ceph_osd_docker_cpu_limit: 1
+    ceph_rgw_docker_memory_limit: 1g
+    ceph_rgw_docker_cpu_limit: 1
+    ceph_mon_docker_memory_limit: 2g
+    ceph_mon_docker_cpu_limit: 1
+  CephAnsibleDisksConfig:
+    devices:
+      - /dev/vdb
+      - /dev/vdc
+      - /dev/vdd
+    osd_scenario: collocated

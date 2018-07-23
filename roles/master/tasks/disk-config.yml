@@ -1,0 +1,17 @@
+---
+- name: Configure Disks
+  hosts: created_master_nodes
+  become: true
+  gather_facts: false
+  tasks:
+#   - name: Create OpenShift Local Disk File System
+#     filesystem:
+#        fstype: xfs
+#        dev: /dev/vdc
+#   - name: Create etcd Store  File System
+#     filesystem:
+#        fstype: xfs
+#        dev: /dev/vdd
+    - name: Remount the Disks
+      command: mount -a
+

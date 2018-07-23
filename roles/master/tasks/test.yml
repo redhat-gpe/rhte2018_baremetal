@@ -1,0 +1,5 @@
+  - name: test
+    host: created_master_nodes
+    filesystem:
+       fstype: xfs
+       dev: /dev/vdd

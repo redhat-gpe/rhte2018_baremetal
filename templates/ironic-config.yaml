@@ -1,0 +1,10 @@
+parameter_defaults:
+    
+    NovaSchedulerDefaultFilters:
+        - RetryFilter
+        - AggregateInstanceExtraSpecsFilter
+        - AvailabilityZoneFilter
+        - ComputeFilter
+        - ComputeCapabilitiesFilter
+        - ImagePropertiesFilter
+    IronicCleaningDiskErase: metadata
