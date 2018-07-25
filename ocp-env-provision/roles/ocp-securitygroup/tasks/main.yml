@@ -1,0 +1,7 @@
+---
+- import_tasks: sg.yml
+- import_tasks: lb_rules_sg.yml
+- import_tasks: bastion_rules_sg.yml
+- import_tasks: master_rules_sg.yml
+- import_tasks: node_rules_sg.yml
+- import_tasks: infra_rules_sg.yml
