@@ -1,0 +1,22 @@
+  - name: Create the OpenShift Local Stor File System
+    filesystem:
+      fstype: xfs
+      dev: /dev/vdc
+  - name: Create the etcd Stor File System
+    filesystem:
+      fstype: xfs
+      dev: /dev/vdd
+  - name: Mount OpenShift Local Stor File System
+    mount:
+      path: /var/lib/origin/openshift.local.volumes
+      src: /dev/vdc
+      fstype: xfs
+      opts: defaults,gquota
+      state: mounted
+  - name: Mount etcd Stor File System
+    mount:
+      path: /var/lib/etcd
+      src: /dev/vdd
+      fstype: xfs
+      opts: defaults
+      state: mounted

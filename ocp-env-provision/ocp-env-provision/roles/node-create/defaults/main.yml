@@ -1,0 +1,19 @@
+---
+# defaults file for /etc/ansible/roles/master
+ cloud_name: ocpcloud
+ group: master
+ ocp_cluster_name: ocpcluster
+ provision_state: present
+ master_count: 1
+ openshift_local_stor_size: 50 
+ docker_storage_size: 40 
+ etcd_stor_size: 30
+ master_image: rh-7-5
+ master_flavor: m1.master
+ ocp_key: ocpkey
+ master_security_group: ocpgroup
+ ocp_network: provisioning
+ nsupdate_key: "examplekey"
+ nsupdate_secret: "BvwezPpG8OzpKQe6PLLl6w=="
+ dns_server: 10.115.173.4
+ key_algorithm: "hmac-md5"

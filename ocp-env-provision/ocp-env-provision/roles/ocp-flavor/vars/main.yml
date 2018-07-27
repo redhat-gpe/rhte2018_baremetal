@@ -1,0 +1,4 @@
+---
+# vars file for roles/osp-flavor
+cloud_name: ocpcloud
+rc_path: /home/cloud-user/overcloudrc

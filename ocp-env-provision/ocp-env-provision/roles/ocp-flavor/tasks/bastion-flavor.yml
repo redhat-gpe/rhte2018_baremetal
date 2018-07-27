@@ -1,0 +1,15 @@
+---
+# tasks file for roles/osp-flavor
+ - name: Create OCP Bastion Flavor
+   os_nova_flavor:
+     cloud: "{{ cloud_name }}"
+     state: "{{ state }}"
+     name: ocp-bastion-flavor
+     ram: "{{ bastion_mem }}"
+     vcpus: "{{ bastion_cpu }}"
+     disk: "{{ bastion_disk }}"
+ - name: Set the Bastion Flavor as a Virtual Flavor
+   shell: |
+     source "{{ rc_path }}"
+     openstack flavor set ocp-bastion-flavor --property baremetal=flase
+

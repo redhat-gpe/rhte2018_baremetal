@@ -1,0 +1,12 @@
+---
+# tasks file for roles/osp-flavor
+ - name: Create OCP  Node Flavor
+   os_nova_flavor:
+     cloud: "{{ cloud_name }}"
+     state: "{{ state }}"
+     name: ocp-node-flavor
+     ram: "{{ node_mem }}"
+     vcpus: "{{ node_cpu }}"
+     disk: "{{ node_disk }}"
+ - name: Set the Flavor as a Virtual Flavor
+   command: openstack flavor set ocp-node-flavor  --property baremetal=false

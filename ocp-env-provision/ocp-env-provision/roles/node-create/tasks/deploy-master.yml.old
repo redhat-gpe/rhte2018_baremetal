@@ -1,0 +1,36 @@
+---
+ - name: Create a server instance
+   os_server:
+      cloud: ocpcloud
+      name: "{{ instance_name }}"
+      image: "{{ ocp_image }}"
+      meta:
+        role: ocp-master
+      flavor: "{{ ocp_flavor }}"
+      security_groups: "{{ ocp_security_group }}"
+      key_name: "{{ ocp_key }}"
+      wait: yes
+      nics:
+      - net-name: "{{ ocp_network }}"
+     # userdata: |
+        #!/bin/bash
+       # curl -o /tmp/openstack.pub http://www.opentlc.com/download/ansible_bootcamp/openstack_keys/openstack.pub
+       # cat /tmp/openstack.pub >> /home/cloud-user/.ssh/authorized_keys
+       # curl -o /tmp/internal.repo http://www.opentlc.com/download/ansible_bootcamp/repo/internal.repo
+       # cp /tmp/internal.repo /etc/yum.repos.d/internal.repo
+   register: instanceip
+ - name: Wait for "{{ instance_name }}" to be available
+   wait_for:
+      host: "{{ instanceip }}"
+      port: 22
+      search_regex: OpenSSH
+      timeout: 600
+   delegate_to: "{{ inventory_hostname }}"
+ - name: Add or modify A recotd for "{{ instance_name }}"
+   nsupdate:
+     key_name: "{{ nsupdate_key }}"
+     key_secret: "{{ nsupdate_secret }}"
+     server: "{{ dns_server }}"
+     zone: "{{ ocp_zone }}"
+     record: "{{ instance_name }}"
+     value: "{{ instanceip }}"

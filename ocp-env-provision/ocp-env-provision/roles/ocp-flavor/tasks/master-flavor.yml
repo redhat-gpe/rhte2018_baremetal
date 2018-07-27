@@ -1,0 +1,15 @@
+---
+# tasks file for roles/osp-flavor
+ - name: Create OCP Master Flavor
+   os_nova_flavor:
+     cloud: "{{ cloud_name }}"
+     state: "{{ state }}"
+     name: ocp-master-flavor
+     ram: "{{ master_mem }}"
+     vcpus: "{{ master_cpu }}"
+     disk: "{{ master_disk }}"
+ - name: Set the Master Flavor as a Virtual Flavor
+   shell: |
+     source "{{ rc_path }}"
+     openstack flavor set ocp-master-flavor --property baremetal=flase
+

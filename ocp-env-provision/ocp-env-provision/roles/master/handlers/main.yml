@@ -1,0 +1,6 @@
+---
+# handlers file for /etc/ansible/roles/master
+- name: create_osp_local_fs
+  include: tasks/localfs.yml
+- name: create_etcd_fs
+  include: tasks/etcdfs.yml

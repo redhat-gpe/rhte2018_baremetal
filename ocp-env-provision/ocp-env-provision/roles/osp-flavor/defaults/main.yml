@@ -1,0 +1,9 @@
+---
+# defaults file for roles/osp-flavor
+state: present
+master_mem: 8
+master_cpu: 2
+node_disk: 15
+node_mem: 8
+node_cpu: 1
+node_disk: 10
