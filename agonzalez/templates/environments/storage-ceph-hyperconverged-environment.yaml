@@ -1,0 +1,22 @@
+## A Heat environment file which can be used to set up storage
+## backends. Defaults to Ceph used as a backend for Cinder, Glance and
+## Nova ephemeral storage.
+resource_registry:
+  # StorageMgmt
+  OS::TripleO::Network::StorageMgmt: /usr/share/openstack-tripleo-heat-templates/network/storage_mgmt.yaml
+  OS::TripleO::Network::External: /usr/share/openstack-tripleo-heat-templates/network/external.yaml
+  OS::TripleO::Network::Ports::StorageMgmtVipPort: /usr/share/openstack-tripleo-heat-templates/network/ports/storage_mgmt.yaml
+  OS::TripleO::Controller::Ports::StorageMgmtPort: /usr/share/openstack-tripleo-heat-templates/network/ports/storage_mgmt.yaml
+  OS::TripleO::Compute::Ports::StorageMgmtPort: /usr/share/openstack-tripleo-heat-templates/network/ports/storage_mgmt.yaml
+  OS::TripleO::Compute::Ports::ExternalPort: /usr/share/openstack-tripleo-heat-templates/network/ports/external.yaml
+
+parameter_defaults:
+  CephConfigOverrides:
+    osd_pool_default_size: 1
+    osd_pool_default_min_size: 1
+    mon_max_pg_per_osd: 400
+  CephAnsibleDisksConfig:
+    osd_scenario: collocated
+    devices:
+      - /dev/vdb
+      - /dev/vdc

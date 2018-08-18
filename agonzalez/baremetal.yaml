@@ -1,0 +1,40 @@
+nodes:
+    - name: ocp-master01
+      driver: pxe_ipmitool
+      driver_info:
+        ipmi_address: 192.0.2.226
+        ipmi_username: admin
+        ipmi_password: redhat
+      properties:
+        cpu_arch: x86_64 
+        cpus: 4
+        memory_mb: 6096
+        local_gb: 50
+      ports:
+        - address: "2c:c2:60:01:02:09"
+    - name: ocp-infra01
+      driver: pxe_ipmitool
+      driver_info:
+        ipmi_address: 192.0.2.227
+        ipmi_username: admin
+        ipmi_password: redhat
+      properties:
+        cpu_arch: x86_64 
+        cpus: 4
+        memory_mb: 6096
+        local_gb: 50
+      ports:
+        - address: "2c:c2:60:01:02:07"
+    - name: ocp-app01
+      driver: pxe_ipmitool
+      driver_info:
+        ipmi_address: 192.0.2.228
+        ipmi_username: admin
+        ipmi_password: redhat
+      properties:
+        cpu_arch: x86_64 
+        cpus: 4
+        memory_mb: 6096
+        local_gb: 50
+      ports:
+        - address: "2c:c2:60:01:02:08"

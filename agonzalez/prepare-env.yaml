@@ -1,0 +1,101 @@
+- name: Install OpenStack
+  hosts: localhost
+  gather_facts: False
+  tasks:
+    - name: Install ceph-ansible
+      become: True
+      yum: 
+        name: ceph-ansible
+        state: present
+
+    - name: Install python2-shade
+      become: True
+      yum:
+       name: python2-shade
+       state: present
+
+    - name: Disable SSL on the undercloud
+      lineinfile:
+        path: /home/stack/undercloud.conf
+        line: "generate_service_certificate = false"
+        regexp: "^generate_service_certificate"
+      register: disable_undercloud_ssl
+
+
+    - name: Reinstall undercloud after disable SSL
+      command: openstack undercloud install
+      when: disable_undercloud_ssl|changed
+
+    - name: List existing imported nodes
+      shell: source ~/stackrc && openstack baremetal node list -f value
+      register: existing_nodes
+
+    - name: Import nodes to the undercloud
+      shell: source ~/stackrc && openstack overcloud node import instackenv.json
+      when: existing_nodes.stdout_lines|count == 0
+
+    - name: Introspect nodes
+      shell: source ~/stackrc && openstack overcloud node introspect --all-manageable --provide
+      register: introspect
+      failed_when: introspect.rc != 0 and "No manageable nodes to introspect" not in introspect.stdout 
+
+    - name: Copy stack id_rsa.pub to /tmp/ and give permission to mistral user for Octavia installation
+      become: True
+      copy:
+        src: /home/stack/.ssh/id_rsa.pub
+        dest: /tmp/id_rsa.pub
+        owner: mistral
+ 
+    - name: Create ose.repo in /etc/yum.repos.d/
+      become: True
+      copy:
+       src: rhte2018_kuryr/ose.repo
+       dest: /etc/yum.repos.d/ose.repo 
+
+    - name: Run the installation 
+      shell: source ~/stackrc && /bin/sh /home/stack/bin/deploy-overcloud
+      args:
+        creates: /home/stack/overcloudrc
+
+    - name: Upload rhel7 image if doesnt exist
+      shell: >
+        source ~/overcloudrc && 
+        (openstack image show rhel7 || 
+        openstack image create --disk-format qcow2 --container-format bare --public --file images/rhel-server-7.5-x86_64-kvm.qcow2 rhel7)
+
+    - name: Create public network if doesnt exist
+      shell: >
+        source ~/overcloudrc && 
+        (openstack network show public || 
+        openstack network create public --external --provider-network-type vlan --provider-physical-network datacentre --provider-segment 10)
+
+    - name: Create public subnet if doesnt exist
+      shell: >
+        source ~/overcloudrc && 
+        (openstack subnet show public || 
+        openstack subnet create --network public public --subnet-range 10.0.0.0/24 --allocation-pool start=10.0.0.120,end=10.0.0.250 --dns-nameserver 8.8.8.8 --gateway 10.0.0.1 --no-dhcp) 
+
+    - name: Create m1.small2 flavor if doesn't exist
+      shell: >
+        source ~/overcloudrc && 
+        (openstack flavor show  m1.small2 || 
+        openstack flavor create --ram 2048 --disk 10 --vcpus 1 m1.small2)
+
+    - name: Create m1.large flavor if doesn't exist
+      shell: >
+        source ~/overcloudrc && 
+        (openstack flavor show  m1.large || 
+        openstack flavor create --ram 8096 --disk 20 --vcpus 4 m1.large)
+  
+    - name: Create keypair for openshift
+      shell: >
+        source ~/overcloudrc && 
+        (openstack keypair show  openshift || 
+        openstack keypair create --public-key ~/.ssh/id_rsa.pub openshift)
+     
+
+    - name: Install openshift-ansible
+      become: True
+      yum:
+       name: openshift-ansible
+       state: present
