@@ -1,0 +1,58 @@
+{
+  "nodes": [
+    {
+      "pm_user": "admin",
+      "mac": [
+        "2c:c2:60:01:02:02"
+      ],
+      "pm_type": "pxe_ipmitool",
+      "pm_password": "redhat",
+      "pm_addr": "192.0.2.221",
+      "capabilities": "profile:control",
+      "name": "overcloud-ctrl01"
+    },
+    {
+      "pm_user": "admin",
+      "mac": [
+        "2c:c2:60:01:02:03"
+      ],
+      "pm_type": "pxe_ipmitool",
+      "pm_password": "redhat",
+      "pm_addr": "192.0.2.222",
+      "capabilities": "profile:control",
+      "name": "overcloud-ctrl02"
+    },
+    {
+      "pm_user": "admin",
+      "mac": [
+        "2c:c2:60:01:02:04"
+      ],
+      "pm_type": "pxe_ipmitool",
+      "pm_password": "redhat",
+      "pm_addr": "192.0.2.223",
+      "capabilities": "profile:control",
+      "name": "overcloud-ctrl03"
+    },
+    {
+      "pm_user": "admin",
+      "mac": [
+        "2c:c2:60:01:02:05"
+      ],
+      "pm_type": "pxe_ipmitool",
+      "pm_password": "redhat",
+      "pm_addr": "192.0.2.224",
+      "capabilities": "profile:compute",
+      "name": "overcloud-compute01"
+    },
+    {
+      "pm_user": "admin",
+      "mac": [
+        "2c:c2:60:01:02:06"
+      ],
+      "pm_type": "pxe_ipmitool",
+      "pm_password": "redhat",
+      "pm_addr": "192.0.2.225",
+      "capabilities": "profile:compute",
+      "name": "overcloud-compute02"
+    }  ]
+}
