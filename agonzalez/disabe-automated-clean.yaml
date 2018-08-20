@@ -1,0 +1,13 @@
+- hosts: overcloud-controller-*
+  gather_facts: False
+  become: True
+  tasks:
+    - lineinfile:
+        path: /var/lib/config-data/puppet-generated/ironic/etc/ironic/ironic.conf
+        line: "automated_clean = false"
+        regexp: "^automated_cean"
+        insertafter: "^#automated_clean"
+      register: line_automated
+    - command: docker restart ironic_conductor
+      when: line_automated|changed
+    
