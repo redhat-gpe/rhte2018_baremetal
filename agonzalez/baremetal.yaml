@@ -1,5 +1,5 @@
 nodes:
-    - name: ocp-master01
+    - name: ocp01
       driver: pxe_ipmitool
       driver_info:
         ipmi_address: 192.0.2.226
@@ -11,8 +11,8 @@ nodes:
         memory_mb: 6096
         local_gb: 50
       ports:
-        - address: "2c:c2:60:01:02:09"
-    - name: ocp-infra01
+        - address: "2c:c2:60:01:02:07"
+    - name: ocp02
       driver: pxe_ipmitool
       driver_info:
         ipmi_address: 192.0.2.227
@@ -24,8 +24,8 @@ nodes:
         memory_mb: 6096
         local_gb: 50
       ports:
-        - address: "2c:c2:60:01:02:07"
-    - name: ocp-app01
+        - address: "2c:c2:60:01:02:08"
+    - name: ocp03
       driver: pxe_ipmitool
       driver_info:
         ipmi_address: 192.0.2.228
@@ -37,4 +37,51 @@ nodes:
         memory_mb: 6096
         local_gb: 50
       ports:
-        - address: "2c:c2:60:01:02:08"
+        - address: "2c:c2:60:01:02:09"
+    - name: cns01
+      driver: pxe_ipmitool
+      driver_info:
+        ipmi_address: 192.0.2.229
+        ipmi_username: admin
+        ipmi_password: redhat
+      properties:
+        cpu_arch: x86_64 
+        cpus: 4
+        memory_mb: 6096
+        local_gb: 50
+      ports:
+        - address: "2c:c2:60:01:02:10"
+
+
+    - name: cns02
+      driver: pxe_ipmitool
+      driver_info:
+        ipmi_address: 192.0.2.230
+        ipmi_username: admin
+        ipmi_password: redhat
+      properties:
+        cpu_arch: x86_64 
+        cpus: 4
+        memory_mb: 6096
+        local_gb: 50
+      ports:
+        - address: "2c:c2:60:01:02:11"
+
+
+
+    - name: cns03
+      driver: pxe_ipmitool
+      driver_info:
+        ipmi_address: 192.0.2.231
+        ipmi_username: admin
+        ipmi_password: redhat
+      properties:
+        cpu_arch: x86_64 
+        cpus: 4
+        memory_mb: 6096
+        local_gb: 50
+      ports:
+        - address: "2c:c2:60:01:02:12"
+
+
+
