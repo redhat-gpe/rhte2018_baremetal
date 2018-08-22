@@ -29,7 +29,7 @@ openstack image create \
 
 openstack flavor create \
   --id auto --ram  4096 \
-  --vcpus 4 --disk 40 \
+  --vcpus 2 --disk 40 \
   --property baremetal=true \
   --public baremetal
 
