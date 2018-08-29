@@ -1,0 +1,11 @@
+---
+# vars file for /etc/ansible/roles/master
+# instance_name: master-test1
+ master_count: 1
+ ocp_key: ocp_key
+ master_security_group: test
+ ocp_network: baremetal
+ nsupdate_key: "examplekey"
+ nsupdate_secret: "BvwezPpG8OzpKQe6PLLl6w=="
+ dns_server: 192.0.2.252
+ key_algorithm: "hmac-md5"

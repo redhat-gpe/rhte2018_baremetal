@@ -1,0 +1,11 @@
+---
+# defaults file for /etc/ansible/roles/node
+ cloud_name: ocpcloud
+ group: node
+ ocp_cluster_name: ocpcluster
+ provision_state: present
+ node_count: 2
+ openshift_local_stor_size: 10
+ docker_storage_size: 15 
+ node_image: ocp-rhel-7.5
+ node_flavor: m1.node

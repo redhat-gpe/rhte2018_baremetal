@@ -1,0 +1,9 @@
+---
+# defaults file for /etc/ansible/roles/node
+ cloud_name: ocpcloud
+ group: node
+ ocp_cluster_name: ocpcluster
+ provision_state: present
+ node_count: 1
+ node_image: rhel-bm-image
+ node_flavor: ocp-bm

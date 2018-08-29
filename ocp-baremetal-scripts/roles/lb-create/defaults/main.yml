@@ -1,0 +1,10 @@
+---
+# defaults file for /etc/ansible/roles/node
+ cloud_name: ocpcloud
+ group: node
+ ocp_cluster_name: ocpcluster
+ provision_state: present
+ node_count: 1
+ docker_storage_size: 15 
+ lb_image: ocp-rhel-7.5
+ lb_flavor: n1.lb

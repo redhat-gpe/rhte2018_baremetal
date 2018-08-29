@@ -1,0 +1,19 @@
+---
+- hosts: localhost
+  roles:
+  - {role: bm-node-create, tags: [ 'bm_node_create' ]}
+- hosts: created_bm_nodes 
+  remote_user: cloud-user
+  become: true
+  become_method: sudo
+  become_user: root
+  roles:
+  - {role: bm-node-config, tags: [ 'bm_node_config' ]}
+- hosts: created_bm_nodes
+  remote_user: cloud-user
+  become: true
+  become_method: sudo
+  become_user: root
+  roles:
+  - {role: bm-node-config, tags: [ 'node_config' ]}
+

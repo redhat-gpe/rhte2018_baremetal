@@ -1,0 +1,3 @@
+---
+# tasks file for /etc/ansible/roles/master
+- import_tasks: deploy-master.yml

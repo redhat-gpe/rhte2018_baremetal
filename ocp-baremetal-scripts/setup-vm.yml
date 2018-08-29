@@ -1,0 +1,21 @@
+---
+- hosts: localhost
+  roles:
+  - {role: ocp-keypair, tags: [ 'ospkey' ]}
+  - {role: master-create, tags: [ 'master_create' ]}
+  - {role: node-create, tags: [ 'node_create' ]}
+  - {role: lb-create, tags: [ 'lb_create' ]}
+- hosts: created_master_nodes 
+  remote_user: cloud-user
+  become: true
+  become_method: sudo
+  become_user: root
+  roles:
+  - {role: master-config, tags: [ 'master_config' ]}
+- hosts: created_compute_nodes 
+  remote_user: cloud-user
+  become: true
+  become_method: sudo
+  become_user: root
+  roles:
+  - {role: node-config, tags: [ 'node_config' ]}

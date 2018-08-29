@@ -1,0 +1,12 @@
+---
+# defaults file for /etc/ansible/roles/master
+ cloud_name: ocpcloud
+ group: master
+ ocp_cluster_name: ocpcluster
+ provision_state: present
+ master_count: 3
+ openshift_local_stor_size: 10
+ docker_storage_size: 15 
+ etcd_stor_size: 5
+ master_image: ocp-rhel-7.5
+ master_flavor: m1.master

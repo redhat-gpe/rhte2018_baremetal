@@ -1,0 +1,29 @@
+nodes:
+    - name: bm-node01
+      driver: pxe_ipmitool
+      driver_info:
+        ipmi_address: 192.0.2.226
+        ipmi_username: admin
+        ipmi_password: redhat
+      properties:
+        cpus: 2
+        memory_mb: 8192
+        local_gb: 20
+        root_device:
+            name: /dev/vda
+      ports:
+        - address: "2c:c2:60:01:02:07"
+    - name: bm-node02
+      driver: pxe_ipmitool
+      driver_info:
+        ipmi_address: 192.0.2.227
+        ipmi_username: admin
+        ipmi_password: redhat
+      properties:
+        cpus: 2
+        memory_mb: 8192
+        local_gb: 20
+        root_device:
+           name: /dev/vda
+      ports:
+        - address: "2c:c2:60:01:02:08"

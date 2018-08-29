@@ -1,0 +1,3 @@
+# tasks file for osp-keypair
+---
+- import_tasks: key_pair_create.yml

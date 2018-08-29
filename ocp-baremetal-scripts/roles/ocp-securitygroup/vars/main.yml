@@ -1,0 +1,4 @@
+---
+# vars file for osp-securitygroup
+cloud_name: ocpcloud
+management_net_cidr: 10.0.0.0/24

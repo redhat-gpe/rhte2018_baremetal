@@ -1,0 +1,13 @@
+ 
+  - name: Create the OpenShift Local Stor File System
+    filesystem:
+      fstype: xfs
+      force: yes
+      dev: /dev/vdc
+  - name: Mount OpenShift Local Stor File System
+    mount:
+      path: /var/lib/origin/openshift.local.volumes
+      src: /dev/vdc
+      fstype: xfs
+      opts: defaults,gquota
+      state: mounted

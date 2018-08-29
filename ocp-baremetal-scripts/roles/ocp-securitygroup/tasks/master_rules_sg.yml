@@ -1,0 +1,91 @@
+---
+# tasks file for osp-securitygroup
+  - name:  Allow ICMP to Masters
+    os_security_group_rule:
+      cloud: "{{ cloud_name }}"
+      security_group: master_sg
+      protocol: "{{ proto[2] }}"
+      remote_ip_prefix: "{{ management_net_cidr }}"
+  - name: Allow SSH Access to Master from Internal Hosts
+    os_security_group_rule:
+      cloud: "{{ cloud_name }}"
+      security_group: master_sg 
+      protocol: "{{ proto[0] }}"
+      port_range_min: "{{ ports[0] }}"
+      port_range_max: "{{ ports[0] }}"
+      remote_group: "{{ item }}"
+    with_items:
+     - master_sg
+     - node_sg
+     - bastion_sg
+  - name: Allow SSH Access to Master from Management Network
+    os_security_group_rule:
+      cloud: "{{ cloud_name }}"
+      security_group: master_sg
+      protocol: "{{ proto[0] }}"
+      port_range_min: "{{ ports[0] }}"
+      port_range_max: "{{ ports[0] }}"
+      remote_ip_prefix: "{{ management_net_cidr }}"
+  - name: Allow DNS Access to Master from Nodes Using Port 53
+    os_security_group_rule:
+      cloud: "{{ cloud_name }}"
+      security_group: master_sg 
+      protocol: "{{ item }}"
+      port_range_min: "{{ ports[2] }}"
+      port_range_max: "{{ ports[2] }}"
+      remote_group: node_sg
+    with_items:
+      - "{{ proto[0] }}"
+      - "{{ proto[1] }}" 
+  - name: Allow DNS Access to Master from Nodes Using Port 8053
+    os_security_group_rule:
+      cloud: "{{ cloud_name }}"
+      security_group: master_sg 
+      protocol: "{{ item }}"
+      port_range_min: "{{ ports[3] }}"
+      port_range_max: "{{ ports[3] }}"
+      remote_group: node_sg
+    with_items:
+      - "{{ proto[0] }}"
+      - "{{ proto[1] }}" 
+  - name: Allow API access from Nodes
+    os_security_group_rule:
+      cloud: "{{ cloud_name }}"
+      security_group: master_sg 
+      protocol: "{{ proto[0] }}"
+      port_range_min: "{{ item }}"
+      port_range_max: "{{ item }}"
+      remote_group: node_sg
+    with_items:
+      - "{{ ports[4] }}"
+      - "{{ ports[5] }}"
+  - name: Allow OpenShift SDN Communication Between the Nodes
+    os_security_group_rule:
+      cloud: "{{ cloud_name }}"
+      security_group: master_sg 
+      protocol: "{{ proto[1] }}"
+      port_range_min: "{{ ports[1] }}"
+      port_range_max: "{{ ports[1] }}"
+      remote_group: "{{ item }}"
+    with_items:
+      - master_sg
+      - node_sg 
+  - name: Allow Master to Node Agent Communication
+    os_security_group_rule:
+      cloud: "{{ cloud_name }}"
+      security_group: master_sg
+      protocol: "{{ proto[0] }}"
+      port_range_min: "{{ ports[6] }}"
+      port_range_max: "{{ ports[6] }}"
+    remote_group: master_sg
+  - name: Allow all Egress
+    os_security_group_rule:
+      cloud: "{{ cloud_name }}"
+      security_group: master_sg
+      direction: egress
+      protocol: "{{ item }}"
+    with_items:
+        - "{{ proto[0] }}"
+        - "{{ proto[1] }}"
+        - "{{ proto[2] }}"
+

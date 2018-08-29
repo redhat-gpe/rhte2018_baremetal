@@ -1,0 +1,5 @@
+---
+# vars file for osp-keypair
+key_name: ocp_key
+ssh_key_file: /home/stack/ocp-baremetal-scripts/openstack.pem
+pub_key_file: /home/stack/ocp-baremetal-scripts/openstack.pub 

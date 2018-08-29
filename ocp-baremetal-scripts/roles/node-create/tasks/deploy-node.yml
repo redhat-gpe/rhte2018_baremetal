@@ -1,0 +1,88 @@
+  - name: Create the Compute Node  Instance
+    os_server:
+      cloud: ocpcloud
+      api_timeout: 300
+      timeout: 300
+      name: node{{ item }}.{{ domain_name }}
+      image: "{{ node_image }}"
+      state: "{{ provision_state }}" 
+      meta: "group={{ group }},cluster_name={{ ocp_cluster_name }},role=ocp_node"
+      flavor: "{{ node_flavor }}"
+      security_groups: "{{ node_security_group }}"
+      key_name: "{{ ocp_key }}"
+      auto_ip: true
+      wait: yes
+      nics:
+      - net-name: "{{ ocp_network }}"
+      userdata: |
+         #cloud-config
+         write_files:
+         - path: "/etc/sysconfig/docker-storage-setup"
+           permissions: "0644"
+           owner: "root"
+           content: |
+             DEVS='/dev/vdb'
+             VG=docker_vol
+             DATA_SIZE=95%VG
+             STORAGE_DRIVER=overlay2
+             CONTAINER_ROOT_LV_NAME=dockerlv
+             CONTAINER_ROOT_LV_MOUNT_PATH=/var/lib/docker
+             CONTAINER_ROOT_LV_SIZE=100%FREE
+         runcmd:
+         - mkdir -p /var/lib/origin/openshift.local.volumes
+         - curl -o /tmp/ose.repo http://192.0.2.252/repo/ose.repo
+         - cp /tmp/ose.repo /etc/yum.repos.d/ose.repo
+    register: newcomputenodes
+    with_sequence: 
+         count="{{ node_count }}"
+  - add_host: name={{ item.server.public_v4 }}
+              groups=created_compute_nodes
+              ansible_user=cloud-user
+              ansible_ssh_private_key_file=/home/cloud-user/openstack.pem
+              instance_name={{ item.server.name }}  
+    with_items: "{{ newcomputenodes.results }}"
+  - name: "Wait for SSH banners"
+    local_action: wait_for port=22 host="{{ inventory_hostname }}" search_regex=OpenSSH delay=5
+    become: False
+  - name: Create the docker-storage Volumes for the Mater Nodes
+    os_volume:
+      state: present
+      cloud: "{{ cloud_name }}"
+      size: "{{ docker_storage_size }}"
+      display_name: docker-storage-{{ hostvars[item].instance_name }}
+    with_items: "{{ groups['created_compute_nodes'] }}"
+  - name: Create the OpenShift Local Volumes for the Mater Nodes
+    os_volume:
+      state: present
+      cloud: "{{ cloud_name }}"
+      size: "{{ openshift_local_stor_size }}"
+      display_name: openshift-local-{{ hostvars[item].instance_name }}
+    with_items: "{{ groups['created_compute_nodes'] }}"
+  - name: Attach docker-storage volume to the node
+    os_server_volume:
+      state: present
+      cloud: "{{ cloud_name }}"
+      server: "{{ hostvars[item].instance_name }}"
+      volume: docker-storage-{{ hostvars[item].instance_name }}
+      api_timeout: 300
+      device: /dev/vdb
+    with_items: "{{ groups['created_compute_nodes'] }}"
+  - name: Attach OpenShift Local volume to the node
+    os_server_volume:
+      state: present
+      cloud: "{{ cloud_name }}"
+      server: "{{ hostvars[item].instance_name }}"
+      volume: openshift-local-{{ hostvars[item].instance_name }}
+      api_timeout: 300
+      device: /dev/vdc
+    with_items: "{{ groups['created_compute_nodes'] }}"
+  - name: Create or Update the DNS A record for the node server  
+    nsupdate:
+     key_name: "{{ nsupdate_key }}"
+     key_secret: "{{ nsupdate_secret }}"
+     server: "{{ dns_server }}"
+     key_algorithm: "{{ key_algorithm }}"
+     zone: "{{ domain_name }}"
+     record: "{{ hostvars[item].instance_name }}"
+     value: "{{ hostvars[item].inventory_hostname }}"
+    with_items: "{{ groups['created_compute_nodes'] }}"

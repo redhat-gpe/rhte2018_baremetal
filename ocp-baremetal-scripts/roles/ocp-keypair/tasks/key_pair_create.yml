@@ -1,0 +1,7 @@
+# tasks file for osp-keypair
+  - name: Generate key Pairs
+    os_keypair:
+      cloud: "{{ cloud_name }}"
+      state: present
+      name: "{{ key_name }}"
+      public_key_file: "{{ pub_key_file }}"
