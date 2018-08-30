@@ -1,0 +1,6 @@
+include::01_ocp_cluster.adoc[]
+include::02_lab_workflow.adoc[]
+include::03_ironic_template.adoc[]
+include::04_host_aggregates.adoc[]
+include::05_bm_virtual_host_aggregates.adoc[]
+include::06_register_nodes.adoc[]
