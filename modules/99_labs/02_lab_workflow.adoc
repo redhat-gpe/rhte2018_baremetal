@@ -2,9 +2,9 @@
 :scrollbar:
 :data-uri:
 
-== Work Flow
+== Workflow
 
-image::images/workflow.png
+image::images/workflow.png[]
 
 ifdef::showscript[]
 
