@@ -1,4 +1,0 @@
----
-- import_tasks: bastion-flavor.yml 
-- import_tasks: master-flavor.yml 
-- import_tasks: node-flavor.yml 

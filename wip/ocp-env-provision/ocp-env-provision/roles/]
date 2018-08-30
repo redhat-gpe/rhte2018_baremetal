@@ -1,8 +1,0 @@
----
-# vars file for osp-securitygroup
-proto1_master:
-- tcp
-- udp
-port1_master:
-- 8053
-- 24224 

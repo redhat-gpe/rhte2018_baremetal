@@ -1,5 +1,0 @@
-parameter_defaults:
-  CloudName: openstack.example.com
-  CloudDomain: example.com
-  # Define the DNS servers (maximum 2) for the overcloud nodes
-  DnsServers: ['192.0.2.254']

@@ -1,0 +1,37 @@
+:noaudio:
+:scrollbar:
+:data-uri:
+
+== `Ironic Custom Template used for the `OverCloud` deployment
+
+----
+
+parameter_defaults:
+
+    NovaSchedulerDefaultFilters:
+        - RetryFilter
+        - AggregateInstanceExtraSpecsFilter
+        - AvailabilityZoneFilter
+        - RamFilter
+        - DiskFilter
+        - ComputeFilter
+        - ComputeCapabilitiesFilter
+        - ImagePropertiesFilter
+
+    IronicCleaningDiskErase: metadata
+----
+
+* The `AggregateInstanceExtraSpecsFilter` allows to separate virtual and bare metal instances in a hybrid deployment.
+* Disk cleaning that is done before and between deployments only erases the partition table (metadata).
+* In a safer uni-tenant environment, you may disable the `automatic disk cleaning` to speed up the `node enroll` process.
+----
+eg: automated_clean = false
+----
+
+ifdef::showscript[]
+
+Transcript:
+
+endif::showscript[]
+
+

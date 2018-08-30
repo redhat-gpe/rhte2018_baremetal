@@ -1,0 +1,25 @@
+:noaudio:
+:scrollbar:
+:data-uri:
+
+== Host Aggregates
+
+* Besides Availability Zones (AZ), compute nodes can also be logically grouped into Host Aggregates
+
+* Host Aggregates have meta-data to tag groups of compute nodes e.g. we can group nodes with `GPU`  to one Host Aggregate
+
+* Compute nodes can be put into Host Aggregate and Availability Zone at the same time 
+
+* Host Aggregate has no conflict with Availability Zone.
+
+* One compute node can be put into more than one Host Aggregates
+
+* Host Aggregate is visible only to admin, 
+
+* For end-user host aggregate configuration can be exposed by creating customized `flavor` with `Host Aggregate meta-data` linked.
+
+ifdef::showscript[]
+
+Transcript:
+
+endif::showscript[]

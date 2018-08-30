@@ -1,1 +1,0 @@
-nova boot --nic net-id=1bbc34b4-cf7d-4807-a205-0e5da796d166 --flavor m1.node --image rh-7-5 --key-name ocpkey --security-groups ocpgroup --user-data=/home/heat-admin/cloud-config-node.yaml --block-device source=blank,dest=volume,device=vdb,size=15,shutdown=preserve --block-device source=blank,dest=volume,device=vdc,size=15,shutdown=preserve  node1.example.com  

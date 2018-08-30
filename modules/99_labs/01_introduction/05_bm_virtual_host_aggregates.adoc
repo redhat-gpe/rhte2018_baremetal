@@ -1,0 +1,24 @@
+:noaudio:
+:scrollbar:
+:data-uri:
+
+== Host Aggregate Coniguration for OpenStack Hybrid Node Cluster
+
+* To Separate the hosts for `Virtual` and `Baremetal`, create two hosts aggregate (eg:baremetal-hosts and virtual-hosts)
+
+ When an instance is provisioned, Compute’s scheduler compares `properties on the flavor` with the properties assigned to `host aggregates`, and ensures that the instance is provisioned in the correct aggregate
+
+* Add all `Compute Hosts` for virtual instances to the  aggregate for the virtual hosts
+
+* Add all `controller` hosts to the  aggregate for the baremetal hosts
+
+NOTE: If there is  composable role with the `NovaIronic service`, add all the nodes with the service to  the baremetal-hosts aggregate
+
+By default, only the controller nodes have the `NovaIronic` service
+
+ifdef::showscript[]
+
+Transcript:
+
+endif::showscript[]
+
