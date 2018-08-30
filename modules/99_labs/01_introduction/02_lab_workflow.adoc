@@ -1,0 +1,14 @@
+:noaudio:
+:scrollbar:
+:data-uri:
+
+== Work Flow
+
+image::images/workflow.png
+
+ifdef::showscript[]
+
+Transcript:
+
+endif::showscript[]
+
