@@ -1,0 +1,688 @@
+:sectnums!:
+:hardbreaks:
+:scrollbar:
+:data-uri:
+:toc2:
+:showdetailed:
+:imagesdir: ./images
+
+
+= Red Hat Tech Exchange 2018 - Using OpenStack director to provision OpenShift on bare metal
+
+== How this lab was installed
+
+=== OpenStack overcloud installation
+
+In this section, you review how the overcloud was deployed.
+
+Red Hat OpenStack Platform version 13 was installed in this lab.
+
+.Script for the deployment
+[%nowrap]
+----
+#!/bin/bash
+
+openstack overcloud deploy \
+--stack overcloud \
+--templates /usr/share/openstack-tripleo-heat-templates \
+--ntp-server 0.rhel.pool.ntp.org \
+-e /usr/share/openstack-tripleo-heat-templates/environments/hyperconverged-ceph.yaml \
+-e /usr/share/openstack-tripleo-heat-templates/environments/ceph-ansible/ceph-rgw.yaml \
+-e /usr/share/openstack-tripleo-heat-templates/environments/ceph-ansible/ceph-ansible.yaml \
+-e /usr/share/openstack-tripleo-heat-templates/environments/cinder-backup.yaml  \
+-e /home/stack/templates/environments/overcloud_images.yaml \
+-e /home/stack/templates/environments/network-environment.yaml \
+-e /home/stack/templates/environments/network-isolation.yaml \
+-e /home/stack/templates/environments/node-info.yaml \
+-e /home/stack/templates/environments/custom-config.yaml \
+-e /home/stack/templates/environments/storage-ceph-hyperconverged-environment.yaml \
+-e /home/stack/templates/environments/firstboot.yaml \
+-e /home/stack/templates/environments/fix-nova-reserved-host-memory.yaml \
+-e /home/stack/templates/environments/dns-network-config.yaml \
+-e /home/stack/templates/environments/ironic.yaml \
+-e /usr/share/openstack-tripleo-heat-templates/environments/services/ironic.yaml \
+-e /usr/share/openstack-tripleo-heat-templates/environments/services-docker/octavia.yaml \
+-e /usr/share/openstack-tripleo-heat-templates/environments/services/barbican.yaml \
+-e /usr/share/openstack-tripleo-heat-templates/environments/barbican-backend-simple-crypto.yaml  \
+-e /usr/share/openstack-tripleo-heat-templates/environments/disable-telemetry.yaml
+
+----
+
+==== Configure Hyper-Converged Infrastructure (HCI)
+
+In HCI, both the storage area network and the underlying storage abstractions are implemented virtually in software (at or via the hypervisor) rather than physically, in hardware.
+
+Four default environment templates were used to configure the Hyper-Converged Infrastructure.
+
+* `/usr/share/openstack-tripleo-heat-templates/environments/hyperconverged-ceph.yaml`: Enables the Ceph in mode HCI enabling the services in controller and compute nodes.
+* `/usr/share/openstack-tripleo-heat-templates/environments/ceph-ansible/ceph-rgw.yaml`: Enables the use of Rados Gateway as an Object Storage.
+* `/usr/share/openstack-tripleo-heat-templates/environments/ceph-ansible/ceph-ansible.yaml`: Uses Ansible to deploy the Ceph Cluster inside the overcloud nodes.
+* `/usr/share/openstack-tripleo-heat-templates/environments/cinder-backup.yaml`: Enables the possibility to make backups of the Ceph volumes.
+
+The custom configuration for CEPH used in this lab is defined in the file `storage-ceph-hyperconverged-environment.yaml` inside the `/home/stack/templates/environments/` directory.
+
+.Review content of the file.
+[%nowrap]
+----
+resource_registry:
+  # StorageMgmt
+  OS::TripleO::Network::StorageMgmt: /usr/share/openstack-tripleo-heat-templates/network/storage_mgmt.yaml
+  OS::TripleO::Network::External: /usr/share/openstack-tripleo-heat-templates/network/external.yaml
+  OS::TripleO::Network::Ports::StorageMgmtVipPort: /usr/share/openstack-tripleo-heat-templates/network/ports/storage_mgmt.yaml
+  OS::TripleO::Controller::Ports::StorageMgmtPort: /usr/share/openstack-tripleo-heat-templates/network/ports/storage_mgmt.yaml
+  OS::TripleO::Compute::Ports::StorageMgmtPort: /usr/share/openstack-tripleo-heat-templates/network/ports/storage_mgmt.yaml
+  OS::TripleO::Compute::Ports::ExternalPort: /usr/share/openstack-tripleo-heat-templates/network/ports/external.yaml
+
+parameter_defaults:
+  CephConfigOverrides:
+    osd_pool_default_size: 1
+    osd_pool_default_min_size: 1
+    mon_max_pg_per_osd: 400
+  CephAnsibleDisksConfig:
+    osd_scenario: collocated
+    devices:
+      - /dev/vdb
+      - /dev/vdc
+----
+
+In this template is defined:
+
+* The Storage Management network configuration.
+* The Storage Management port configuration for controller and compute.
+* Ceph parameters to be configured in `ceph.conf` files
+
+.Parameters
+[cols="1,2",options="header",caption="",options="nowrap"]
+|===
+| Parameter |Description
+| `osd_pool_default_size` | Sets the number of replicas for objects in the pool.
+| `osd_pool_default_min_size` | Sets the minimum number of written replicas for objects in the pool in order to acknowledge a write operation to the client.
+| `mon_max_pg_per_osd` | Issue a HEALTH_WARN in cluster log if the average number of PGs per (in) OSD is above this number.
+|===
+* Configuration for the ceph-ansible playbook, where the disks are defined and the scenario (collocated).
+
+In this lab two disks are used (/dev/vdb and /dev/vdc) for OSD but not disk used for journal.
+
+==== Ironic
+
+The template used to deploy Ironic is on the path `/usr/share/openstack-tripleo-heat-templates/environments/services/ironic.yaml`.
+The ironic environment template will deploy in the controllers five containers to administrate the load balancer.
+
+.Containers
+[cols="1,2",options="header",caption="",options="nowrap"]
+|===
+| Container |Description
+| `ironic_api` | Takes sanitized API commands from the API controller and performs the actions necessary to fulfill the API request.
+| `ironic_conductor` |  Adds/edits/deletes nodes; powers on/off nodes with IPMI or other vendor-specific protocol; provisions/deploys/cleans bare metal nodes.
+| `ironic_pxe_http` | Serves the PXE files via http.
+| `ironic_pxe_tftp` | Services the PXE files via tftp.
+| `nova_compute` | Runs the nova compute integrated with Ironic.
+|===
+
+A custom Ironic template `/home/stack/templates/environments/ironic.yaml` was included on the deploy.
+[source,yaml]
+----
+parameter_defaults:
+
+    NovaSchedulerDefaultFilters:
+        - RetryFilter
+        - AggregateInstanceExtraSpecsFilter
+        - AvailabilityZoneFilter
+        - RamFilter
+        - DiskFilter
+        - ComputeFilter
+        - ComputeCapabilitiesFilter
+        - ImagePropertiesFilter
+
+    IronicCleaningDiskErase: metadata
+----
+
+==== Network configuration
+Some customized templates were used to define network configuration on the overcloud.
+
+* `/home/stack/templates/environments/network-environment.yaml`: Defines the network ranges and the VLAN IDs for Overcloud.
++
+.File content
+[%nowrap]
+----
+resource_registry:
+  # NIC Configs for our roles
+  OS::TripleO::Compute::Net::SoftwareConfig: ../nic-configs/compute.yaml
+  OS::TripleO::Controller::Net::SoftwareConfig: ../nic-configs/controller.yaml
+
+parameter_defaults:
+  # Internal API used for private OpenStack Traffic
+  InternalApiNetCidr: 172.17.0.0/24
+  InternalApiAllocationPools: [{'start': '172.17.0.20', 'end': '172.17.0.200'}]
+  InternalApiNetworkVlanID: 20
+
+  # Tenant Network Traffic - will be used for VXLAN over VLAN
+  TenantNetCidr: 172.16.0.0/24
+  TenantAllocationPools: [{'start': '172.16.0.20', 'end': '172.16.0.200'}]
+  TenantNetworkVlanID: 50
+
+  # Public Storage Access - e.g. Nova/Glance <--> Ceph
+  StorageNetCidr: 172.20.0.0/24
+  StorageAllocationPools: [{'start': '172.20.0.20', 'end': '172.20.0.200'}]
+
+  # Private Storage Access - i.e. Ceph background cluster/replication
+  StorageMgmtNetCidr: 172.20.1.0/24
+  StorageMgmtAllocationPools: [{'start': '172.20.1.20', 'end': '172.20.1.200'}]
+
+
+  ExternalNetCidr: 10.0.0.0/24
+  # Leave room for floating IPs in the External allocation pool (if required)
+  ExternalAllocationPools: [{'start': '10.0.0.20', 'end': '10.0.0.200'}]
+  ExternalNetworkVlanID: 10
+  # Set to the router gateway on the external network
+  ExternalInterfaceDefaultRoute: 10.0.0.1
+
+
+  # CIDR subnet mask length for provisioning network
+  ControlPlaneSubnetCidr: "24"
+  # Gateway router for the provisioning network (or Undercloud IP)
+  ControlPlaneDefaultRoute: 192.0.2.1
+  # Generally the IP of the Undercloud
+  EC2MetadataIp: 192.0.2.1
+
+----
+* `/home/stack/templates/environments/network-isolation.yaml`: Enable the creation of Neutron networks for isolated Overcloud traffic and configure each role to assign ports (related to that role) on these networks.
+
++
+.File content
+[%nowrap]
+----
+resource_registry:
+  OS::TripleO::Network::External: /usr/share/openstack-tripleo-heat-templates/network/external.yaml
+  OS::TripleO::Network::InternalApi: /usr/share/openstack-tripleo-heat-templates/network/internal_api.yaml
+  OS::TripleO::Network::Storage: /usr/share/openstack-tripleo-heat-templates/network/storage.yaml
+  OS::TripleO::Network::Tenant: /usr/share/openstack-tripleo-heat-templates/network/tenant.yaml
+  # Management network is optional and disabled by default.
+  # To enable it, include environments/network-management.yaml
+  OS::TripleO::Network::Management: /usr/share/openstack-tripleo-heat-templates/network/management.yaml
+
+  # Port assignments for the VIPs
+  OS::TripleO::Network::Ports::ExternalVipPort: /usr/share/openstack-tripleo-heat-templates/network/ports/external.yaml
+  OS::TripleO::Network::Ports::InternalApiVipPort: /usr/share/openstack-tripleo-heat-templates/network/ports/internal_api.yaml
+  OS::TripleO::Network::Ports::StorageVipPort: /usr/share/openstack-tripleo-heat-templates/network/ports/storage.yaml
+  OS::TripleO::Network::Ports::RedisVipPort: /usr/share/openstack-tripleo-heat-templates/network/ports/vip.yaml
+
+  # Port assignments for the controller role
+  OS::TripleO::Controller::Ports::ExternalPort: /usr/share/openstack-tripleo-heat-templates/network/ports/external.yaml
+  OS::TripleO::Controller::Ports::InternalApiPort: /usr/share/openstack-tripleo-heat-templates/network/ports/internal_api.yaml
+  OS::TripleO::Controller::Ports::StoragePort: /usr/share/openstack-tripleo-heat-templates/network/ports/storage.yaml
+  OS::TripleO::Controller::Ports::TenantPort: /usr/share/openstack-tripleo-heat-templates/network/ports/tenant.yaml
+  OS::TripleO::Controller::Ports::ManagementPort: /usr/share/openstack-tripleo-heat-templates/network/ports/management.yaml
+
+  # Port assignments for the compute role
+  OS::TripleO::Compute::Ports::ExternalPort: /usr/share/openstack-tripleo-heat-templates/network/ports/external.yaml
+  OS::TripleO::Compute::Ports::InternalApiPort: /usr/share/openstack-tripleo-heat-templates/network/ports/internal_api.yaml
+  OS::TripleO::Compute::Ports::StoragePort: /usr/share/openstack-tripleo-heat-templates/network/ports/storage.yaml
+  OS::TripleO::Compute::Ports::TenantPort: /usr/share/openstack-tripleo-heat-templates/network/ports/tenant.yaml
+  OS::TripleO::Compute::Ports::ManagementPort: /usr/share/openstack-tripleo-heat-templates/network/ports/management.yaml
+----
+
+* `/home/stack/templates/nic-configs/compute.yaml` and `/home/stack/templates/nic-configs/controller.yaml`: defines the interfaces/bridge for the controller and the compute nodes and the networks in each bridge. Both iles are identical.
++
+.File content
+[%nowrap]
+----
+heat_template_version: queens
+
+parameters:
+  ControlPlaneIp:
+    default: ''
+    description: IP address/subnet on the ctlplane network
+    type: string
+  ExternalIpSubnet:
+    default: ''
+    description: IP address/subnet on the external network
+    type: string
+  InternalApiIpSubnet:
+    default: ''
+    description: IP address/subnet on the internal_api network
+    type: string
+  StorageIpSubnet:
+    default: ''
+    description: IP address/subnet on the storage network
+    type: string
+  StorageMgmtIpSubnet:
+    default: ''
+    description: IP address/subnet on the storage_mgmt network
+    type: string
+  TenantIpSubnet:
+    default: ''
+    description: IP address/subnet on the tenant network
+    type: string
+  ManagementIpSubnet: # Only populated when including environments/network-management.yaml
+    default: ''
+    description: IP address/subnet on the management network
+    type: string
+  BondInterfaceOvsOptions:
+    default: 'bond_mode=active-backup'
+    description: The ovs_options string for the bond interface. Set things like
+                 lacp=active and/or bond_mode=balance-slb using this option.
+    type: string
+  ExternalNetworkVlanID:
+    default: 10
+    description: Vlan ID for the external network traffic.
+    type: number
+  InternalApiNetworkVlanID:
+    default: 20
+    description: Vlan ID for the internal_api network traffic.
+    type: number
+  StorageNetworkVlanID:
+    default: 30
+    description: Vlan ID for the storage network traffic.
+    type: number
+  StorageMgmtNetworkVlanID:
+    default: 40
+    description: Vlan ID for the storage_mgmt network traffic.
+    type: number
+  TenantNetworkVlanID:
+    default: 50
+    description: Vlan ID for the tenant network traffic.
+    type: number
+  ManagementNetworkVlanID:
+    default: 60
+    description: Vlan ID for the management network traffic.
+    type: number
+  ExternalInterfaceDefaultRoute:
+    default: '10.0.0.1'
+    description: default route for the external network
+    type: string
+  ControlPlaneSubnetCidr: # Override this via parameter_defaults
+    default: '24'
+    description: The subnet CIDR of the control plane network.
+    type: string
+  ControlPlaneDefaultRoute: # Override this via parameter_defaults
+    description: The default route of the control plane network.
+    type: string
+  DnsServers: # Override this via parameter_defaults
+    default: []
+    description: A list of DNS servers (2 max for some implementations) that will be added to resolv.conf.
+    type: comma_delimited_list
+  EC2MetadataIp: # Override this via parameter_defaults
+    description: The IP address of the EC2 metadata server.
+    type: string
+
+resources:
+  OsNetConfigImpl:
+    type: OS::Heat::SoftwareConfig
+    properties:
+      group: script
+      config:
+        str_replace:
+          template:
+            get_file: /usr/share/openstack-tripleo-heat-templates/network/scripts/run-os-net-config.sh
+            params:
+              $network_config:
+                network_config:
+                - type: ovs_bridge
+                  name: br-baremetal
+                  use_dhcp: false
+                  members:
+                    -
+                      type: interface
+                      name: nic5
+
+                - type: interface
+                  name: nic1
+                  mtu: 1500
+                  use_dhcp: false
+                  addresses:
+                  - ip_netmask:
+                      list_join:
+                      - /
+                      - - {get_param: ControlPlaneIp}
+                        - {get_param: ControlPlaneSubnetCidr}
+              -
+                type: ovs_bridge
+                name: bridge_name
+                use_dhcp: false
+                members:
+                  -
+                    type: interface
+                    name: nic2
+
+              -
+                type: vlan
+                vlan_id: {get_param: ExternalNetworkVlanID}
+                device: br-ex
+                addresses:
+                  -
+                    ip_netmask: {get_param: ExternalIpSubnet}
+                routes:
+                - default: true
+                  next_hop: {get_param: ExternalInterfaceDefaultRoute}
+
+              -
+                type: vlan
+                vlan_id: {get_param: InternalApiNetworkVlanID}
+                device: br-ex
+                addresses:
+                  -
+                    ip_netmask: {get_param: InternalApiIpSubnet}
+              -
+                type: vlan
+                vlan_id: {get_param: TenantNetworkVlanID}
+                device: br-ex
+                addresses:
+                  -
+                    ip_netmask: {get_param: TenantIpSubnet}
+
+              -
+                type: ovs_bridge
+                name: br-storage
+                use_dhcp: false
+                mtu: 1500
+                addresses:
+                  - ip_netmask: {get_param: StorageIpSubnet}
+                members:
+                  -
+                    type: interface
+                    name: nic3
+
+              -
+                type: ovs_bridge
+                name: br-storage-mgmt
+                use_dhcp: false
+                mtu: 9000
+                addresses:
+                  - ip_netmask: {get_param: StorageMgmtIpSubnet}
+                members:
+                  -
+                    type: interface
+                    name: nic4
+
+outputs:
+  OS::stack_id:
+    description: The OsNetConfigImpl resource.
+    value: {get_resource: OsNetConfigImpl}
+----
++
+.Network Interfaces in the overcloud nodes
+[cols="1,1,1,2",options="header",caption="",options="nowrap"]
+|===
+| Interface | OpenStack Name |OVS Bridge |Description
+| `eth0` | `nic1` | N/D | Connected to the Provisioning network (DHCP from 192.0.2.0/24)
+| `eth1` | `nic2` | br-ex | Connected to a trunk (VLANs for Internal API, External and Tenant)
+| `eth2` | `nic3` | br-storage | Connected to the Storage Network.
+| `eth3` | `nic4` | br-storage-mgmt | Connected to the Storage Management Network.
+|===
+
+==== Custom configuration templates
+
+To configure the overcloud some templates were created:
+
+* `/home/stack/templates/environments/node-info.yaml`: Specifies the number of nodes per role and their flavors.
++
+.File content
+[%nowrap]
+----
+parameter_defaults:
+  ControllerCount: 3
+  ComputeCount: 2
+  OvercloudControllerFlavor: control
+  OvercloudComputeFlavor: compute
+----
+
+* `/home/stack/templates/heat/firstboot.yaml`: Defines the user data to be used during the first boot on all of the overcloud nodes.
++
+.File content
+[%nowrap]
+----
+heat_template_version: 2014-10-16
+
+description: >
+  Set root password
+
+resources:
+  userdata:
+    type: OS::Heat::MultipartMime
+    properties:
+      parts:
+      - config: {get_resource: set_pass}
+
+  set_pass:
+    type: OS::Heat::SoftwareConfig
+    properties:
+      config: |
+        #!/bin/bash
+        echo 'r3dh4t1!' | passwd --stdin root
+
+outputs:
+  OS::stack_id:
+    value: {get_resource: userdata}
+----
+
+* `/home/stack/templates/environments/firstboot.yaml`: Defines the `userdata` resource, which sets the `root` password
++
+.File content
+[%nowrap]
+----
+resource_registry:
+  OS::TripleO::NodeUserData: ../heat/firstboot.yaml
+----
+
+
+* `/home/stack/templates/environments/custom-config.yaml`: Misc configuration for the Overcloud
++
+.File content
+[%nowrap]
+----
+parameter_defaults:
+  OctaviaAmphoraSshKeyFile: /tmp/id_rsa.pub (1)
+  BarbicanSimpleCryptoGlobalDefault: true (2)
+  TimeZone: 'America/New_York' (3)
+  ServiceNetMap: (4)
+    KeystoneAdminApiNetwork: external
+----
+
+. The file specified by the parameter OctaviaAmphoraSshKeyFile must be readable by the `mistral` user on the undercloud server.
+. Enable the `Simple Crypto` globally.
+. Defines the timezone.
+. Change the network for the `Keystone` admin network.
+[IMPORTANT]
+They endpoint for the Keystone Admin was moved to the external due to the integration with OpenShift and Kuryr. Kuryr needs to access to the Keystone admin and by default is on the ctlplane network.
+
+* `/home/stack/templates/environments/dns-network-config.yaml`:  DNS configuration for the Overcloud
++
+.File content
+[%nowrap]
+----
+parameter_defaults:
+  CloudName: openstack.example.com
+  CloudDomain: example.com
+  # Define the DNS servers (maximum 2) for the overcloud nodes
+  DnsServers: ['192.0.2.254']
+----
+
+* `/home/stack/templates/environments/fix-nova-reserved-host-memory.yaml`: Work around the lab environment's limitation
++
+.File content
+[%nowrap]
+----
+parameter_defaults:
+  NovaReservedHostMemory: 1024
+----
++
+[IMPORTANT]
+By default, the Red Hat OpenStack Platform director reserves 4 GB of the compute nodes' memory for host processes. This is too much for the extremely small compute nodes used in the lab environment. The `NovaReservedHostMemory` parameter limits the reserved host memory to 1 GB.
+
+
+==== Disable metrics
+
+The environment file `/usr/share/openstack-tripleo-heat-templates/environments/disable-telemetry.yaml`  disables ceilometer, gnocchi, aodh and panko. They are not needed for this lab and it saves resources.
+
+=== Deploy a DNS instance to be used for OpenShift
+
+For the DNS VM installation was used the playbooks hosted on `https://github.com/tomassedovic/devns`.
+This DNS VM server is possible to update dynamically the DNS using `nsupdate` and it is used by the OpenShift installation to generate the needed records.
+
+
+The steps for the installation were:
+
+. Configure file `/home/stack/devns/vars.yaml`
++
+.File content
++
+[%nowrap]
+----
+---
+dns_domain: openshift.example.com
+
+external_network: public
+
+# openstack keypair list
+key_name: openshift
+
+# openstack image list
+image: rhel7
+
+# openstack flavor list
+flavor: m1.small2
+
+server_name: openshift-dns
+
+dns_forwarders: ["8.8.8.8"]
+----
++
+[NOTE]
+The domain used for OpenShift can be a different domain than the used for OpenStack.
+
++
+. Install `shade` package for python
+Before to install this VM and OpenShift we should install `shade` what  is a simple client library for interacting with OpenStack clouds.
++
+[%nowrap]
+----
+(overcloud) [stack@undercloud ~]$ sudo yum install python2-shade
+----
++
+.Sample output
+[%nowrap]
+----
+Loaded plugins: product-id, search-disabled-repos, subscription-manager
+This system is not registered with an entitlement server. You can use subscription-manager to register.
+Resolving Dependencies
+--> Running transaction check
+---> Package python2-shade.noarch 0:1.27.1-1.el7ost will be installed
+--> Finished Dependency Resolution
+
+Dependencies Resolved
+
+==============================================================================================================================================================================================
+ Package                                   Arch                               Version                                       Repository                                                   Size
+==============================================================================================================================================================================================
+Installing:
+ python2-shade                             noarch                             1.27.1-1.el7ost                               rhel-7-server-openstack-13-rpms                             552 k
+
+Transaction Summary
+==============================================================================================================================================================================================
+Install  1 Package
+
+Total download size: 552 k
+Installed size: 3.1 M
+Is this ok [y/d/N]: y
+Downloading packages:
+python2-shade-1.27.1-1.el7ost.noarch.rpm                                                                                                                               | 552 kB  00:00:00
+Running transaction check
+Running transaction test
+Transaction test succeeded
+Running transaction
+  Installing : python2-shade-1.27.1-1.el7ost.noarch                                                                                                                                       1/1
+  Verifying  : python2-shade-1.27.1-1.el7ost.noarch                                                                                                                                       1/1
+
+Installed:
+  python2-shade.noarch 0:1.27.1-1.el7ost
+
+Complete!
+----
+
++
+. Deploy the VM using Ansible playbook
++
+Once the `vars.yaml` is configured, we only need to call to the playbook `deploy.yaml` and it wil create:
+
+* Network with name `openshift-dns`
+* Subnet with name `openshift-dns` with range `192.168.23.0/24`
+* Router connected to the `public` network with name `openshift-dns`
+* VM with name `openshift-dns`
++
+.Call to the `deploy.yaml` playbook
+[%nowrap]
+----
+(overcloud) [stack@undercloud ~]$ cd devns/
+(overcloud) [stack@undercloud ~]$ ansible-playbook --private-key ~/.ssh/id_rsa --user cloud-user deploy.yaml -e @vars.yaml
+----
++
+When the deployment finishes, it shows the `Floating IP` assigned and the `key algorithm` and `key secret` to be used to update DNS dinamically.
+
+
+=== OpenShift installation
+
+In this section, you review how OpenShift was deployed.
+
+OpenShift Container Platform 3.10 was installed on top of OpenStack using playbooks. VMs were created manually and conneted to the `baremetal` network.
+
+
+==== Review OpenShift installation variables
+
+File `/etc/ansible/hosts` contains the nodes to use and the parameters for the installation.
+
+.File content
+[%nowrap]
+----
+[masters]
+ocp-master01.openshift.example.com
+[etcd]
+ocp-master01.openshift.example.com
+[nodes]
+ocp-master01.openshift.example.com openshift_ip=192.0.3.16 ansible_host=192.0.3.16 openshift_node_group_name='node-config-master'
+ocp-infra01.openshift.example.com openshift_ip=192.0.3.22 ansible_host=192.0.3.22 openshift_node_group_name='node-config-infra'
+ocp-node01.openshift.example.com openshift_ip=192.0.3.12 ansible_host=192.0.3.12 openshift_node_group_name='node-config-compute'
+[new_nodes]
+ocp-node02.openshift.example.com openshift_ip=192.0.3.14 ansible_host=192.0.3.14 openshift_node_group_name='node-config-compute'
+[OSEv3:children]
+masters
+nodes
+new_nodes
+[OSEv3:vars]
+ansible_user=cloud-user
+ansible_become=yes
+openshift_deployment_type=openshift-enterprise
+openshift_release="3.10"
+openshift_master_default_subdomain=apps.openshift.example.com
+openshift_master_cluster_hostname=console.openshift.example.com
+debug_level=2
+openshift_disable_check=disk_availability,memory_availability,docker_storage,package_availability,package_version
+openshift_additional_repos=[{'id': 'ose-repo', 'name': 'rhel-7-server-ose-3.10-rpms', 'baseurl': 'http://192.0.2.253/repos/rhel-7-server-ose-3.10-rpms', 'enabled': 1, 'gpgcheck': 0},{'id': 'rhel-7-server-rpms-repo', 'name': 'rhel-7-server-rpms', 'baseurl': 'http://192.0.2.253/repos/rhel-7-server-rpms', 'enabled': 1, 'gpgcheck': 0},{'id': 'rhel-7-server-extras-rpms-repo', 'name': 'rhel-7-server-extras-rpms', 'baseurl': 'http://192.0.2.253/repos/rhel-7-server-extras-rpms', 'enabled': 1, 'gpgcheck': 0},{'id': 'rhel-7-fast-datapath-rpms', 'name': 'rhel-7-fast-datapath-rpms', 'baseurl': 'http://192.0.2.253/repos/rhel-7-fast-datapath-rpms', 'enabled': 1, 'gpgcheck': 0}]
+openshift_cloudprovider_kind=openstack
+openshift_cloudprovider_openstack_auth_url="http://10.0.0.26:5000//v3"
+openshift_cloudprovider_openstack_username="admin"
+openshift_cloudprovider_openstack_password="Eu3xKG6UKpKvZReEFc7FKqCn6"
+openshift_cloudprovider_openstack_tenant_name="admin"
+openshift_cloudprovider_openstack_region="regionOne"
+openshift_cloudprovider_openstack_domain_name="Default"
+openshift_cloudprovider_openstack_blockstorage_version=v2
+osm_default_node_selector='region=primary'
+openshift_hosted_router_selector='node-role.kubernetes.io/infra=true'
+os_sdn_network_plugin_name='redhat/openshift-ovs-multitenant'
+openshift_enable_service_catalog=false
+template_service_broker_install=false
+openshift_ca_cert_expire_days=1825
+openshift_node_cert_expire_days=730
+openshift_master_cert_expire_days=730
+etcd_ca_default_days=1825
+----
+
+==== OpenShift installation via Playbook
+
+OpenShift installation is using Ansible for the provisioning and the deployment.
+
+.Command used to provision the VMs and install OpenShit on them.
+[%nowrap]
+----
+[root@ocp-bastion ~]# ansible-playbook /usr/share/ansible/openshift-ansible/playbooks/deploy_cluster.yml
+----

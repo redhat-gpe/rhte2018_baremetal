@@ -1,0 +1,335 @@
+:sectnums!:
+:hardbreaks:
+:scrollbar:
+:data-uri:
+:toc2:
+:showdetailed:
+:imagesdir: ./images
+
+
+= Red Hat Tech Exchange 2018 - Using OpenStack director to provision OpenShift on bare metal
+
+== Provisioning Baremetal node
+
+=== Create flavor and create host aggregate
+
+==== Create a new flavor
+Create a new flavor for baremetal systems with a custom property is recommended. This property will be used for the host aggregates to distinguish where to deploy the _server_: as a Virtual Machine or as a Bare Metal node.
+
+.The flavor defines the minimum resource values and sets property named _baremetal_
+[%nowrap]
+----
+(overcloud) [stack@undercloud ~]$ openstack flavor create \
+    --id auto --ram  4096 \
+    --vcpus 2 --disk 20 \
+    --property baremetal=true \
+    --public baremetal
+----
+
+=== Configure host aggregate for baremetal.
+
+The preinstalled OpenStack has configured a _host aggregate_ named `virtual-vms` containing the OpenStack compute nodes.
+Following steps will create a new one for baremetal and add the controller node to it, controller nodes manages the _Ironic_ nodes.
+
+. Review previous created _host aggregate_
++
+[%nowrap]
+----
+(overcloud) [stack@undercloud ~]$ openstack aggregate show virtual-vms
+----
++
+.Expected output
+[%nowrap]
+----
++-------------------+--------------------------------------------------------------------------------------------------------------------------------------------------+
+| Field             | Value                                                                                                                                            |
++-------------------+--------------------------------------------------------------------------------------------------------------------------------------------------+
+| availability_zone | None                                                                                                                                             |
+| created_at        | 2018-08-29T07:42:03.000000                                                                                                                       |
+| deleted           | False                                                                                                                                            |
+| deleted_at        | None                                                                                                                                             |
+| hosts             | [u'overcloud-compute-1.example.com', u'overcloud-compute-0.example.com', u'overcloud-compute-2.example.com', u'overcloud-compute-3.example.com'] |
+| id                | 4                                                                                                                                                |
+| name              | virtual-vms                                                                                                                                      |
+| properties        | baremetal='false'                                                                                                                                |
+| updated_at        | None                                                                                                                                             |
++-------------------+--------------------------------------------------------------------------------------------------------------------------------------------------+
+----
+[NOTE]
+Notice the list of the _hosts_ and the property named _baremetal_
+
+. Create a new _host aggregate_ named _baremetal-hosts_
++
+[%nowrap]
+----
+(overcloud) [stack@undercloud ~]$ openstack aggregate create --property baremetal=true baremetal-hosts
+----
++
+.Sample output
+[%nowrap]
+----
++-------------------+----------------------------+
+| Field             | Value                      |
++-------------------+----------------------------+
+| availability_zone | None                       |
+| created_at        | 2018-08-31T10:06:30.000000 |
+| deleted           | False                      |
+| deleted_at        | None                       |
+| hosts             | []                         |
+| id                | 5                          |
+| metadata          | {u'baremetal': u'true'}    |
+| name              | baremetal-hosts            |
+| updated_at        | 2018-08-31T10:06:31.105155 |
++-------------------+----------------------------+
+----
+[NOTE]
+Notice the property _baremetal_ is set to true, to match the flavor previously created.
+
+. Add controller node to the host aggragate.
++
+[%nowrap]
+----
+(overcloud) [stack@undercloud ~]$ openstack aggregate add host baremetal-hosts overcloud-controller-0.example.com
+----
++
+.Sample output
+[%nowrap]
+----
++-------------------+-----------------------------------------+
+| Field             | Value                                   |
++-------------------+-----------------------------------------+
+| availability_zone | None                                    |
+| created_at        | 2018-08-31T10:06:30.000000              |
+| deleted           | False                                   |
+| deleted_at        | None                                    |
+| hosts             | [u'overcloud-controller-0.example.com'] |
+| id                | 5                                       |
+| metadata          | {u'baremetal': u'true'}                 |
+| name              | baremetal-hosts                         |
+| updated_at        | None                                    |
++-------------------+-----------------------------------------+
+----
+
+=== Installing RHEL7 into the baremetal node.
+
+Once the flavor and host aggregate is created, all the elements are ready to provision the node.
+
+. Check the baremetal network and subnet
++
+.Show network details
+[%nowrap]
+----
+(overcloud) [stack@undercloud ~]$ openstack network show baremetal
+----
++
+.Expected output
+[%nowrap]
+----
++---------------------------+--------------------------------------+
+| Field                     | Value                                |
++---------------------------+--------------------------------------+
+| admin_state_up            | UP                                   |
+| availability_zone_hints   |                                      |
+| availability_zones        | nova                                 |
+| created_at                | 2018-08-21T11:08:49Z                 |
+| description               |                                      |
+| dns_domain                | None                                 |
+| id                        | 83574a67-3032-4d8d-9026-e7a821a6e7a7 |
+| ipv4_address_scope        | None                                 |
+| ipv6_address_scope        | None                                 |
+| is_default                | None                                 |
+| is_vlan_transparent       | None                                 |
+| mtu                       | 1500                                 |
+| name                      | baremetal                            |
+| port_security_enabled     | True                                 |
+| project_id                | da9420f4e23448bca8d958f1f37cf0d0     |
+| provider:network_type     | flat                                 |
+| provider:physical_network | baremetal                            |
+| provider:segmentation_id  | None                                 |
+| qos_policy_id             | None                                 |
+| revision_number           | 8                                    |
+| router:external           | Internal                             |
+| segments                  | None                                 |
+| shared                    | True                                 |
+| status                    | ACTIVE                               |
+| subnets                   | bc4f185a-2733-44a3-8933-e1f4b4928b47 |
+| tags                      |                                      |
+| updated_at                | 2018-08-29T13:16:07Z                 |
++---------------------------+--------------------------------------+
+----
+[NOTE]
+Notice the parameter `provider:physical_network` and `provider:network_type`
++
+.Show subnet details
+[%nowrap]
+----
+(overcloud) [stack@undercloud ~]$ openstack subnet show baremetal
+----
++
+.Expected output
+[%nowrap]
+----
++-------------------+--------------------------------------+
+| Field             | Value                                |
++-------------------+--------------------------------------+
+| allocation_pools  | 192.0.3.10-192.0.3.200               |
+| cidr              | 192.0.3.0/24                         |
+| created_at        | 2018-08-21T11:08:53Z                 |
+| description       |                                      |
+| dns_nameservers   | 10.0.0.121                           |
+| enable_dhcp       | True                                 |
+| gateway_ip        | 192.0.3.1                            |
+| host_routes       |                                      |
+| id                | bc4f185a-2733-44a3-8933-e1f4b4928b47 |
+| ip_version        | 4                                    |
+| ipv6_address_mode | None                                 |
+| ipv6_ra_mode      | None                                 |
+| name              | baremetal                            |
+| network_id        | 83574a67-3032-4d8d-9026-e7a821a6e7a7 |
+| project_id        | da9420f4e23448bca8d958f1f37cf0d0     |
+| revision_number   | 4                                    |
+| segment_id        | None                                 |
+| service_types     |                                      |
+| subnetpool_id     | None                                 |
+| tags              |                                      |
+| updated_at        | 2018-08-29T13:16:07Z                 |
++-------------------+--------------------------------------+
+----
+[NOTE]
+The `dns_nameservers` parameter points to the `openshift-dns` VM.
+
+. Check keypair configured for OpenShift
++
+A keypair named `openshift` is already configured using the `id_rsa.pub` for the `stack` user.
++
+.List the current keypairs
+[%nowrap]
+----
+(overcloud) [stack@undercloud ~]$ openstack keypair list
+----
++
+.Expected output
+[%nowrap]
+----
++-----------+-------------------------------------------------+
+| Name      | Fingerprint                                     |
++-----------+-------------------------------------------------+
+| openshift | 1d:be:46:8d:66:aa:17:05:c4:7f:11:01:2b:a2:da:2f |
++-----------+-------------------------------------------------+
+----
+
+. List rules for defined security group for OpenShift
++
+[%nowrap]
+----
+(overcloud) [stack@undercloud ~]$ openstack security group rule list openshift-nodes
+----
++
+.Expected output
+[%nowrap]
+----
++--------------------------------------+-------------+----------+------------+--------------------------------------+
+| ID                                   | IP Protocol | IP Range | Port Range | Remote Security Group                |
++--------------------------------------+-------------+----------+------------+--------------------------------------+
+| 9f9375d5-fb2a-478c-ba28-06c2580c5b58 | icmp        | None     |            | None                                 |
+| a1b79e4f-2518-41e0-9333-14311226eb17 | udp         | None     |            | 84a4788c-7470-4df8-bb29-60acc9480264 |
+| ab9912fb-44a9-4ca8-92d7-a675d577f7a4 | None        | None     |            | None                                 |
+| d9a8d6cc-c2a3-4f60-b0ad-faffef0c8ba8 | tcp         | None     | 22:22      | None                                 |
+| f655c9ee-c220-4dc6-a9d2-a8a4ffeb692f | None        | None     |            | 84a4788c-7470-4df8-bb29-60acc9480264 |
+| fd356772-a8de-490a-a648-55b8cd5ac924 | None        | None     |            | None                                 |
++--------------------------------------+-------------+----------+------------+--------------------------------------+
+----
+[NOTE]
+UDP and TCP communication are open between the OpenShift nodes and only icmp/22 is allowed from outside.
+
+. Provision the baremetal system.
+A image named `rhel7` using the default qcow2 provided image by Red Hat is on the overcloud and can be used for VMs and Baremetal systems.
++
+.Deploy the server with name _ocp-node02_
+[%nowrap]
+----
+(overcloud) [stack@undercloud ~]$ openstack server create --network baremetal --image rhel7 --key-name openshift --flavor baremetal --security-group openshift-nodes ocp-node02 --wait
+----
+[NOTE]
+This action will take between 10 and 15 minutes.
++
+.Sample output
+[%nowrap]
+----
++-------------------------------------+----------------------------------------------------------+
+| Field                               | Value                                                    |
++-------------------------------------+----------------------------------------------------------+
+| OS-DCF:diskConfig                   | MANUAL                                                   |
+| OS-EXT-AZ:availability_zone         | nova                                                     |
+| OS-EXT-SRV-ATTR:host                | overcloud-controller-0.example.com                       |
+| OS-EXT-SRV-ATTR:hypervisor_hostname | e5a009cc-1935-4f03-b479-02569f37b832                     |
+| OS-EXT-SRV-ATTR:instance_name       | instance-0000000b                                        |
+| OS-EXT-STS:power_state              | Running                                                  |
+| OS-EXT-STS:task_state               | None                                                     |
+| OS-EXT-STS:vm_state                 | active                                                   |
+| OS-SRV-USG:launched_at              | 2018-08-31T10:34:22.000000                               |
+| OS-SRV-USG:terminated_at            | None                                                     |
+| accessIPv4                          |                                                          |
+| accessIPv6                          |                                                          |
+| addresses                           | baremetal=192.0.3.14                                     |
+| adminPass                           | 7WvNYFrybRiy                                             |
+| config_drive                        | True                                                     |
+| created                             | 2018-08-31T10:28:16Z                                     |
+| flavor                              | baremetal (bcfde5be-cf89-4813-bb3e-9ea3c17a47cd)         |
+| hostId                              | 63991799ba8be0d7d8c6553c79a880bbf67dbf682eabe5949e30cfb2 |
+| id                                  | bf3a8196-d1d2-4914-b332-f1df80eed5bb                     |
+| image                               | rhel7 (7d69b80c-341a-40d4-9f36-167b18368bc0)             |
+| key_name                            | openshift                                                |
+| name                                | ocp-node02                                               |
+| progress                            | 0                                                        |
+| project_id                          | da9420f4e23448bca8d958f1f37cf0d0                         |
+| properties                          |                                                          |
+| security_groups                     | name='openshift-nodes'                                   |
+| status                              | ACTIVE                                                   |
+| updated                             | 2018-08-31T10:34:23Z                                     |
+| user_id                             | 822dae013d554d968e2ed1021f2ed413                         |
+| volumes_attached                    |                                                          |
++-------------------------------------+----------------------------------------------------------+
+----
+[IMPORTANT]
+Ensure the `status` field is `ACTIVE`
+
+. Ensure the system is reacheable
++
+[%nowrap]
+----
+(overcloud) [stack@undercloud ~]$ ssh cloud-user@192.0.3.14 "hostname"
+----
+[NOTE]
++
+Replace `192.0.3.14` with the the IP from the previous output.
++
+.Expected output
+[%nowrap]
+----
+ocp-node02
+----
+
+. Show the relation between the server record and the baremetal node record.
++
+[%nowrap]
+----
+(overcloud) [stack@undercloud ~]$ openstack baremetal node list --fields uuid name instance_info -f yaml
+----
++
+.Sample output
+[source,yaml]
+----
+- Instance Info:
+    configdrive: '******'
+    display_name: ocp-node02
+    image_source: 7d69b80c-341a-40d4-9f36-167b18368bc0
+    local_gb: '30'
+    memory_mb: '4096'
+    nova_host_id: overcloud-controller-0.example.com
+    root_gb: '20'
+    swap_mb: '0'
+    vcpus: '2'
+  Name: ocp01
+  UUID: e5a009cc-1935-4f03-b479-02569f37b832
+----

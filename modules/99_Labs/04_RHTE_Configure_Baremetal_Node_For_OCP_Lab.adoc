@@ -1,0 +1,213 @@
+:sectnums!:
+:hardbreaks:
+:scrollbar:
+:data-uri:
+:toc2:
+:showdetailed:
+:imagesdir: ./images
+
+
+= Red Hat Tech Exchange 2018 - Using OpenStack director to provision OpenShift on bare metal
+
+== Add DNS record for the baremetal node
+
+OpenShift requires the nodes are registered to DNS for a correct functionality. This lab provides an simple playbook to add the baremetal node to the `openshift-dns` DNS server.
+
+. Edit file `update-dns.yaml` under the `/home/stack/` undercloud's directory, uncommenting and editing the following line
++
+[source,yaml]
+----
+         #- {server: "ocp-node02", ip: "192.0.3.12"}
+----
++
+using the IP of the previous lab output.
++
+[source,yaml]
+----
+       - {server: "ocp-node02", ip: "192.0.3.14"}
+----
+
+. Run the the playbook without options required.
++
+[%nowrap]
+----
+(overcloud) [stack@undercloud ~]$ ansible-playbook update-dns.yaml
+----
++
+.Sample Output
+[%nowrap]
+----
+PLAY [Update wildcard DNS to the floating Ip] ************************************************************************************************************************************************
+
+TASK [Modify wildcard DNS] *******************************************************************************************************************************************************************
+ok: [localhost]
+
+TASK [Modify console DNS] ********************************************************************************************************************************************************************
+ok: [localhost]
+
+TASK [Modify servers DNS] ********************************************************************************************************************************************************************
+ok: [localhost] => (item={u'ip': u'192.0.3.12', u'server': u'ocp-node01'})
+ok: [localhost] => (item={u'ip': u'192.0.3.22', u'server': u'ocp-infra01'})
+ok: [localhost] => (item={u'ip': u'192.0.3.16', u'server': u'ocp-master01'})
+changed: [localhost] => (item={u'ip': u'192.0.3.14', u'server': u'ocp-node02'})
+
+PLAY RECAP ***********************************************************************************************************************************************************************************
+localhost                  : ok=3    changed=1    unreachable=0    failed=0
+----
+
+
+== Configure Docker inside the node
+The following tasks can be performed using `user data` config during the server provisioning, in this LAB is a manual task to demonstrate the require tasks.
+
+. Connect to the system
++
+[%nowrap]
+----
+(overcloud) [stack@undercloud ~]$ ssh cloud-user@192.0.3.14
+[cloud-user@ocp-node02 ~]$ sudo -i
+----
+[NOTE]
+Replace the IP with the proper one.
+
+. Fix `/etc/resolv.conf` in the node
++
+[%nowrap]
+----
+[root@ocp-node02 ~]# sed -i '/nameserver 192.168.122.1/d' /etc/resolv.conf
+----
+[IMPORTANT]
+There is a bug in the image used and includes 192.168.122.1 as DNS server. [https://bugzilla.redhat.com/show_bug.cgi?id=1545842]
+
+. Configure repositories to install _Docker_
++
+.Create a file named `open.repo` inside `/etc/yum.repos.d/`
+[%nowrap]
+----
+[root@ocp-node02 ~]# cat <<EOF >/etc/yum.repos.d/open.repo
+[rhel-7-server-rpms]
+name=Red Hat Enterprise Linux 7 Server (RPMs)
+baseurl=http://192.0.2.253/repos/rhel-7-server-rpms
+enabled=1
+gpgcheck=0
+
+[rhel-7-server-extras-rpms]
+name=Red Hat Enterprise Linux 7 Server - Extras (RPMs)
+baseurl=http://192.0.2.253/repos/rhel-7-server-extras-rpms
+enabled=1
+gpgcheck=0
+EOF
+----
+
+. Ensure the repositories are reachable
++
+[%nowrap]
+----
+[root@ocp-node02 ~]# yum repolist
+----
++
+.Expected output
+[%nowrap]
+----
+Loaded plugins: search-disabled-repos
+rhel-7-server-extras-rpms                                                                                                                                              | 3.6 kB  00:00:00
+rhel-7-server-rpms                                                                                                                                                     | 3.6 kB  00:00:00
+(1/4): rhel-7-server-extras-rpms/group_gz                                                                                                                              |   90 B  00:00:00
+(2/4): rhel-7-server-extras-rpms/primary_db                                                                                                                            |  63 kB  00:00:00
+(3/4): rhel-7-server-rpms/group_gz                                                                                                                                     | 154 kB  00:00:00
+(4/4): rhel-7-server-rpms/primary_db                                                                                                                                   | 4.2 MB  00:00:00
+repo id                                                                         repo name                                                                                               status
+rhel-7-server-extras-rpms                                                       Red Hat Enterprise Linux 7 Server - Extras (RPMs)                                                         105
+rhel-7-server-rpms                                                              Red Hat Enterprise Linux 7 Server (RPMs)                                                                5,285
+repolist: 5,390
+----
+
+. Install docker
++
+[%nowrap]
+----
+[root@ocp-node02 ~]# yum install -y docker
+----
++
+.Expected output
+[%nowrap]
+----
+<<OUTPUT TRUNCATED>>
+Installed:
+  docker.x86_64 2:1.13.1-68.gitdded712.el7
+
+Dependency Installed:
+  atomic-registries.x86_64 1:1.22.1-22.git5a342e3.el7         container-selinux.noarch 2:2.66-1.el7                          container-storage-setup.noarch 0:0.10.0-1.gitdf0dcd5.el7
+  device-mapper-event.x86_64 7:1.02.146-4.el7                 device-mapper-event-libs.x86_64 7:1.02.146-4.el7               device-mapper-persistent-data.x86_64 0:0.7.3-3.el7
+  docker-client.x86_64 2:1.13.1-68.gitdded712.el7             docker-common.x86_64 2:1.13.1-68.gitdded712.el7                docker-rhel-push-plugin.x86_64 2:1.13.1-68.gitdded712.el7
+  libaio.x86_64 0:0.3.109-13.el7                              lvm2.x86_64 7:2.02.177-4.el7                                   lvm2-libs.x86_64 7:2.02.177-4.el7
+  oci-register-machine.x86_64 1:0-6.git2b44233.el7            oci-systemd-hook.x86_64 1:0.1.16-1.git05bd9a0.el7              oci-umount.x86_64 2:2.3.3-3.gite3c9055.el7
+  python-pytoml.noarch 0:0.1.14-1.git7dea353.el7              skopeo-containers.x86_64 1:0.1.31-1.dev.gitae64ff7.el7         yajl.x86_64 0:2.0.4-4.el7
+
+Complete!
+----
+
+. Configure storage
+System has a second disk (/dev/vdc) to be used for _Docker_, in this LAB we will use it for `devicemapper`.
++
+.Generate `/etc/sysconfig/docker-storage-setup` configuration
+[%nowrap]
+----
+[root@ocp-node02 ~]# cat <<EOF >/etc/sysconfig/docker-storage-setup
+> VG=docker-vg
+> DEVS=/dev/vdb
+> EOF
+----
++
+.Run `docker-storage-setup` to configure the storage properly
+[%nowrap]
+----
+[root@ocp-node02 ~]# docker-storage-setup
+----
++
+.Expected output
+[%nowrap]
+----
+INFO: Volume group backing root filesystem could not be determined
+INFO: Writing zeros to first 4MB of device /dev/vdb
+4+0 records in
+4+0 records out
+4194304 bytes (4.2 MB) copied, 0.0081824 s, 513 MB/s
+INFO: Device node /dev/vdb1 exists.
+  Physical volume "/dev/vdb1" successfully created.
+  Volume group "docker-vg" successfully created
+  Rounding up size to full physical extent 32.00 MiB
+  Thin pool volume with chunk size 512.00 KiB can address at most 126.50 TiB of data.
+  Logical volume "docker-pool" created.
+  Logical volume docker-vg/docker-pool changed.
+----
+
+. Start _Docker_ daemon
++
+[%nowrap]
+----
+[root@ocp-node02 ~]# systemctl start docker
+----
+
+. Ensure the correct storage is configured
++
+[%nowrap]
+----
+[root@ocp-node02 ~]# docker info 2>/dev/null| head
+----
++
+.Expected output
+[%nowrap]
+----
+Containers: 0
+ Running: 0
+ Paused: 0
+ Stopped: 0
+Images: 0
+Server Version: 1.13.1
+Storage Driver: devicemapper
+ Pool Name: docker--vg-docker--pool
+ Pool Blocksize: 524.3 kB
+ Base Device Size: 10.74 GB
+----
+[NOTE]
+Notice the Storage Driver and the Pool Name

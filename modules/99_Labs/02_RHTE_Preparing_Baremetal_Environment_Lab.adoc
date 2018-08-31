@@ -1,0 +1,332 @@
+:sectnums!:
+:hardbreaks:
+:scrollbar:
+:data-uri:
+:toc2:
+:showdetailed:
+:imagesdir: ./images
+
+
+= Red Hat Tech Exchange 2018 - Using OpenStack director to provision OpenShift on bare metal
+
+== Prepare baremetal environment to be used
+
+=== Introduction
+
+In this lab students configure _Baremetal_ on the _Overcloud_ environment, configuring the images, enrolling the node and creating host aggregate dedicated to Baremetal.
+
+=== Uploading images to overcloud
+
+During the installation of _Undercloud_, baremetal images were extracted to the `/home/stack/images/` directory and uploaded to undercloud's glance.
+
+In this lab students will use the same files (`ironic-python-agent` images) for the Overcloud.
+
+. From `undercloud` node, source `overcloudrc` file
++
+[%nowrap]
+----
+[stack@undercloud ~]$ source ~/overcloudrc
+(overcloud) [stack@undercloud ~]$
+----
+
+. Upload `ironic-python-agent.kernel` file
++
+[%nowrap]
+----
+(overcloud) [stack@undercloud ~]$ openstack image create \
+   --container-format aki \
+   --disk-format aki \
+   --public \
+   --file ./images/ironic-python-agent.kernel bm-deploy-kernel
+----
++
+.Sample output
+[%nowrap]
+----
++------------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| Field            | Value                                                                                                                                                                                                                                             |
++------------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| checksum         | 825e03fda5dd983ebbff63ed4c7229f7                                                                                                                                                                                                                  |
+| container_format | aki                                                                                                                                                                                                                                               |
+| created_at       | 2018-08-31T08:35:41Z                                                                                                                                                                                                                              |
+| disk_format      | aki                                                                                                                                                                                                                                               |
+| file             | /v2/images/338b6ec3-f453-40a4-a483-d132f7aa01ad/file                                                                                                                                                                                              |
+| id               | 338b6ec3-f453-40a4-a483-d132f7aa01ad                                                                                                                                                                                                              |
+| min_disk         | 0                                                                                                                                                                                                                                                 |
+| min_ram          | 0                                                                                                                                                                                                                                                 |
+| name             | bm-deploy-kernel                                                                                                                                                                                                                                  |
+| owner            | da9420f4e23448bca8d958f1f37cf0d0                                                                                                                                                                                                                  |
+| properties       | direct_url='rbd://bfdc606a-87b3-11e8-affc-2cc260010101/images/338b6ec3-f453-40a4-a483-d132f7aa01ad/snap', locations='[{u'url': u'rbd://bfdc606a-87b3-11e8-affc-2cc260010101/images/338b6ec3-f453-40a4-a483-d132f7aa01ad/snap', u'metadata': {}}]' |
+| protected        | False                                                                                                                                                                                                                                             |
+| schema           | /v2/schemas/image                                                                                                                                                                                                                                 |
+| size             | 6390064                                                                                                                                                                                                                                           |
+| status           | active                                                                                                                                                                                                                                            |
+| tags             |                                                                                                                                                                                                                                                   |
+| updated_at       | 2018-08-31T08:35:42Z                                                                                                                                                                                                                              |
+| virtual_size     | None                                                                                                                                                                                                                                              |
+| visibility       | public                                                                                                                                                                                                                                            |
++------------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+----
+
+. Upload `ironic-python-agent.initramfs` file
++
+[%nowrap]
+----
+(overcloud) [stack@undercloud ~]$ openstack image create \
+  --container-format ari \
+  --disk-format ari \
+  --public \
+  --file ./images/ironic-python-agent.initramfs bm-deploy-ramdisk
+
+----
++
+.Expected output
+[%nowrap]
+----
++------------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| Field            | Value                                                                                                                                                                                                                                             |
++------------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| checksum         | 2614ad0f9c87ae9d6fbeb16d8dc755fc                                                                                                                                                                                                                  |
+| container_format | ari                                                                                                                                                                                                                                               |
+| created_at       | 2018-08-31T08:45:52Z                                                                                                                                                                                                                              |
+| disk_format      | ari                                                                                                                                                                                                                                               |
+| file             | /v2/images/9fd00ef8-5ca0-4752-bfb9-056ad596b2f4/file                                                                                                                                                                                              |
+| id               | 9fd00ef8-5ca0-4752-bfb9-056ad596b2f4                                                                                                                                                                                                              |
+| min_disk         | 0                                                                                                                                                                                                                                                 |
+| min_ram          | 0                                                                                                                                                                                                                                                 |
+| name             | bm-deploy-ramdisk                                                                                                                                                                                                                                 |
+| owner            | da9420f4e23448bca8d958f1f37cf0d0                                                                                                                                                                                                                  |
+| properties       | direct_url='rbd://bfdc606a-87b3-11e8-affc-2cc260010101/images/9fd00ef8-5ca0-4752-bfb9-056ad596b2f4/snap', locations='[{u'url': u'rbd://bfdc606a-87b3-11e8-affc-2cc260010101/images/9fd00ef8-5ca0-4752-bfb9-056ad596b2f4/snap', u'metadata': {}}]' |
+| protected        | False                                                                                                                                                                                                                                             |
+| schema           | /v2/schemas/image                                                                                                                                                                                                                                 |
+| size             | 423530754                                                                                                                                                                                                                                         |
+| status           | active                                                                                                                                                                                                                                            |
+| tags             |                                                                                                                                                                                                                                                   |
+| updated_at       | 2018-08-31T08:46:06Z                                                                                                                                                                                                                              |
+| virtual_size     | None                                                                                                                                                                                                                                              |
+| visibility       | public                                                                                                                                                                                                                                            |
++------------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+----
+
+=== Registering and configure baremetal node
+
+The file `baremetal.yaml` contents the information needed to register a physical node (name, IPMI details, MAC address and other details related to the resources).
+
+. Review `baremetal.yaml` file
++
+[%nowrap]
+----
+(overcloud) [stack@undercloud ~]$ cat baremetal.yaml
+----
++
+.Expected output
+[source,yaml]
+----
+nodes:
+    - name: ocp01
+      driver: pxe_ipmitool
+      driver_info:
+        ipmi_address: 192.0.2.226
+        ipmi_username: admin
+        ipmi_password: redhat
+      properties:
+        cpu_arch: x86_64
+        cpus: 4
+        memory_mb: 6096
+        local_gb: 30
+      ports:
+        - address: "2c:c2:60:01:02:07"
+----
++
+. Register the node to _ironic_
++
+[%nowrap]
+----
+(overcloud) [stack@undercloud ~]$ openstack baremetal create baremetal.yaml
+----
++
+[NOTE]
+This command doesn't provide any output when is correct.
+
+. Ensure the node was registered correctly.
++
+[%nowrap]
+----
+(overcloud) [stack@undercloud ~]$ openstack baremetal node list
+----
++
+.Expected output
+[%nowrap]
+----
++--------------------------------------+-------+---------------+-------------+--------------------+-------------+
+| UUID                                 | Name  | Instance UUID | Power State | Provisioning State | Maintenance |
++--------------------------------------+-------+---------------+-------------+--------------------+-------------+
+| e5a009cc-1935-4f03-b479-02569f37b832 | ocp01 | None          | None        | enroll             | False       |
++--------------------------------------+-------+---------------+-------------+--------------------+-------------+
+----
++
+Once the node is registered, we need to set the parameters `deploy_kernel` and `deploy_ramdisk` referencing the images previously updated.
+
+. List the images registered previously
++
+[%nowrap]
+----
+(overcloud) [stack@undercloud ~]$ openstack image list
+----
++
+.Sample output
+[%nowrap]
+----
++--------------------------------------+---------------------------------+--------+
+| ID                                   | Name                            | Status |
++--------------------------------------+---------------------------------+--------+
+| 338b6ec3-f453-40a4-a483-d132f7aa01ad | bm-deploy-kernel                | active |
+| 9fd00ef8-5ca0-4752-bfb9-056ad596b2f4 | bm-deploy-ramdisk               | active |
+| 7fbac7ac-8ef8-4da1-bbef-87c0fe0e51e0 | octavia-amphora-13.0-20180710.2 | active |
+| 7d69b80c-341a-40d4-9f36-167b18368bc0 | rhel7                           | active |
++--------------------------------------+---------------------------------+--------+
+----
+Note down the IDs for `bm-deploy-kernel` and `bm-deploy-ramdisk` to be used in the next command.
+
+. Set _driver_ properties to the node registered.
++
+.Update _driver-info_ values
+[%nowrap]
+----
+(overcloud) [stack@undercloud ~]$ openstack baremetal node set ocp01 \
+   --driver-info deploy_kernel=338b6ec3-f453-40a4-a483-d132f7aa01ad  \
+   --driver-info deploy_ramdisk=9fd00ef8-5ca0-4752-bfb9-056ad596b2f4
+----
+[NOTE]
+This command doesn't provide any output when is correct.
+
+. Set _root_ disk for the registered node
+The baremetal has two disks, one will be used for the Operating System and another for _Docker_.
++
+[%nowrap]
+----
+(overcloud) [stack@undercloud ~]$ openstack baremetal node set ocp01 --property  root_device='{"name":"/dev/vda"}'
+----
+[NOTE]
+This command doesn't provide any output when is correct.
+[IMPORTANT]
+In production you should not use _name_ for the `root_device` parameter, it should use the _serial_ parameter.
+
+=== Managing/providing the node.
+
+In the previous steps we registered the node, but it is still not available to be used. We need to `manage` and `provide` the node, what it will perform an automated cleaning.
+
+. Set the node as _manageable_
++
+[%nowrap]
+----
+(overcloud) [stack@undercloud ~]$ openstack baremetal node manage ocp01
+----
+[NOTE]
+This command doesn't provide any output when is correct.
+
+. Ensure the node is on the new status.
++
+[%nowrap]
+----
+(overcloud) [stack@undercloud ~]$ openstack baremetal node list
+----
++
+.Expected output
+[%nowrap]
+----
++--------------------------------------+-------+---------------+-------------+--------------------+-------------+
+| UUID                                 | Name  | Instance UUID | Power State | Provisioning State | Maintenance |
++--------------------------------------+-------+---------------+-------------+--------------------+-------------+
+| e5a009cc-1935-4f03-b479-02569f37b832 | ocp01 | None          | power off   | manageable         | False       |
++--------------------------------------+-------+---------------+-------------+--------------------+-------------+
+----
+. Validate the node's setup
++
+[%nowrap]
+----
+(overcloud) [stack@undercloud ~]$ openstack baremetal node validate ocp01
+----
++
+.Expected output
+[%nowrap]
+----
++------------+--------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| Interface  | Result | Reason                                                                                                                                                                                                |
++------------+--------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| boot       | False  | Cannot validate image information for node e5a009cc-1935-4f03-b479-02569f37b832 because one or more parameters are missing from its instance_info. Missing are: ['ramdisk', 'kernel', 'image_source'] |
+| console    | False  | Missing 'ipmi_terminal_port' parameter in node's driver_info.                                                                                                                                         |
+| deploy     | False  | Cannot validate image information for node e5a009cc-1935-4f03-b479-02569f37b832 because one or more parameters are missing from its instance_info. Missing are: ['ramdisk', 'kernel', 'image_source'] |
+| inspect    | None   | not supported                                                                                                                                                                                         |
+| management | True   |                                                                                                                                                                                                       |
+| network    | True   |                                                                                                                                                                                                       |
+| power      | True   |                                                                                                                                                                                                       |
+| raid       | True   |                                                                                                                                                                                                       |
+| rescue     | None   | not supported                                                                                                                                                                                         |
+| storage    | True   |                                                                                                                                                                                                       |
++------------+--------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+----
++
+[NOTE]
+Interfaces may fail validation due to missing 'ramdisk', 'kernel', and 'image_source' parameters. This result is fine, because the Compute service populates those missing parameters at the beginning of the deployment process.
+
+. Provide the node
+This task will clean the disks for the node, booting the baremetal system and booting from iPXE.
++
+[%nowrap]
+----
+(overcloud) [stack@undercloud ~]$ openstack baremetal node provide ocp01
+----
+[NOTE]
+This command doesn't provide any output when is correct.
+
+. Check the node status
+[%nowrap]
+----
+(overcloud) [stack@undercloud ~]$ openstack baremetal node list
+----
+
+.Expected output
+[%nowrap]
+----
++--------------------------------------+-------+---------------+-------------+--------------------+-------------+
+| UUID                                 | Name  | Instance UUID | Power State | Provisioning State | Maintenance |
++--------------------------------------+-------+---------------+-------------+--------------------+-------------+
+| e5a009cc-1935-4f03-b479-02569f37b832 | ocp01 | None          | power on    | clean wait         | False       |
++--------------------------------------+-------+---------------+-------------+--------------------+-------------+
+----
+[NOTE]
+Repeat the command till the cleaning finishes. It takes between 5minutes and 10minutes.
+
+.Expected output after cleaning finishes
+[%nowrap]
+----
++--------------------------------------+-------+---------------+-------------+--------------------+-------------+
+| UUID                                 | Name  | Instance UUID | Power State | Provisioning State | Maintenance |
++--------------------------------------+-------+---------------+-------------+--------------------+-------------+
+| e5a009cc-1935-4f03-b479-02569f37b832 | ocp01 | None          | power off   | available          | False       |
++--------------------------------------+-------+---------------+-------------+--------------------+-------------+
+----
+
+. Ensure the registered now appears as _Hypervisor_
++
+[%nowrap]
+----
+(overcloud) [stack@undercloud ~]$ openstack hypervisor list
+----
++
+.Expected output
+[%nowrap]
+----
++-----+--------------------------------------+-----------------+-------------+-------+
+|  ID | Hypervisor Hostname                  | Hypervisor Type | Host IP     | State |
++-----+--------------------------------------+-----------------+-------------+-------+
+|   1 | overcloud-compute-1.example.com      | QEMU            | 172.17.0.31 | up    |
+|   2 | overcloud-compute-0.example.com      | QEMU            | 172.17.0.33 | up    |
+|   3 | overcloud-compute-2.example.com      | QEMU            | 172.17.0.29 | up    |
+|   4 | overcloud-compute-3.example.com      | QEMU            | 172.17.0.28 | up    |
+| 126 | e5a009cc-1935-4f03-b479-02569f37b832 | ironic          | 172.17.0.20 | up    |
++-----+--------------------------------------+-----------------+-------------+-------+
+----
+[NOTE]
+The ip `172.17.0.20` corresponds to the controller's internal api IP.

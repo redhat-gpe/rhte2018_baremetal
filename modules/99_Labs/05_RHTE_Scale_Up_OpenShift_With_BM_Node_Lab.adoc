@@ -1,0 +1,132 @@
+:sectnums!:
+:hardbreaks:
+:scrollbar:
+:data-uri:
+:toc2:
+:showdetailed:
+:imagesdir: ./images
+
+
+= Red Hat Tech Exchange 2018 - Using OpenStack director to provision OpenShift on bare metal
+
+== Review current nodes in OpenShift.
+
+. Connect to `ocp-master01` node
++
+[%nowrap]
+----
+(overcloud) [stack@undercloud ~]$ ssh cloud-user@192.0.3.16
+----
+
+. Get the list of the current nodes of OpenShift
++
+[%nowrap]
+----
+[cloud-user@ocp-master01 ~]$ oc get nodes
+----
++
+.Expected output
+[%nowrap]
+----
+NAME           STATUS    ROLES     AGE       VERSION
+ocp-infra01    Ready     infra     1d        v1.10.0+b81c8f8
+ocp-master01   Ready     master    1d        v1.10.0+b81c8f8
+ocp-node01     Ready     compute   1d        v1.10.0+b81c8f8
+----
+
+. Disconnect from `ocp-master01` and connect to `ocp-bastion`
++
+[%nowrap]
+----
+[cloud-user@ocp-master01 ~]$ logout
+(overcloud) [stack@undercloud ~]$ ssh cloud-user@192.0.3.18
+[cloud-user@ocp-bastion ~]$ sudo -i
+----
+
+== Scale up cluster
+
+. Edit the inventory file `/etc/ansible/hosts` to include the new node
++
+.Add a new section named _new_nodes_ after _nodes_ section.
+[%nowrap]
+----
+[new_nodes]
+ocp-node02.openshift.example.com openshift_ip=192.0.3.14 ansible_host=192.0.3.14 openshift_node_group_name='node-config-compute'
+----
++
+.Add _new_nodes_ inside _OSEv3:children_ section
+[%nowrap]
+----
+[OSEv3:children]
+masters
+nodes
+new_nodes
+----
+
+. Run `prerequisites.yaml` playbook to configure the prerequisites for the new node.
++
+[%nowrap]
+----
+[root@ocp-bastion ~]# ansible-playbook /usr/share/ansible/openshift-ansible/playbooks/prerequisites.yml
+----
+[NOTE]
+Type "yes" when it ask to continue connecting to the new node.
++
+.Expected output
+[%nowrap]
+----
+<<TRUNCATED OUTPUT>>
+PLAY RECAP ***********************************************************************************************************************************************************************************
+localhost                  : ok=12   changed=0    unreachable=0    failed=0
+ocp-infra01.openshift.example.com : ok=31   changed=5    unreachable=0    failed=0
+ocp-master01.openshift.example.com : ok=70   changed=7    unreachable=0    failed=0
+ocp-node01.openshift.example.com : ok=31   changed=5    unreachable=0    failed=0
+ocp-node02.openshift.example.com : ok=65   changed=19   unreachable=0    failed=0
+
+
+INSTALLER STATUS *****************************************************************************************************************************************************************************
+Initialization  : Complete (0:02:49)
+----
+
+. Run `scaleup.yaml` playbook to install and configure OpenShift on the node
++
+[%nowrap]
+----
+[root@ocp-bastion ~]# ansible-playbook /usr/share/ansible/openshift-ansible/playbooks/openshift-node/scaleup.yml
+----
++
+.Expected output
+[%nowrap]
+----
+<<TRUNCATED OUTPUT>>
+PLAY RECAP ***********************************************************************************************************************************************************************************
+localhost                  : ok=25   changed=0    unreachable=0    failed=0
+ocp-master01.openshift.example.com : ok=67   changed=1    unreachable=0    failed=0
+ocp-node02.openshift.example.com : ok=162  changed=59   unreachable=0    failed=0
+
+
+INSTALLER STATUS *****************************************************************************************************************************************************************************
+Initialization              : Complete (0:00:54)
+Node Bootstrap Preparation  : Complete (0:03:13)
+Node Join                   : Complete (0:03:53)
+----
+
+. Check the list the nodes to ensure new node appears
++
+.Disconnect `ocp-bastion` and connect back to `ocp-master01`
+[%nowrap]
+----
+[root@ocp-bastion ~]# logout
+[cloud-user@ocp-bastion ~]$ logout
+(overcloud) [stack@undercloud ~]$ ssh cloud-user@192.0.3.16
+----
++
+.Get list and status of the nodes
+[%nowrap]
+----
+NAME           STATUS    ROLES     AGE       VERSION
+ocp-infra01    Ready     infra     1d        v1.10.0+b81c8f8
+ocp-master01   Ready     master    1d        v1.10.0+b81c8f8
+ocp-node01     Ready     compute   1d        v1.10.0+b81c8f8
+ocp-node02     Ready     compute   2m        v1.10.0+b81c8f8
+----
