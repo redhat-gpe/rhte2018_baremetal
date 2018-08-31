@@ -63,6 +63,7 @@ ocp-node02   Ready     compute   19m       v1.10.0+b81c8f8   production
 
 === Create a development project and deploy an application inside
 This project will use the node selector using the previous label created to use the environment development.
+
 . Create project
 +
 [%nowrap]
@@ -197,6 +198,7 @@ ruby-ex-1-x497n   1/1       Running     0          43s       10.129.0.7   ocp-no
 
 === Create a production project and deploy an application inside
 This project will use the node selector using the previous label created to use the environment production.
+
 . Create project
 +
 [%nowrap]
