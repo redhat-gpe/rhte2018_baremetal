@@ -9,8 +9,12 @@
 
 = Red Hat Tech Exchange 2018 - Using OpenStack director to provision OpenShift on bare metal
 
-== Review current nodes in OpenShift.
+== Deploying applications in different OpenShift environments.
 
+In this lab we will create a project where the applications inside will be hosted on `ocp-node01`, the Virtual Machine.
+Another project will host production applications and the containers will run on `ocp-node02`, the baremetal node.
+
+=== Label OpenShift nodes to the correct environment
 . Connect to `ocp-master01` node
 +
 [%nowrap]
@@ -18,115 +22,308 @@
 (overcloud) [stack@undercloud ~]$ ssh cloud-user@192.0.3.16
 ----
 
-. Get the list of the current nodes of OpenShift
+. Label `ocp-node01` with label `environment=development`
 +
 [%nowrap]
 ----
-[cloud-user@ocp-master01 ~]$ oc get nodes
+[cloud-user@ocp-master01 ~]$ oc label node ocp-node01 environment=development
 ----
 +
 .Expected output
 [%nowrap]
 ----
-NAME           STATUS    ROLES     AGE       VERSION
-ocp-infra01    Ready     infra     1d        v1.10.0+b81c8f8
-ocp-master01   Ready     master    1d        v1.10.0+b81c8f8
-ocp-node01     Ready     compute   1d        v1.10.0+b81c8f8
+node "ocp-node01" labeled
 ----
-
-. Disconnect from `ocp-master01` and connect to `ocp-bastion`
+. Label `ocp-node02` with label `environment=production`
 +
 [%nowrap]
 ----
-[cloud-user@ocp-master01 ~]$ logout
-(overcloud) [stack@undercloud ~]$ ssh cloud-user@192.0.3.18
-[cloud-user@ocp-bastion ~]$ sudo -i
-----
-
-== Scale up cluster
-
-. Edit the inventory file `/etc/ansible/hosts` to include the new node
-+
-.Add a new section named _new_nodes_ after _nodes_ section.
-[%nowrap]
-----
-[new_nodes]
-ocp-node02.openshift.example.com openshift_ip=192.0.3.14 ansible_host=192.0.3.14 openshift_node_group_name='node-config-compute'
+[cloud-user@ocp-master01 ~]$ oc label node ocp-node02 environment=production
 ----
 +
-.Add _new_nodes_ inside _OSEv3:children_ section
+.Expected output
 [%nowrap]
 ----
-[OSEv3:children]
-masters
-nodes
-new_nodes
+node "ocp-node02" labeled
 ----
-
-. Run `prerequisites.yaml` playbook to configure the prerequisites for the new node.
+. Ensure nodes has the correct label
 +
 [%nowrap]
 ----
-[root@ocp-bastion ~]# ansible-playbook /usr/share/ansible/openshift-ansible/playbooks/prerequisites.yml
+[cloud-user@ocp-master01 ~]$ oc get nodes -L environment -l environment
+----
++
+.Expected output
+[%nowrap]
+----
+NAME         STATUS    ROLES     AGE       VERSION           ENVIRONMENT
+ocp-node01   Ready     compute   1d        v1.10.0+b81c8f8   development
+ocp-node02   Ready     compute   19m       v1.10.0+b81c8f8   production
+----
+
+=== Create a development project and deploy an application inside
+This project will use the node selector using the previous label created to use the environment development.
+. Create project
++
+[%nowrap]
+----
+[cloud-user@ocp-master01 ~]$  oc new-project test-project-dev
+----
++
+.Expected output
+[%nowrap]
+----
+Now using project "test-project-dev" on server "https://console.openshift.example.com:8443".
+
+You can add applications to this project with the 'new-app' command. For example, try:
+
+    oc new-app centos/ruby-22-centos7~https://github.com/openshift/ruby-ex.git
+
+to build a new example application in Ruby.
+----
+
+. Annotate project (namespace) to use development environment
++
+[%nowrap]
+----
+[cloud-user@ocp-master01 ~]$ oc annotate namespace test-project-dev openshift.io/node-selector="environment=development"
+----
++
+.Expected output
+[%nowrap]
+----
+namespace "test-project-dev" annotated
+----
+. Run application inside the `test-project-dev`
++
+[%nowrap]
+----
+[cloud-user@ocp-master01 ~]$ oc new-app centos/ruby-22-centos7~https://github.com/openshift/ruby-ex.git -n test-project-dev
+----
++
+.Expected output
+[%nowrap]
+----
+--> Found Docker image e42d0dc (3 months old) from Docker Hub for "centos/ruby-22-centos7"
+
+    Ruby 2.2
+    --------
+    Ruby 2.2 available as container is a base platform for building and running various Ruby 2.2 applications and frameworks. Ruby is the interpreted scripting language for quick and easy object-oriented programming. It has many features to process text files and to do system management tasks (as in Perl). It is simple, straight-forward, and extensible.
+
+    Tags: builder, ruby, ruby22
+
+    * An image stream will be created as "ruby-22-centos7:latest" that will track the source image
+    * A source build using source code from https://github.com/openshift/ruby-ex.git will be created
+      * The resulting image will be pushed to image stream "ruby-ex:latest"
+      * Every time "ruby-22-centos7:latest" changes a new build will be triggered
+    * This image will be deployed in deployment config "ruby-ex"
+    * Port 8080/tcp will be load balanced by service "ruby-ex"
+      * Other containers can access this service through the hostname "ruby-ex"
+
+--> Creating resources ...
+    imagestream "ruby-22-centos7" created
+    imagestream "ruby-ex" created
+    buildconfig "ruby-ex" created
+    deploymentconfig "ruby-ex" created
+    service "ruby-ex" created
+--> Success
+    Build scheduled, use 'oc logs -f bc/ruby-ex' to track its progress.
+    Application is not exposed. You can expose services to the outside world by executing one or more of the commands below:
+     'oc expose svc/ruby-ex'
+    Run 'oc status' to view your app.
+----
+. Ensure the build pod is running and in the correct compute node
++
+[%nowrap]
+----
+[cloud-user@ocp-master01 ~]$ oc get pods -o wide
+----
++
+.Expected output
+[%nowrap]
+----
+NAME              READY     STATUS    RESTARTS   AGE       IP           NODE
+ruby-ex-1-build   1/1       Running   0          30s       10.129.0.2   ocp-node01
 ----
 [NOTE]
-Type "yes" when it ask to continue connecting to the new node.
+Repeat the command till the build finishes. Build takes around two minutes.
+
+. Ensure the application pod is running in the correct compute node (`ocp-node01`)
++
+[%nowrap]
+----
+[cloud-user@ocp-master01 ~]$ oc get pods -o wide
+----
++
+.Sample output
+[%nowrap]
+----
+[cloud-user@ocp-master01 ~]$ oc get pods -o wide
+NAME              READY     STATUS      RESTARTS   AGE       IP           NODE
+ruby-ex-1-2xn79   1/1       Running     0          18s       10.129.0.4   ocp-node01
+ruby-ex-1-build   0/1       Completed   0          2m        10.129.0.2   ocp-node01
+----
+. Scale up appplication to four replicas
++
+[%nowrap]
+----
+[cloud-user@ocp-master01 ~]$ oc scale dc/ruby-ex --replicas=4
+----
 +
 .Expected output
 [%nowrap]
 ----
-<<TRUNCATED OUTPUT>>
-PLAY RECAP ***********************************************************************************************************************************************************************************
-localhost                  : ok=12   changed=0    unreachable=0    failed=0
-ocp-infra01.openshift.example.com : ok=31   changed=5    unreachable=0    failed=0
-ocp-master01.openshift.example.com : ok=70   changed=7    unreachable=0    failed=0
-ocp-node01.openshift.example.com : ok=31   changed=5    unreachable=0    failed=0
-ocp-node02.openshift.example.com : ok=65   changed=19   unreachable=0    failed=0
-
-
-INSTALLER STATUS *****************************************************************************************************************************************************************************
-Initialization  : Complete (0:02:49)
+deploymentconfig.apps.openshift.io "ruby-ex" scaled
 ----
 
-. Run `scaleup.yaml` playbook to install and configure OpenShift on the node
+. Ensure all replicas after scale up are running in the same node.
 +
 [%nowrap]
 ----
-[root@ocp-bastion ~]# ansible-playbook /usr/share/ansible/openshift-ansible/playbooks/openshift-node/scaleup.yml
+[cloud-user@ocp-master01 ~]$ oc get pods -o wide
+----
++
+
+.Expected output
+[%nowrap]
+----
+NAME              READY     STATUS      RESTARTS   AGE       IP           NODE
+ruby-ex-1-2xn79   1/1       Running     0          1m        10.129.0.4   ocp-node01
+ruby-ex-1-9h995   1/1       Running     0          43s       10.129.0.5   ocp-node01
+ruby-ex-1-b294h   1/1       Running     0          43s       10.129.0.6   ocp-node01
+ruby-ex-1-build   0/1       Completed   0          4m        10.129.0.2   ocp-node01
+ruby-ex-1-x497n   1/1       Running     0          43s       10.129.0.7   ocp-node01
+----
+
+=== Create a production project and deploy an application inside
+This project will use the node selector using the previous label created to use the environment production.
+. Create project
++
+[%nowrap]
+----
+[cloud-user@ocp-master01 ~]$  oc new-project test-project-prod
 ----
 +
 .Expected output
 [%nowrap]
 ----
-<<TRUNCATED OUTPUT>>
-PLAY RECAP ***********************************************************************************************************************************************************************************
-localhost                  : ok=25   changed=0    unreachable=0    failed=0
-ocp-master01.openshift.example.com : ok=67   changed=1    unreachable=0    failed=0
-ocp-node02.openshift.example.com : ok=162  changed=59   unreachable=0    failed=0
+Now using project "test-project-prod" on server "https://console.openshift.example.com:8443".
 
+You can add applications to this project with the 'new-app' command. For example, try:
 
-INSTALLER STATUS *****************************************************************************************************************************************************************************
-Initialization              : Complete (0:00:54)
-Node Bootstrap Preparation  : Complete (0:03:13)
-Node Join                   : Complete (0:03:53)
+    oc new-app centos/ruby-22-centos7~https://github.com/openshift/ruby-ex.git
+
+to build a new example application in Ruby.
 ----
 
-. Check the list the nodes to ensure new node appears
+. Annotate project (namespace) to use production environment
 +
-.Disconnect `ocp-bastion` and connect back to `ocp-master01`
 [%nowrap]
 ----
-[root@ocp-bastion ~]# logout
-[cloud-user@ocp-bastion ~]$ logout
-(overcloud) [stack@undercloud ~]$ ssh cloud-user@192.0.3.16
+[cloud-user@ocp-master01 ~]$ oc annotate namespace test-project-prod openshift.io/node-selector="environment=production"
 ----
 +
-.Get list and status of the nodes
+.Expected output
 [%nowrap]
 ----
-NAME           STATUS    ROLES     AGE       VERSION
-ocp-infra01    Ready     infra     1d        v1.10.0+b81c8f8
-ocp-master01   Ready     master    1d        v1.10.0+b81c8f8
-ocp-node01     Ready     compute   1d        v1.10.0+b81c8f8
-ocp-node02     Ready     compute   2m        v1.10.0+b81c8f8
+namespace "test-project-prod" annotated
+----
+. Run application inside the `test-project-prod`
++
+[%nowrap]
+----
+[cloud-user@ocp-master01 ~]$ oc new-app centos/ruby-22-centos7~https://github.com/openshift/ruby-ex.git -n test-project-prod
+----
++
+.Expected output
+[%nowrap]
+----
+--> Found Docker image e42d0dc (3 months old) from Docker Hub for "centos/ruby-22-centos7"
+
+    Ruby 2.2
+    --------
+    Ruby 2.2 available as container is a base platform for building and running various Ruby 2.2 applications and frameworks. Ruby is the interpreted scripting language for quick and easy object-oriented programming. It has many features to process text files and to do system management tasks (as in Perl). It is simple, straight-forward, and extensible.
+
+    Tags: builder, ruby, ruby22
+
+    * An image stream will be created as "ruby-22-centos7:latest" that will track the source image
+    * A source build using source code from https://github.com/openshift/ruby-ex.git will be created
+      * The resulting image will be pushed to image stream "ruby-ex:latest"
+      * Every time "ruby-22-centos7:latest" changes a new build will be triggered
+    * This image will be deployed in deployment config "ruby-ex"
+    * Port 8080/tcp will be load balanced by service "ruby-ex"
+      * Other containers can access this service through the hostname "ruby-ex"
+
+--> Creating resources ...
+    imagestream "ruby-22-centos7" created
+    imagestream "ruby-ex" created
+    buildconfig "ruby-ex" created
+    deploymentconfig "ruby-ex" created
+    service "ruby-ex" created
+--> Success
+    Build scheduled, use 'oc logs -f bc/ruby-ex' to track its progress.
+    Application is not exposed. You can expose services to the outside world by executing one or more of the commands below:
+     'oc expose svc/ruby-ex'
+    Run 'oc status' to view your app.
+----
+. Ensure the build pod is running and in the correct compute node (`ocp-node02`)
++
+[%nowrap]
+----
+[cloud-user@ocp-master01 ~]$ oc get pods -o wide
+----
++
+.Expected output
+[%nowrap]
+----
+NAME              READY     STATUS    RESTARTS   AGE       IP           NODE
+ruby-ex-1-build   1/1       Running   0          24s       10.131.0.2   ocp-node02
+----
+[NOTE]
+Repeat the command till the build finishes. Build takes around two minutes.
+
+. Ensure the application pod is running in the correct compute node
++
+[%nowrap]
+----
+[cloud-user@ocp-master01 ~]$ oc get pods -o wide
+----
++
+.Sample output
+[%nowrap]
+----
+[cloud-user@ocp-master01 ~]$ oc get pods -o wide
+NAME              READY     STATUS      RESTARTS   AGE       IP           NODE
+ruby-ex-1-8phzj   1/1       Running     0          13s       10.131.0.4   ocp-node02
+ruby-ex-1-build   0/1       Completed   0          1m        10.131.0.2   ocp-node02
+----
+. Scale up appplication to four replicas
++
+[%nowrap]
+----
+[cloud-user@ocp-master01 ~]$ oc scale dc/ruby-ex --replicas=4
+----
++
+.Expected output
+[%nowrap]
+----
+deploymentconfig.apps.openshift.io "ruby-ex" scaled
+----
+
+. Ensure all replicas after scale up are running in the same node.
++
+[%nowrap]
+----
+[cloud-user@ocp-master01 ~]$ oc get pods -o wide
+----
++
+.Sample output
+[%nowrap]
+----
+NAME              READY     STATUS      RESTARTS   AGE       IP           NODE
+ruby-ex-1-8phzj   1/1       Running     0          36s       10.131.0.4   ocp-node02
+ruby-ex-1-build   0/1       Completed   0          1m        10.131.0.2   ocp-node02
+ruby-ex-1-hl2fn   1/1       Running     0          5s        10.131.0.7   ocp-node02
+ruby-ex-1-s8jqf   1/1       Running     0          5s        10.131.0.5   ocp-node02
+ruby-ex-1-sshcm   1/1       Running     0          5s        10.131.0.6   ocp-node02
 ----
