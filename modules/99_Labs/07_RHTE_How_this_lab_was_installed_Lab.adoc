@@ -137,6 +137,36 @@ parameter_defaults:
     IronicCleaningDiskErase: metadata
 ----
 
+==== Octavia
+
+The template used to deploy Octavia is on the path `/usr/share/openstack-tripleo-heat-templates/environments/services-docker/octavia.yaml`.
+The octavia environment template will deploy in the controllers four containers to administrate the load balancer.
+
+.Containers
+[cols="1,2",options="header",caption="",options="nowrap"]
+|===
+| Container |Description
+| `octavia_worker` | Takes sanitized API commands from the API controller and performs the actions necessary to fulfill the API request.
+| `octavia_api` |  It takes API requests, performs simple sanitizing on them, and ships them off to the controller worker over the Oslo messaging bus.
+| `octavia_health_manager` | Monitors individual amphorae to ensure they are up and running, and otherwise healthy. It also handles failover events if amphorae fail unexpectedly.
+| `octavia_housekeeping` | Cleans up stale (deleted) database records, manages the spares pool, and manages amphora certificate rotation.
+|===
+
+==== Barbican
+The template used to deploy Octavia is on the path `/usr/share/openstack-tripleo-heat-templates/environments/services/barbican.yaml` to enable the container for the API and
+`/usr/share/openstack-tripleo-heat-templates/environments/barbican-backend-simple-crypto.yaml` to enable a simple crypto algorithm.
+
+The Barbican environment template will deploy in the controllers three containers to administrate Barbican.
+
+.Containers
+[cols="1,2",options="header",caption="",options="nowrap"]
+|===
+| Container |Description
+| `barbican_worker` | Processes tasks from the queue. Task components are similar to API resources in that they implement business logic and also interface with the datastore and follow on asynchronous tasks as needed.
+| `barbican_keystone_listener` |  Barbican service should have its own dedicated notification queue so that it receives all of Keystone notifications.
+| `barbican_api` | Handles incoming REST requests to Barbican. These nodes can interact with the database directly if the request can be completed synchronously (such as for GET requests), otherwise the queue supports asynchronous processing by worker nodes.
+|===
+
 ==== Network configuration
 Some customized templates were used to define network configuration on the overcloud.
 
