@@ -2,10 +2,10 @@
 :scrollbar:
 :data-uri:
 
-== `Ironic Custom Template used for the `OverCloud` deployment
+== Ironic Custom Template
 
+.Ironic custom template used for the overcloud deployment
 ----
-
 parameter_defaults:
 
     NovaSchedulerDefaultFilters:
