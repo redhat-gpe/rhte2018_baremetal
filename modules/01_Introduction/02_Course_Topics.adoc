@@ -1,0 +1,19 @@
+
+:scrollbar:
+:data-uri:
+:noaudio: 
+== Module Topics
+
+* Course Overview
+* OpenStack LAB Environment
+* OpenShift LAB Environment
+* OpenShift and OpenStack components integration
+* Course Tips
+
+ifdef::showscript[]
+
+Transcript:
+
+This module presents an overview of the course. It explains the prerequisites and requirements, the training environment, and the system designations used during the lab procedures. The module also provides tips for successfully completing the labs.
+
+endif::showscript[]

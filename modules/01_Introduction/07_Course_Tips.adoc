@@ -1,0 +1,34 @@
+:scrollbar:
+:data-uri:
+:noaudio:
+
+== Course Tips
+
+* Read each module carefully to understand concepts
+** Reread if necessary
+* When doing labs:
+** Do not just copy and paste
+** Try to understand underlying concepts
+* When performing copy and paste:
+** If command line is separated by line break preceded by `\` character, copy and paste text exactly as you see it
+* Make sure output matches examples unless stated otherwise
+* Labs involve multiple systems
+** Make sure you execute commands on correct system
+
+
+ifdef::showscript[]
+
+=== Transcript
+
+
+Read each module carefully to understand the concepts; reread if necessary.
+
+When doing labs, do not just copy and paste. Try to understand the underlying concepts.
+
+When performing copy and paste, if a command line is separated by a line break preceded by the `\` (backslash) character, copy and paste the text exactly as you see it.
+
+Make sure your output matches the examples unless stated otherwise.
+
+Labs involve multiple systems. Make sure you execute commands on the correct system.
+
+endif::showscript[]

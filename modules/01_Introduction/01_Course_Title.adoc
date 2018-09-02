@@ -1,0 +1,17 @@
+:noaudio:
+
+ifdef::revealjs_slideshow[]
+
+[#cover,data-background-image="image/1156524-bg_redhat.png" data-background-color="#cc0000"]
+== &nbsp;
+
+[#cover-h1]
+Using OpenStack director to provision OpenShift on bare metal
+
+[#cover-h2]
+Course Introduction
+
+[#cover-logo]
+image::{revealjs_cover_image}[]
+
+endif::[]
