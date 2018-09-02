@@ -4,7 +4,7 @@
 
 == OpenStack 13 Environment
 
-image:images/ospd_lab.png[width=100%]
+image:images/ospd_lab.png
 
 ifdef::showscript[]
 
