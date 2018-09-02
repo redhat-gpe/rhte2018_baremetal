@@ -30,6 +30,7 @@ OpenShift can be as well integrated in Public Clouds or in Baremetal environment
 This lab demonstrates how a installation of OpenShift can manage an Hybrid scenario, having a compute node for dev applications and a bare metal node for prod applications.
 
 
+
 === OpenStack bare metal provisioning (a.k.a _Ironic_)
 
 The main component for manage baremetal nodes is named `Ironic`: It may be used independently or as part of an OpenStack Cloud, and integrates with the OpenStack Identity (keystone), Compute (nova), Network (neutron), Image (glance), and Object (swift) services.
@@ -67,15 +68,20 @@ The Bare Metal service may, depending upon configuration, interact with several 
 * the OpenStack Networking service (neutron) for DHCP and network configuration
 * the OpenStack Compute service (nova) works with the Bare Metal service and acts as a user-facing API for instance management, while the Bare Metal service provides the admin/operator API for hardware management. The OpenStack Compute service also provides scheduling facilities (matching flavors <-> images <-> hardware), tenant quotas, IP assignment, and other services which the Bare Metal service does not, in and of itself, provide.
 * the OpenStack Object Storage (swift) provides temporary storage for the configdrive, user images, deployment logs and inspection data.
+* the OpenStack Block Storage (cinder) provides persistent storage (Currently only for Virtual nodes).
+[IMPORTANT]
+OpenShift Baremetal nodes systems can't consume cinder as StorageClass.
+It is planned for OpenShift version 4.0 to be able to consume "Standalone Cinder" (RFE: https://bugzilla.redhat.com/show_bug.cgi?id=1566388)
+If OpenStack uses Ceph it is possible to use Ceph RBD as Storageclass: https://docs.openshift.com/container-platform/3.10/install_config/persistent_storage/persistent_storage_ceph_rbd.html
 
 image:ironic_integration.png[]
+
 
 ==== Provisioning a Baremetal
 
 A user’s request to boot an instance is passed to the Compute service via the Compute API and the Compute Scheduler. The Compute service uses the ironic virt driver to hand over this request to the Bare Metal service, where the request passes from the Bare Metal API, to the Conductor, to a Driver to successfully provision a physical server for the user.
 
 Just as the Compute service talks to various OpenStack services like Image, Network, Object Store etc to provision a virtual machine instance, here the Bare Metal service talks to the same OpenStack services for image, network and other resource needs to provision a bare metal instance.
-
 
 image:PXE_Provisioning.png[]
 
@@ -94,3 +100,12 @@ When hardware is recycled from one workload to another, ironic performs automate
 With automated cleaning, nodes move to cleaning state when moving from active -> available state (when the hardware is recycled from one workload to another). Nodes also traverse cleaning when going from manageable -> available state (before the first workload is assigned to the nodes)
 
 image:states.png[]
+
+
+TODO:
+(overcloud) [stack@undercloud ~]$ openstack compute service list --host overcloud-controller-0.example.com --service nova-compute
++----+--------------+------------------------------------+------+---------+-------+----------------------------+
+| ID | Binary       | Host                               | Zone | Status  | State | Updated At                 |
++----+--------------+------------------------------------+------+---------+-------+----------------------------+
+| 10 | nova-compute | overcloud-controller-0.example.com | nova | enabled | up    | 2018-08-30T09:35:51.000000 |
++----+--------------+------------------------------------+------+---------+-------+----------------------------+

@@ -9,7 +9,9 @@
 
 = Red Hat Tech Exchange 2018 - Using OpenStack director to provision OpenShift on bare metal
 
-== Add DNS record for the baremetal node
+== Configure Baremetal node for OpenShift.
+
+=== Add DNS record for the baremetal node
 
 OpenShift requires the nodes are registered to DNS for a correct functionality. This lab provides an simple playbook to add the baremetal node to the `openshift-dns` DNS server.
 
@@ -56,7 +58,7 @@ localhost                  : ok=3    changed=1    unreachable=0    failed=0
 ----
 
 
-== Configure Docker inside the node
+=== Configure Docker inside the node
 The following tasks can be performed using `user data` config during the server provisioning, in this LAB is a manual task to demonstrate the require tasks.
 
 . Connect to the system
@@ -147,7 +149,7 @@ Complete!
 ----
 
 . Configure storage
-System has a second disk (/dev/vdc) to be used for _Docker_, in this LAB we will use it for `devicemapper`.
+System has a second disk (/dev/vdb) to be used for _Docker_, in this LAB we will use it for `devicemapper`.
 +
 .Generate `/etc/sysconfig/docker-storage-setup` configuration
 [%nowrap]
