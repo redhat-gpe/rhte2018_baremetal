@@ -14,15 +14,18 @@
 == Deploying the application PoDs to required types of compute nodes using `nodeSelector` specification
 
 Assume a scenario where you required a multi-tier application, in which each of the tiers needs a particular type of compute node due to its resource utilization/security patterns.
-In this lab, we have the `Deployment Configuration.`  manifest for a two-tier application (Word Press). The customer wishes to deploy the `pods` of the front tier  (PHP) into a more flexible and horizontally scalable `virtual compute nodes`, whereas the `db` tier pods to a high capacity `baremetal compute node.
+
+In this lab, we have the `Deployment Configuration.`  manifest for a two-tier application (Word Press). The customer wishes to deploy the `pods` of the front tier  (PHP) into a more flexible and horizontally scalable `virtual compute nodes`, whereas the `db` tier pods to a high capacity `baremetal` compute node.
+
 We have the deployment manifest for both the tiers are available in `/root` of the bastion node.
+
 .You may verify the `node` selector specification in both `Deployment Configuration (dc)` manifests.
-+
+
 [%nowrap]
 ----
 #view frontend-app.yaml
 ----
-. Note the `nodeSelector` spec of the `front tier` manifest
+. Search for the `nodeSelector` spec of the `front tier` manifest
 
 ----
 +
@@ -38,7 +41,7 @@ We have the deployment manifest for both the tiers are available in `/root` of t
 ----
 #view mysql.yaml
 ----
-. Note the `nodeSelector` spec. of the `db tier` manifest
+. Search for the `nodeSelector` spec. of the `db tier` manifest
 +
 [%nowrap]
 ----
@@ -65,7 +68,7 @@ oc adm policy add-scc-to-user anyuid -z default  -n node-selector-demo
 ----
 oc create -f  frontend-app.yaml
 ----
-.Sample Output
+. Expected Output
 +
 [%nowrap]
 ----
@@ -79,7 +82,7 @@ service "wordpress" created
 ----
 oc create -f  mysql.yaml
 ----
-.Sample Output
+. Expected Output
 +
 [%nowrap]
 ----
@@ -92,7 +95,7 @@ deploymentconfig.apps.openshift.io "db" created
 ----
 oc get  po -o wide  -n node-selector-demo -w 
 ----
-.Sample Output
+. Expected Output
 +
 [%nowrap]
 ----
