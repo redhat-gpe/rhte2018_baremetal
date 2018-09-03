@@ -84,7 +84,7 @@ Notice the list of the _hosts_ and the property named _baremetal_
 ----
 [NOTE]
 
-Please note that while creating the flavor `baremetal` we set its property as `--property baremetal=true`. This is how we link the flavor to the respective `host aggregate`. In other words, an admin setting (host aggregate ) present to the users via the `flavor` property settings. 
+Please note that while creating the flavor `baremetal` we set its property as `--property baremetal=true`. This is how we link the flavor to the respective `host aggregate`. In other words, an admin setting (host aggregate ) present to the users via the `flavor` property settings.
 
 . Add controller node to the host aggragate.
 +
@@ -335,6 +335,6 @@ ocp-node02
     root_gb: '20'
     swap_mb: '0'
     vcpus: '2'
-  Name: ocp01
+  Name: bm-ocp-node02
   UUID: e5a009cc-1935-4f03-b479-02569f37b832
 ----

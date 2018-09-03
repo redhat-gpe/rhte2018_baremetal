@@ -9,7 +9,7 @@
 
 = Red Hat Tech Exchange 2018 - Using OpenStack director to provision OpenShift on bare metal
 
-== Prepare baremetal environment to be used
+== Preparing baremetal environment to be used
 
 === Introduction
 
@@ -21,24 +21,6 @@ During the installation of _Undercloud_, baremetal images were extracted to the 
 
 In this lab students will use the same files (`ironic-python-agent` images) for the Overcloud.
 
-. Login to the `workstation` node using the `terminal` app
-+
-[%nowrap]
-----
-workstation-<GUID>.rhpds.opentlc.com
-----
-. `ssh` to the `undercloud` and switch as `stack` user
-+
-[%nowrap]
-----
-[root@workstation-<GUID>~]# ssh root@undercloud
-----
-NOTE: password = r3dh4t1!
-+
-[%nowrap]
-----
-su - stack
-----
 . From `undercloud` node, source `overcloudrc` file
 +
 [%nowrap]
@@ -46,32 +28,7 @@ su - stack
 [stack@undercloud ~]$ source ~/overcloudrc
 (overcloud) [stack@undercloud ~]$
 ----
-. Start all the pre deployed OpenStack Virtual Instances
-NOTE: For the lab scenario required OpenStack virtual instances are pre deployed
-+
-[%nowrap]
-----
-(overcloud) [stack@undercloud ~]$ openstack server start `openstack server list -f value -c ID`
-----
-. Verify that all the virtual instances are in `ACTIVE` status
-IMPORTANT: It may take 3-5 minutes to start the applications on the instances.
-[%nowrap]
-----
-(overcloud) [stack@undercloud ~]$ openstack server list
-----
-. Sample Output
-[%nowrap]
-----
-+--------------------------------------+---------------+--------+----------------------------------------+-------+-----------+
-| ID                                   | Name          | Status | Networks                               | Image | Flavor    |
-+--------------------------------------+---------------+--------+----------------------------------------+-------+-----------+
-| fa946dfd-df12-4146-83d3-b574edb99186 | openshift-dns | ACTIVE | openshift-dns=192.168.23.9, 10.0.0.121 | rhel7 | m1.small2 |
-| 0dee08a9-deca-4477-8896-a19756e21b67 | ocp-node01    | ACTIVE | baremetal=192.0.3.12                   | rhel7 | m1.large  |
-| 36c1032e-4e48-4957-b4b6-8d549f4a4312 | ocp-infra01   | ACTIVE | baremetal=192.0.3.22                   | rhel7 | m1.large  |
-| 068aaf62-1495-49d7-a5fa-7045be3c85c6 | ocp-master01  | ACTIVE | baremetal=192.0.3.16                   | rhel7 | m1.large  |
-| e54b9606-8b14-4ff7-a2d7-81b2da591051 | ocp-bastion   | ACTIVE | baremetal=192.0.3.18                   | rhel7 | m1.small2 |
-+--------------------------------------+---------------+--------+----------------------------------------+-------+-----------+
-----
+
 . Upload `ironic-python-agent.kernel` file
 +
 [%nowrap]
@@ -166,7 +123,7 @@ The file `baremetal.yaml` contents the information needed to register a physical
 [source,yaml]
 ----
 nodes:
-    - name: ocp01
+    - name: bm-ocp-node02
       driver: pxe_ipmitool
       driver_info:
         ipmi_address: 192.0.2.226
@@ -204,7 +161,7 @@ This command doesn't provide any output when is correct.
 +--------------------------------------+-------+---------------+-------------+--------------------+-------------+
 | UUID                                 | Name  | Instance UUID | Power State | Provisioning State | Maintenance |
 +--------------------------------------+-------+---------------+-------------+--------------------+-------------+
-| e5a009cc-1935-4f03-b479-02569f37b832 | ocp01 | None          | None        | enroll             | False       |
+| e5a009cc-1935-4f03-b479-02569f37b832 | bm-ocp-node02 | None          | None        | enroll             | False       |
 +--------------------------------------+-------+---------------+-------------+--------------------+-------------+
 ----
 +
@@ -236,9 +193,9 @@ Note down the IDs for `bm-deploy-kernel` and `bm-deploy-ramdisk` to be used in t
 .Update _driver-info_ values
 [%nowrap]
 ----
-(overcloud) [stack@undercloud ~]$ openstack baremetal node set ocp01 \
-   --driver-info deploy_kernel=$(openstack image show bm-deploy-kernel -f value -c id) \
-   --driver-info deploy_ramdisk=$(openstack image show bm-deploy-ramdisk -f value -c id)
+(overcloud) [stack@undercloud ~]$ openstack baremetal node set bm-ocp-node02 \
+   --driver-info deploy_kernel=338b6ec3-f453-40a4-a483-d132f7aa01ad  \
+   --driver-info deploy_ramdisk=9fd00ef8-5ca0-4752-bfb9-056ad596b2f4
 ----
 [NOTE]
 This command doesn't provide any output when is correct.
@@ -248,7 +205,7 @@ The baremetal has two disks, one will be used for the Operating System and anoth
 +
 [%nowrap]
 ----
-(overcloud) [stack@undercloud ~]$ openstack baremetal node set ocp01 --property  root_device='{"name":"/dev/vda"}'
+(overcloud) [stack@undercloud ~]$ openstack baremetal node set bm-ocp-node02 --property  root_device='{"name":"/dev/vda"}'
 ----
 [NOTE]
 This command doesn't provide any output when is correct.
@@ -263,7 +220,7 @@ In the previous steps we registered the node, but it is still not available to b
 +
 [%nowrap]
 ----
-(overcloud) [stack@undercloud ~]$ openstack baremetal node manage ocp01
+(overcloud) [stack@undercloud ~]$ openstack baremetal node manage bm-ocp-node02
 ----
 [NOTE]
 This command doesn't provide any output when is correct.
@@ -281,14 +238,14 @@ This command doesn't provide any output when is correct.
 +--------------------------------------+-------+---------------+-------------+--------------------+-------------+
 | UUID                                 | Name  | Instance UUID | Power State | Provisioning State | Maintenance |
 +--------------------------------------+-------+---------------+-------------+--------------------+-------------+
-| e5a009cc-1935-4f03-b479-02569f37b832 | ocp01 | None          | power off   | manageable         | False       |
+| e5a009cc-1935-4f03-b479-02569f37b832 | bm-ocp-node02 | None          | power off   | manageable         | False       |
 +--------------------------------------+-------+---------------+-------------+--------------------+-------------+
 ----
 . Validate the node's setup
 +
 [%nowrap]
 ----
-(overcloud) [stack@undercloud ~]$ openstack baremetal node validate ocp01
+(overcloud) [stack@undercloud ~]$ openstack baremetal node validate bm-ocp-node02
 ----
 +
 .Expected output
@@ -314,13 +271,11 @@ This command doesn't provide any output when is correct.
 Interfaces may fail validation due to missing 'ramdisk', 'kernel', and 'image_source' parameters. This result is fine, because the Compute service populates those missing parameters at the beginning of the deployment process.
 
 . Provide the node
-This task will clean the disks for the node.
-
-NOTE: Since the lab is a secured and dedicated environment `automated cleaning` is disabled using the parameter `automated_clean = false`to speed up the process. It is not recommended for multi tenant production envioronment.
+This task will clean the disks for the node, booting the baremetal system and booting from iPXE.
 +
 [%nowrap]
 ----
-(overcloud) [stack@undercloud ~]$ openstack baremetal node provide ocp01
+(overcloud) [stack@undercloud ~]$ openstack baremetal node provide bm-ocp-node02
 ----
 [NOTE]
 This command doesn't provide any output when is correct.
@@ -337,9 +292,11 @@ This command doesn't provide any output when is correct.
 +--------------------------------------+-------+---------------+-------------+--------------------+-------------+
 | UUID                                 | Name  | Instance UUID | Power State | Provisioning State | Maintenance |
 +--------------------------------------+-------+---------------+-------------+--------------------+-------------+
-| e5a009cc-1935-4f03-b479-02569f37b832 | ocp01 | None          | power on    | clean wait         | False       |
+| e5a009cc-1935-4f03-b479-02569f37b832 | bm-ocp-node02 | None          | power on    | clean wait         | False       |
 +--------------------------------------+-------+---------------+-------------+--------------------+-------------+
 ----
+[NOTE]
+Repeat the command till the cleaning finishes. It takes between 5minutes and 10minutes.
 
 .Expected output after cleaning finishes
 [%nowrap]
@@ -347,7 +304,7 @@ This command doesn't provide any output when is correct.
 +--------------------------------------+-------+---------------+-------------+--------------------+-------------+
 | UUID                                 | Name  | Instance UUID | Power State | Provisioning State | Maintenance |
 +--------------------------------------+-------+---------------+-------------+--------------------+-------------+
-| e5a009cc-1935-4f03-b479-02569f37b832 | ocp01 | None          | power off   | available          | False       |
+| e5a009cc-1935-4f03-b479-02569f37b832 | bm-ocp-node02 | None          | power off   | available          | False       |
 +--------------------------------------+-------+---------------+-------------+--------------------+-------------+
 ----
 
