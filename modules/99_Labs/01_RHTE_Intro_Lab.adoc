@@ -27,8 +27,7 @@ image:ocp_on_osp.png[]
 
 OpenShift can be as well integrated in Public Clouds or in Baremetal environments, but OpenShift and OpenStack deliver applications better together. OpenStack dynamically provisions resources, while OpenShift dynamically consumes them. Together, they provide a flexible cloud-native solution for all of your container, virtual machine and physical nodes needs.
 
-This lab demonstrates how a installation of OpenShift can manage an Hybrid scenario, having a compute node for dev applications and a bare metal node for prod applications.
-
+This lab demonstrates how the OpenShift deployment on OpenStack can selectively deploy `Applications` on Virtual and Baremetal nodes using `NodeSelector` specification. 
 
 
 === OpenStack bare metal provisioning (a.k.a _Ironic_)

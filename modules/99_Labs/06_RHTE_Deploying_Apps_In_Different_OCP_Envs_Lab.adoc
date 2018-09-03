@@ -9,10 +9,100 @@
 
 = Red Hat Tech Exchange 2018 - Using OpenStack director to provision OpenShift on bare metal
 
-== Deploying applications in different OpenShift environments.
+**Scenario:1**
 
-In this lab we will create a project where the applications inside will be hosted on `ocp-node01`, the Virtual Machine.
-Another project will host production applications and the containers will run on `ocp-node02`, the baremetal node.
+== Deploying the application PoDs to required types of compute nodes using `nodeSelector` specification
+
+Assume a scenario where you required a multi-tier application, in which each of the tiers needs a particular type of compute node due to its resource utilization/security patterns.
+In this lab, we have the `Deployment Configuration.`  manifest for a two-tier application (Word Press). The customer wishes to deploy the `pods` of the front tier  (PHP) into a more flexible and horizontally scalable `virtual compute nodes`, whereas the `db` tier pods to a high capacity `baremetal compute node.
+We have the deployment manifest for both the tiers are available in `/root` of the bastion node.
+.You may verify the `node` selector specification in both `Deployment Configuration (dc)` manifests.
++
+[%nowrap]
+----
+#view frontend-app.yaml
+----
+. Note the `nodeSelector` spec of the `front tier` manifest
+
+----
++
+[%nowrap]
+...
+        nodeSelector:
+          type: "vm"
+...
+----
+.View  the `nodeSelector` in  the db tier manifest.
++
+[%nowrap]
+----
+#view mysql.yaml
+----
+. Note the `nodeSelector` spec. of the `db tier` manifest
++
+[%nowrap]
+----
+...
+        nodeSelector:
+          type: "bm"
+...
+----
+. Create a `project` for the application
++
+[%nowrap]
+----
+oc new-project node-selector-demo
+----
+. Since the word press containers are running with `root` privilege, we need to add additional security privilege to the `default` service account of the project.
++
+[%nowrap]
+----
+oc adm policy add-scc-to-user anyuid -z default  -n node-selector-demo
+----
+. Create the front tier Deployment Configuration using the `frontend-app.yaml` manifest.
++
+[%nowrap]
+----
+oc create -f  frontend-app.yaml
+----
+.Sample Output
++
+[%nowrap]
+----
+imagestream.image.openshift.io "wordpress" created
+deploymentconfig.apps.openshift.io "wordpress" created
+service "wordpress" created
+----
+. Create the `db tier` Deployment Configuration using the `mysql.yaml` manifest.
++
+[%nowrap]
+----
+oc create -f  mysql.yaml
+----
+.Sample Output
++
+[%nowrap]
+----
+imagestream.image.openshift.io "db" created
+deploymentconfig.apps.openshift.io "db" created
+----
+. You may verify the `pod` creation of the respective tiers in the selected nodes as per the `nodeSelector` specification.
++
+[%nowrap]
+----
+oc get  po -o wide  -n node-selector-demo -w 
+----
+.Sample Output
++
+[%nowrap]
+----
+NAME                READY     STATUS    RESTARTS   AGE       IP           NODE
+db-1-jlm6x          1/1       Running   0          2m        10.131.0.3   ocp-node02
+wordpress-1-x2snc   1/1       Running   0          2m        10.129.0.3   ocp-node01
+----
+You may note that as per the  Application requirement, `front tier`  pods deployed on the virtual instance `ocp-node01` and `db` tier pods deployed on baremetal node `ocp-node02`.
+
+**Scenario:2** (Optional)
 
 === Label OpenShift nodes to the correct environment
 . Connect to `ocp-master01` node

@@ -28,6 +28,7 @@ using the IP of the previous lab output.
 ----
        - {server: "ocp-node02", ip: "192.0.3.14"}
 ----
+Important: Please verify the `list` indentation while updating the entry in the playbook.
 
 . Run the the playbook without options required.
 +
@@ -65,7 +66,7 @@ The following tasks can be performed using `user data` config during the server 
 +
 [%nowrap]
 ----
-(overcloud) [stack@undercloud ~]$ ssh cloud-user@192.0.3.14
+(overcloud) [stack@undercloud ~]$ ssh cloud-user@$(openstack server show  -f value -c addresses ocp-node02 | cut -d = -f 2)
 [cloud-user@ocp-node02 ~]$ sudo -i
 ----
 [NOTE]
@@ -97,6 +98,29 @@ name=Red Hat Enterprise Linux 7 Server - Extras (RPMs)
 baseurl=http://192.0.2.253/repos/rhel-7-server-extras-rpms
 enabled=1
 gpgcheck=0
+
+[rhel-7-server-rh-common-rpms]
+name=Red Hat Enterprise Linux 7 Server - RH Common (RPMs)
+baseurl=http://192.0.2.253/repos/rhel-7-server-rh-common-rpms
+enabled=1
+gpgcheck=0
+
+[rhel-ha-for-rhel-7-server-rpms]
+name=Red Hat Enterprise Linux High Availability (for RHEL 7 Server) (RPMs)
+baseurl=http://192.0.2.253/repos/rhel-ha-for-rhel-7-server-rpms
+enabled=1
+gpgcheck=0
+
+[rhel-7-server-ansible-2.4-rpms]
+name=Ansible 2.4
+baseurl=http://192.0.2.253/repos/rhel-7-server-ansible-2.4-rpms
+enabled=1
+gpgcheck=0
+[rhel-7-server-ose-3.10-rpms]
+name=Red Hat OpenShift 3.10 (RPMs)
+baseurl=http://192.0.2.253/repos/rhel-7-server-ose-3.10-rpms
+enabled=1
+gpgcheck=0
 EOF
 ----
 
@@ -111,16 +135,15 @@ EOF
 [%nowrap]
 ----
 Loaded plugins: search-disabled-repos
-rhel-7-server-extras-rpms                                                                                                                                              | 3.6 kB  00:00:00
-rhel-7-server-rpms                                                                                                                                                     | 3.6 kB  00:00:00
-(1/4): rhel-7-server-extras-rpms/group_gz                                                                                                                              |   90 B  00:00:00
-(2/4): rhel-7-server-extras-rpms/primary_db                                                                                                                            |  63 kB  00:00:00
-(3/4): rhel-7-server-rpms/group_gz                                                                                                                                     | 154 kB  00:00:00
-(4/4): rhel-7-server-rpms/primary_db                                                                                                                                   | 4.2 MB  00:00:00
-repo id                                                                         repo name                                                                                               status
-rhel-7-server-extras-rpms                                                       Red Hat Enterprise Linux 7 Server - Extras (RPMs)                                                         105
-rhel-7-server-rpms                                                              Red Hat Enterprise Linux 7 Server (RPMs)                                                                5,285
-repolist: 5,390
+repo id                                                 repo name                                                                                       status
+rhel-7-server-ansible-2.4-rpms                          Ansible 2.4                                                                                        10
+rhel-7-server-extras-rpms                               Red Hat Enterprise Linux 7 Server - Extras (RPMs)                                                 105
+rhel-7-server-ose-3.10-rpms                             Red Hat OpenShift 3.10 (RPMs)                                                                     520
+rhel-7-server-rh-common-rpms                            Red Hat Enterprise Linux 7 Server - RH Common (RPMs)                                               84
+rhel-7-server-rpms                                      Red Hat Enterprise Linux 7 Server (RPMs)                                                        5,285
+rhel-ha-for-rhel-7-server-rpms                          Red Hat Enterprise Linux High Availability (for RHEL 7 Server) (RPMs)                              55
+repolist: 6,059
+
 ----
 
 . Install docker
@@ -155,9 +178,9 @@ System has a second disk (/dev/vdb) to be used for _Docker_, in this LAB we will
 [%nowrap]
 ----
 [root@ocp-node02 ~]# cat <<EOF >/etc/sysconfig/docker-storage-setup
-> VG=docker-vg
-> DEVS=/dev/vdb
-> EOF
+VG=docker-vg
+DEVS=/dev/vdb
+EOF
 ----
 +
 .Run `docker-storage-setup` to configure the storage properly
@@ -187,7 +210,7 @@ INFO: Device node /dev/vdb1 exists.
 +
 [%nowrap]
 ----
-[root@ocp-node02 ~]# systemctl start docker
+[root@ocp-node02 ~]# systemctl enable docker && systemctl start docker
 ----
 
 . Ensure the correct storage is configured
@@ -213,3 +236,12 @@ Storage Driver: devicemapper
 ----
 [NOTE]
 Notice the Storage Driver and the Pool Name
+.Exit from the ocp-node02 instance
++
+[%nowrap]
+----
+exit
+----
+----
+exit
+----

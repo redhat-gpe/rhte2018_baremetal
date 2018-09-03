@@ -83,7 +83,8 @@ Notice the list of the _hosts_ and the property named _baremetal_
 +-------------------+----------------------------+
 ----
 [NOTE]
-Notice the property _baremetal_ is set to true, to match the flavor previously created.
+
+Please note that while creating the flavor `baremetal` we set its property as `--property baremetal=true`. This is how we link the flavor to the respective `host aggregate`. In other words, an admin setting (host aggregate ) present to the users via the `flavor` property settings. 
 
 . Add controller node to the host aggragate.
 +
@@ -294,15 +295,19 @@ This action will take between 10 and 15 minutes.
 [IMPORTANT]
 Ensure the `status` field is `ACTIVE`
 
+.Verify the `ip address` of the newly created server
++
+[%nowrap]
+----
+echo $(openstack server show  -f value -c addresses ocp-node02 | cut -d = -f 2)
+----
 . Ensure the system is reacheable
 +
 [%nowrap]
 ----
-(overcloud) [stack@undercloud ~]$ ssh cloud-user@192.0.3.14 "hostname"
+(overcloud) [stack@undercloud ~]$ ssh cloud-user@$(openstack server show  -f value -c addresses ocp-node02 | cut -d = -f 2) "hostname"
 ----
 [NOTE]
-+
-Replace `192.0.3.14` with the the IP from the previous output.
 +
 .Expected output
 [%nowrap]

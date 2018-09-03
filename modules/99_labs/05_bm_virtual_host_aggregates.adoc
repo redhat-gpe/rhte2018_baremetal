@@ -2,7 +2,7 @@
 :scrollbar:
 :data-uri:
 
-== Host Aggregate Coniguration for OpenStack Hybrid Node Cluster
+== Host Aggregate Configuration for OpenStack Hybrid Node Cluster
 
 * To Separate the hosts for `Virtual` and `Baremetal`, create two hosts aggregate (eg:baremetal-hosts and virtual-hosts)
 

@@ -11,13 +11,16 @@
 
 == Review current nodes in OpenShift.
 
-. Connect to `ocp-master01` node
+. Connect to `bastion` node
 +
 [%nowrap]
 ----
-(overcloud) [stack@undercloud ~]$ ssh cloud-user@192.0.3.16
+(overcloud) [stack@undercloud ~]$ ssh cloud-user@192.0.3.18
 ----
-
+[%nowrap]
+----
+[cloud-user@ocp-bastion ~]$ sudo -i
+----
 . Get the list of the current nodes of OpenShift
 +
 [%nowrap]
@@ -34,27 +37,33 @@ ocp-master01   Ready     master    1d        v1.10.0+b81c8f8
 ocp-node01     Ready     compute   1d        v1.10.0+b81c8f8
 ----
 
-. Disconnect from `ocp-master01` and connect to `ocp-bastion`
+. Edit the inventory file `./hosts` to include the new node
++
+.Add a new section named _new_nodes_ after _nodes_ section.
+[NOTE]
++
+The [new_nodes] `child group` is alread available in the provided hosts file. You may uncomment the line and update the `ip address` of the `ocp-node02` server. Also check the `OpenShift Node Group` configuration in the `hosts` file. We created a custom `node group` for the `baremetal` cluster nodes with `type=bm` label. This label could be used in the `Node Selector` spectification for the Application Pods.
+[%nowrap]
+----
+[new_nodes]
+ocp-node02.openshift.example.com openshift_ip=<ocp-node02-ip> ansible_host=<ocp-node02-ip> openshift_node_group_name='node-config-bm-compute'
+----
++
+.OpenShift Node Group Reference
+NOTE: The entry is for reference only and is avialbale in the custom `hosts` file provided.
 +
 [%nowrap]
 ----
-[cloud-user@ocp-master01 ~]$ logout
-(overcloud) [stack@undercloud ~]$ ssh cloud-user@192.0.3.18
-[cloud-user@ocp-bastion ~]$ sudo -i
+openshift_node_groups=[{'name': 'node-config-master', 'labels': ['node-role.kubernetes.io/master=true']}, {'name': 'node-config-infra', 'labels': ['node-role.kubernetes.io/infra=true', 'env=infra']}, {'name': 'node-config-compute', 'labels': ['node-role.kubernetes.io/compute=true', 'type=vm',  'env=app'], 'edits': [{ 'key': 'kubeletArguments.pods-per-core','value': ['20']}]},{'name': 'node-config-bm-compute', 'labels': ['node-role.kubernetes.io/compute=true', 'type=bm'], 'edits': [{ 'key': 'kubeletArguments.pods-per-core','value': ['20']}]}]
 ----
 
-== Scale up cluster
-
-. Edit the inventory file `/etc/ansible/hosts` to include the new node
-+
-.Add a new section named _new_nodes_ after _nodes_ section.
 [%nowrap]
 ----
 [new_nodes]
 ocp-node02.openshift.example.com openshift_ip=192.0.3.14 ansible_host=192.0.3.14 openshift_node_group_name='node-config-compute'
 ----
 +
-.Add _new_nodes_ inside _OSEv3:children_ section
+.Note the  _new_nodes_ inside _OSEv3:children_ section
 [%nowrap]
 ----
 [OSEv3:children]
@@ -67,7 +76,7 @@ new_nodes
 +
 [%nowrap]
 ----
-[root@ocp-bastion ~]# ansible-playbook /usr/share/ansible/openshift-ansible/playbooks/prerequisites.yml
+[root@ocp-bastion ~]# ansible-playbook -i hosts  /usr/share/ansible/openshift-ansible/playbooks/prerequisites.yml
 ----
 [NOTE]
 Type "yes" when it ask to continue connecting to the new node.
@@ -111,22 +120,51 @@ Node Bootstrap Preparation  : Complete (0:03:13)
 Node Join                   : Complete (0:03:53)
 ----
 
-. Check the list the nodes to ensure new node appears
+. Check the  nodes to ensure new node appears
 +
-.Disconnect `ocp-bastion` and connect back to `ocp-master01`
 [%nowrap]
 ----
-[root@ocp-bastion ~]# logout
-[cloud-user@ocp-bastion ~]$ logout
-(overcloud) [stack@undercloud ~]$ ssh cloud-user@192.0.3.16
+oc get nodes --show-labels
 ----
-+
-.Get list and status of the nodes
+
+. sample Output
 [%nowrap]
 ----
-NAME           STATUS    ROLES     AGE       VERSION
-ocp-infra01    Ready     infra     1d        v1.10.0+b81c8f8
-ocp-master01   Ready     master    1d        v1.10.0+b81c8f8
-ocp-node01     Ready     compute   1d        v1.10.0+b81c8f8
-ocp-node02     Ready     compute   2m        v1.10.0+b81c8f8
+NAME           STATUS    ROLES     AGE       VERSION           LABELS
+ocp-infra01    Ready     infra     4d        v1.10.0+b81c8f8   beta.kubernetes.io/arch=amd64,beta.kubernetes.io/instance-type=763b980f-c9d2-40ac-8c5c-cc18be29a83a,beta.kubernetes.io/os=linux,env=infra,failure-domain.beta.kubernetes.io/region=regionOne,failure-domain.beta.kubernetes.io/zone=nova,kubernetes.io/hostname=ocp-infra01,node-role.kubernetes.io/infra=true
+ocp-master01   Ready     master    4d        v1.10.0+b81c8f8   beta.kubernetes.io/arch=amd64,beta.kubernetes.io/instance-type=763b980f-c9d2-40ac-8c5c-cc18be29a83a,beta.kubernetes.io/os=linux,failure-domain.beta.kubernetes.io/region=regionOne,failure-domain.beta.kubernetes.io/zone=nova,kubernetes.io/hostname=ocp-master01,node-role.kubernetes.io/master=true
+ocp-node01     Ready     compute   4d        v1.10.0+b81c8f8   beta.kubernetes.io/arch=amd64,beta.kubernetes.io/instance-type=763b980f-c9d2-40ac-8c5c-cc18be29a83a,beta.kubernetes.io/os=linux,env=app,failure-domain.beta.kubernetes.io/region=regionOne,failure-domain.beta.kubernetes.io/zone=nova,kubernetes.io/hostname=ocp-node01,node-role.kubernetes.io/compute=true,type=vm
 ----
+. Check the  nodes to ensure new node appears
++
+[%nowrap]
+----
+oc get nodes --show-labels
+----
+
+. Check the nodes with the label `type=vm`
++
+[%nowrap]
+----
+oc get nodes -l type=vm
+----
+.Sample Output
+[%nowrap]
+----
+NAME         STATUS    ROLES     AGE       VERSION
+ocp-node01   Ready     compute   4d        v1.10.0+b81c8f8
+----
+. Check the  nodes with the lable `type=bm`
++
+[%nowrap]
+----
+oc get nodes -l type=bm
+----
+. Sample Output
++
+[%nowrap]
+----
+NAME         STATUS    ROLES     AGE       VERSION
+ocp-node02   Ready     compute   4d        v1.10.0+b81c8f8
+----
+
