@@ -8,7 +8,7 @@
 
 == Use Cases 
 
-=== A Few use cases to Consider RedHat OpenStack as the IaaS Provider for OpenShift
+**A Few use cases to Consider RedHat OpenStack as the IaaS Provider for OpenShift**
 
 * End to end Infrastructure Orchestration in tandem with Container Orchestration.
 
