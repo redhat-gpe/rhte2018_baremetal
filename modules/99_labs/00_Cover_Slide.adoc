@@ -1,0 +1,5 @@
+:noaudio:
+
+
+[#cover-h1]
+OpenShift on Baremetal Nodes Using OpenStack Ironic
