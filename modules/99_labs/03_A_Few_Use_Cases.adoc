@@ -6,6 +6,7 @@
 :noaudio:
 :toc2:
 
+
 == Use Cases 
 
 **A Few use cases to Consider RedHat OpenStack as the IaaS Provider for OpenShift**
@@ -22,4 +23,5 @@
 
 * Option to Deploy OpenShift Container Storage on Baremetal nodes provisioned using Ironic.
 
-* Non-Containerized services can run on VM/BM managed by OpenStack in the same security domain.
+* Non-Containerized services can run on VM/BM managed by OpenStack in the same security domain
+
