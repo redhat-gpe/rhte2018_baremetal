@@ -21,12 +21,66 @@ During the installation of _Undercloud_, baremetal images were extracted to the 
 
 In this lab students will use the same files (`ironic-python-agent` images) for the Overcloud.
 
-. From `undercloud` node, source `overcloudrc` file
+
+. Login to the `workstation` node using the `terminal` app
++ 
+[%nowrap]
+----
+workstation-<GUID>.rhpds.opentlc.com
+----
+. `ssh` to the `undercloud` and switch as `stack` user
+
++ 
+[%nowrap]
+----
+[root@workstation-<GUID>~]# ssh root@undercloud
+----
+NOTE: password = r3dh4t1!
++
+[%nowrap]
+----
+su - stack
+----
+
+. From `undercloud` node, source `overcloudrc` (To set the Overcloud credentials in the environment)
 +
 [%nowrap]
 ----
 [stack@undercloud ~]$ source ~/overcloudrc
+----
+.Expected Output
++
+----
 (overcloud) [stack@undercloud ~]$
+----
+
+. Start all the pre-deployed OpenStack Virtual Instances
+NOTE: For the lab scenario required OpenStack virtual instances are pre-deployed
++
+[%nowrap]
+----
+(overcloud) [stack@undercloud ~]$ openstack server start `openstack server list -f value -c ID`
+----
+. Verify that all the virtual instances are in `ACTIVE` status
+IMPORTANT: It may take 3-5 minutes to start the applications on the instances.
++
+[%nowrap]
+----
+(overcloud) [stack@undercloud ~]$ openstack server list
+----
+.Expected Output
+
+[%nowrap]
+----
++--------------------------------------+---------------+--------+----------------------------------------+-------+-----------+
+| ID                                   | Name          | Status | Networks                               | Image | Flavor    |
++--------------------------------------+---------------+--------+----------------------------------------+-------+-----------+
+| fa946dfd-df12-4146-83d3-b574edb99186 | openshift-dns | ACTIVE | openshift-dns=192.168.23.9, 10.0.0.121 | rhel7 | m1.small2 |
+| 0dee08a9-deca-4477-8896-a19756e21b67 | ocp-node01    | ACTIVE | baremetal=192.0.3.12                   | rhel7 | m1.large  |
+| 36c1032e-4e48-4957-b4b6-8d549f4a4312 | ocp-infra01   | ACTIVE | baremetal=192.0.3.22                   | rhel7 | m1.large  |
+| 068aaf62-1495-49d7-a5fa-7045be3c85c6 | ocp-master01  | ACTIVE | baremetal=192.0.3.16                   | rhel7 | m1.large  |
+| e54b9606-8b14-4ff7-a2d7-81b2da591051 | ocp-bastion   | ACTIVE | baremetal=192.0.3.18                   | rhel7 | m1.small2 |
++--------------------------------------+---------------+--------+----------------------------------------+-------+-----------+
 ----
 
 . Upload `ironic-python-agent.kernel` file
