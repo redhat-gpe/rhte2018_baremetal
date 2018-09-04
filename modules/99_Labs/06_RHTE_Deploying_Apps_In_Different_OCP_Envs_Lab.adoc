@@ -76,6 +76,7 @@ imagestream.image.openshift.io "wordpress" created
 deploymentconfig.apps.openshift.io "wordpress" created
 service "wordpress" created
 ----
+
 . Create the `db tier` Deployment Configuration using the `mysql.yaml` manifest.
 +
 [%nowrap]
