@@ -26,10 +26,9 @@ We have the deployment manifest for both the tiers are available in `/root` of t
 #view frontend-app.yaml
 ----
 . Search for the `nodeSelector` spec of the `front tier` manifest
-
-----
 +
 [%nowrap]
+----
 ...
         nodeSelector:
           type: "vm"
@@ -68,7 +67,7 @@ oc adm policy add-scc-to-user anyuid -z default  -n node-selector-demo
 ----
 oc create -f  frontend-app.yaml
 ----
-. Expected Output
+.Expected Output
 +
 [%nowrap]
 ----
@@ -83,7 +82,7 @@ service "wordpress" created
 ----
 oc create -f  mysql.yaml
 ----
-. Expected Output
+.Expected Output
 +
 [%nowrap]
 ----
@@ -96,7 +95,7 @@ deploymentconfig.apps.openshift.io "db" created
 ----
 oc get  po -o wide  -n node-selector-demo -w 
 ----
-. Expected Output
+.Expected Output
 +
 [%nowrap]
 ----
