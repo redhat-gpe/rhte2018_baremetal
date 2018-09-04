@@ -3,6 +3,7 @@
 :scrollbar:
 :data-uri:
 :showdetailed:
+:toc2:
 :imagesdir: ./images
 
 == Use Cases 
