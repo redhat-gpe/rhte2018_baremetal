@@ -247,9 +247,9 @@ Note down the IDs for `bm-deploy-kernel` and `bm-deploy-ramdisk` to be used in t
 .Update _driver-info_ values
 [%nowrap]
 ----
-(overcloud) [stack@undercloud ~]$ openstack baremetal node set bm-ocp-node02 \
-   --driver-info deploy_kernel=338b6ec3-f453-40a4-a483-d132f7aa01ad  \
-   --driver-info deploy_ramdisk=9fd00ef8-5ca0-4752-bfb9-056ad596b2f4
+(overcloud) [stack@undercloud ~]$ openstack baremetal node set ocp01 \
+   --driver-info deploy_kernel=$(openstack image show bm-deploy-kernel -f value -c id) \
+   --driver-info deploy_ramdisk=$(openstack image show bm-deploy-ramdisk -f value -c id)
 ----
 [NOTE]
 This command doesn't provide any output when is correct.
