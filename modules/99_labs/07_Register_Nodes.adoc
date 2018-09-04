@@ -3,6 +3,7 @@
 :scrollbar:
 :data-uri:
 :showdetailed:
+:noaudio:
 :toc2:
 :imagesdir: ./images
 
