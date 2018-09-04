@@ -1,6 +1,9 @@
-:noaudio:
+:sectnums!:
+:hardbreaks:
 :scrollbar:
 :data-uri:
+:showdetailed:
+:imagesdir: ./images
 
 == Host Aggregates
 
@@ -16,10 +19,5 @@
 
 * Host Aggregate is visible only to admin, 
 
-* For end-user host aggregate configuration can be exposed by creating customized `flavor` with `Host Aggregate meta-data` linked.
+* For end-user host aggregate configuration can be exposed by creating customized `flavor` with `Host Aggregate meta-data` property.
 
-ifdef::showscript[]
-
-Transcript:
-
-endif::showscript[]

@@ -1,26 +1,21 @@
-
-:noaudio:
+:sectnums!:
+:hardbreaks:
 :scrollbar:
 :data-uri:
+:showdetailed:
+:imagesdir: ./images
 
 == Register the baremetal nodes to OverCloud Ironic Service
 
 * The nodes can be registered with the command  `openstack baremetal create` with the node(s) definition in `YAML template` as input
 
-
 * If the node has multiple disks, you could use  `root_device` section to specify the `root` device. 
-
 
 * Node template is like the `instackenv.json` template in the Undercloud but in YAML.
 
-
-NOTE: To view the detected during the introspection, you may use the command :
+* To view the detected disks during the introspection, you may use the command:
++
+[%nowrap]
 ----
 openstack baremetal introspection data save fdf975ae-6bd7-493f-a0b9-a0a4667b8ef3 | jq '.inventory.disks'
 ----
-
-ifdef::showscript[]
-
-Transcript:
-
-endif::showscript[]

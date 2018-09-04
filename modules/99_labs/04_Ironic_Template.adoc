@@ -1,10 +1,15 @@
-:noaudio:
+:sectnums!:
+:hardbreaks:
 :scrollbar:
 :data-uri:
+:showdetailed:
+:imagesdir: ./images
 
 == Ironic Custom Template
 
-.Ironic custom template used for the overcloud deployment
+. Ironic custom template used for the overcloud deployment
++
+[%nowrap]
 ----
 parameter_defaults:
 
@@ -22,16 +27,10 @@ parameter_defaults:
 ----
 
 * The `AggregateInstanceExtraSpecsFilter` allows to separate virtual and bare metal instances in a hybrid deployment.
+
 * Disk cleaning that is done before and between deployments only erases the partition table (metadata).
+
 * In a safer uni-tenant environment, you may disable the `automatic disk cleaning` to speed up the `node enroll` process.
 ----
 eg: automated_clean = false
 ----
-
-ifdef::showscript[]
-
-Transcript:
-
-endif::showscript[]
-
-

@@ -1,14 +1,12 @@
-:noaudio:
+:sectnums!:
+:hardbreaks:
 :scrollbar:
 :data-uri:
+:showdetailed:
+:imagesdir: ./images
+
 
 == Workflow
 
 image::images/workflow.png[]
-
-ifdef::showscript[]
-
-Transcript:
-
-endif::showscript[]
 
