@@ -5,7 +5,6 @@
 :showdetailed:
 :toc2:
 :noaudio:
-:imagesdir: ./images
 
 
 == Workflow
