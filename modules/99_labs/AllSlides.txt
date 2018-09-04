@@ -1,3 +1,4 @@
+include::00_Cover_Slide.adoc[]
 include::01_Ocp_Cluster.adoc[]
 include::02_Lab_Workflow.adoc[]
 include::03_A_Few_Use_Cases.adoc[]
