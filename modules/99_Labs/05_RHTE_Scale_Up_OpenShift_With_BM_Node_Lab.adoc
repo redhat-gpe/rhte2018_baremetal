@@ -25,7 +25,7 @@
 +
 [%nowrap]
 ----
-[cloud-user@ocp-master01 ~]$ oc get nodes
+[cloud-user@ocp-bastion ~]$ oc get nodes
 ----
 +
 .Expected output
