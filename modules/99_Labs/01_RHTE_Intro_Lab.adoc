@@ -27,7 +27,7 @@ image:ocp_on_osp.png[]
 
 OpenShift can be as well integrated in Public Clouds or in Baremetal environments, but OpenShift and OpenStack deliver applications better together. OpenStack dynamically provisions resources, while OpenShift dynamically consumes them. Together, they provide a flexible cloud-native solution for all of your container, virtual machine and physical nodes needs.
 
-This lab demonstrates how the OpenShift deployment on OpenStack can selectively deploy `Applications` on Virtual and Baremetal nodes using `NodeSelector` specification. 
+This lab demonstrates how the OpenShift deployment on OpenStack can selectively deploy `Applications` on Virtual and Baremetal nodes using `NodeSelector` specification.
 
 
 === OpenStack bare metal provisioning (a.k.a _Ironic_)
@@ -101,10 +101,15 @@ With automated cleaning, nodes move to cleaning state when moving from active ->
 image:states.png[]
 
 
-TODO:
+=== Bare Metal Service
+
+When the `Bare Metal Service` is enabled, the controller nodes will act as nova compute to be used to deploy baremetal systems.
+[%nowrap]
+----
 (overcloud) [stack@undercloud ~]$ openstack compute service list --host overcloud-controller-0.example.com --service nova-compute
 +----+--------------+------------------------------------+------+---------+-------+----------------------------+
 | ID | Binary       | Host                               | Zone | Status  | State | Updated At                 |
 +----+--------------+------------------------------------+------+---------+-------+----------------------------+
 | 10 | nova-compute | overcloud-controller-0.example.com | nova | enabled | up    | 2018-08-30T09:35:51.000000 |
 +----+--------------+------------------------------------+------+---------+-------+----------------------------+
+----
