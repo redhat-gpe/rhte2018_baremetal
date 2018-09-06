@@ -236,12 +236,10 @@ Storage Driver: devicemapper
 ----
 [NOTE]
 Notice the Storage Driver and the Pool Name
-.Exit from the ocp-node02 instance
+
+. Exit from the `ocp-node02` instance
 +
 [%nowrap]
 ----
-exit
-----
-----
-exit
+[root@ocp-node02 ~]# exit
 ----

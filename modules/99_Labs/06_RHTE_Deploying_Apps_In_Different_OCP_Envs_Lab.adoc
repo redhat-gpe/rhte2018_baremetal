@@ -23,7 +23,7 @@ We have the deployment manifest for both the tiers are available in `/root` of t
 
 [%nowrap]
 ----
-#view frontend-app.yaml
+[root@ocp-bastion ~]# view frontend-app.yaml
 ----
 . Search for the `nodeSelector` spec of the `front tier` manifest
 +
@@ -38,7 +38,7 @@ We have the deployment manifest for both the tiers are available in `/root` of t
 +
 [%nowrap]
 ----
-#view mysql.yaml
+[root@ocp-node02 ~]# vi mysql.yaml
 ----
 . Search for the `nodeSelector` spec. of the `db tier` manifest
 +
@@ -93,7 +93,7 @@ deploymentconfig.apps.openshift.io "db" created
 +
 [%nowrap]
 ----
-oc get  po -o wide  -n node-selector-demo -w 
+oc get  po -o wide  -n node-selector-demo -w
 ----
 .Expected Output
 +
