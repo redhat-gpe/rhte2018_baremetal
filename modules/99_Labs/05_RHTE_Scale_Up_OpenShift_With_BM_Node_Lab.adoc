@@ -26,7 +26,7 @@
 +
 [%nowrap]
 ----
-[cloud-user@ocp-master01 ~]$ oc get nodes
+[root@ocp-bastion ~]# oc get nodes
 ----
 +
 .Expected output
@@ -126,7 +126,7 @@ Node Join                   : Complete (0:03:53)
 +
 [%nowrap]
 ----
-oc get nodes --show-labels
+[root@ocp-bastion ~]# oc get nodes --show-labels
 ----
 +
 .Sample output
@@ -141,14 +141,14 @@ ocp-node01     Ready     compute   4d        v1.10.0+b81c8f8   beta.kubernetes.i
 +
 [%nowrap]
 ----
-oc get nodes --show-labels
+[root@ocp-bastion ~]# oc get nodes --show-labels
 ----
 
 . Check the nodes with the label `type=vm`
 +
 [%nowrap]
 ----
-oc get nodes -l type=vm
+[root@ocp-bastion ~]# oc get nodes -l type=vm
 ----
 +
 .Sample Output
@@ -161,7 +161,7 @@ ocp-node01   Ready     compute   4d        v1.10.0+b81c8f8
 +
 [%nowrap]
 ----
-oc get nodes -l type=bm
+[root@ocp-bastion ~]# oc get nodes -l type=bm
 ----
 +
 .Sample Output
