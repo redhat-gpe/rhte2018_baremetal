@@ -23,14 +23,14 @@ In this lab students will use the same files (`ironic-python-agent` images) for 
 
 
 . Login to the `workstation` node using the `terminal` app
-+ 
++
 [%nowrap]
 ----
 workstation-<GUID>.rhpds.opentlc.com
 ----
 . `ssh` to the `undercloud` and switch as `stack` user
 
-+ 
++
 [%nowrap]
 ----
 [root@workstation-<GUID>~]# ssh root@undercloud
@@ -50,6 +50,7 @@ su - stack
 ----
 .Expected Output
 +
+[%nowrap]
 ----
 (overcloud) [stack@undercloud ~]$
 ----
@@ -68,6 +69,7 @@ IMPORTANT: It may take 3-5 minutes to start the applications on the instances.
 ----
 (overcloud) [stack@undercloud ~]$ openstack server list
 ----
++
 .Expected Output
 
 [%nowrap]
@@ -174,7 +176,7 @@ The file `baremetal.yaml` contents the information needed to register a physical
 ----
 +
 .Expected output
-[source,yaml]
+[%nowrap]
 ----
 nodes:
     - name: bm-ocp-node02
@@ -334,12 +336,14 @@ This task will clean the disks for the node, booting the baremetal system and bo
 [NOTE]
 This command doesn't provide any output when is correct.
 
++
 . Check the node status
++
 [%nowrap]
 ----
 (overcloud) [stack@undercloud ~]$ openstack baremetal node list
 ----
-
++
 .Expected output
 [%nowrap]
 ----
@@ -351,7 +355,7 @@ This command doesn't provide any output when is correct.
 ----
 [NOTE]
 Repeat the command till the cleaning finishes. It takes between 5minutes and 10minutes.
-
++
 .Expected output after cleaning finishes
 [%nowrap]
 ----
