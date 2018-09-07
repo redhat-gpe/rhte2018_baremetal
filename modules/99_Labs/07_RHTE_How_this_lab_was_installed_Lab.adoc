@@ -60,7 +60,7 @@ Four default environment templates were used to configure the Hyper-Converged In
 
 The custom configuration for CEPH used in the lab is defined in the file `storage-ceph-hyperconverged-environment.yaml` inside the `/home/stack/templates/environments/` directory.
 
-. Review content of the file storage-ceph-hyperconverged-environment.yaml
+. Review the template file storage-ceph-hyperconverged-environment.yaml
 [%nowrap]
 ----
 resource_registry:

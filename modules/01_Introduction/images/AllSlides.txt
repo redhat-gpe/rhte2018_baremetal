@@ -1,8 +1,0 @@
-
-include::01_Course_Title.adoc[]
-include::02_Course_Topics.adoc[]
-include::03_Course_Overview.adoc[]
-include::04_OSP_Environment.adoc[]
-include::05_OCP_Environment.adoc[]
-include::06_OCP_OSP_Integration.adoc[]
-include::07_Course_Tips.adoc[]

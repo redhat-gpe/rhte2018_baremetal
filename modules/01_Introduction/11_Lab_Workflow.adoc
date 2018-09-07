@@ -9,5 +9,5 @@
 
 == Workflow
 
-image::images/workflow.png[]
+image::images/workflow.svg[]
 
