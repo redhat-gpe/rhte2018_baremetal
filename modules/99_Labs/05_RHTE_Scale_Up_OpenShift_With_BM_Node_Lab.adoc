@@ -17,6 +17,7 @@
 ----
 (overcloud) [stack@undercloud ~]$ ssh cloud-user@192.0.3.18
 ----
++
 [%nowrap]
 ----
 [cloud-user@ocp-bastion ~]$ sudo -i
@@ -25,7 +26,7 @@
 +
 [%nowrap]
 ----
-[cloud-user@ocp-bastion ~]$ oc get nodes
+[root@ocp-bastion ~]# oc get nodes
 ----
 +
 .Expected output
@@ -43,6 +44,7 @@ ocp-node01     Ready     compute   1d        v1.10.0+b81c8f8
 [NOTE]
 +
 The [new_nodes] `child group` is alread available in the provided hosts file. You may uncomment the line and update the `ip address` of the `ocp-node02` server. Also check the `OpenShift Node Group` configuration in the `hosts` file. We created a custom `node group` for the `baremetal` cluster nodes with `type=bm` label. This label could be used in the `Node Selector` spectification for the Application Pods.
++
 [%nowrap]
 ----
 [new_nodes]
@@ -56,7 +58,7 @@ NOTE: The entry is for reference only and is avialbale in the custom `hosts` fil
 ----
 openshift_node_groups=[{'name': 'node-config-master', 'labels': ['node-role.kubernetes.io/master=true']}, {'name': 'node-config-infra', 'labels': ['node-role.kubernetes.io/infra=true', 'env=infra']}, {'name': 'node-config-compute', 'labels': ['node-role.kubernetes.io/compute=true', 'type=vm',  'env=app'], 'edits': [{ 'key': 'kubeletArguments.pods-per-core','value': ['20']}]},{'name': 'node-config-bm-compute', 'labels': ['node-role.kubernetes.io/compute=true', 'type=bm'], 'edits': [{ 'key': 'kubeletArguments.pods-per-core','value': ['20']}]}]
 ----
-
++
 [%nowrap]
 ----
 [new_nodes]
@@ -124,10 +126,10 @@ Node Join                   : Complete (0:03:53)
 +
 [%nowrap]
 ----
-oc get nodes --show-labels
+[root@ocp-bastion ~]# oc get nodes --show-labels
 ----
-
-. sample Output
++
+.Sample output
 [%nowrap]
 ----
 NAME           STATUS    ROLES     AGE       VERSION           LABELS
@@ -139,15 +141,16 @@ ocp-node01     Ready     compute   4d        v1.10.0+b81c8f8   beta.kubernetes.i
 +
 [%nowrap]
 ----
-oc get nodes --show-labels
+[root@ocp-bastion ~]# oc get nodes --show-labels
 ----
 
 . Check the nodes with the label `type=vm`
 +
 [%nowrap]
 ----
-oc get nodes -l type=vm
+[root@ocp-bastion ~]# oc get nodes -l type=vm
 ----
++
 .Sample Output
 [%nowrap]
 ----
@@ -158,13 +161,13 @@ ocp-node01   Ready     compute   4d        v1.10.0+b81c8f8
 +
 [%nowrap]
 ----
-oc get nodes -l type=bm
+[root@ocp-bastion ~]# oc get nodes -l type=bm
 ----
-. Sample Output
++
+.Sample Output
 +
 [%nowrap]
 ----
 NAME         STATUS    ROLES     AGE       VERSION
 ocp-node02   Ready     compute   4d        v1.10.0+b81c8f8
 ----
-
