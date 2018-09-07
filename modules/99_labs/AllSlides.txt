@@ -1,8 +1,0 @@
-include::00_Cover_Slide.adoc[]
-include::01_Ocp_Cluster.adoc[]
-include::02_Lab_Workflow.adoc[]
-include::03_A_Few_Use_Cases.adoc[]
-include::04_Ironic_Template.adoc[]
-include::05_Host_Aggregates.adoc[]
-include::06_Bm_Virtual_Host_Aggregates.adoc[]
-include::07_Register_Nodes.adoc[]
