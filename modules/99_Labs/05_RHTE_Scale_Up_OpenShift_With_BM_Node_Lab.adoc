@@ -171,3 +171,20 @@ ocp-node01   Ready     compute   4d        v1.10.0+b81c8f8
 NAME         STATUS    ROLES     AGE       VERSION
 ocp-node02   Ready     compute   4d        v1.10.0+b81c8f8
 ----
+. Check the Storage Class 
++
+[%nowrap]
+----
+[root@ocp-bastion ~]# oc get sc
+----
+.Sample Output
+----
++
+[%nowrap]
+NAME                 PROVISIONER            AGE
+standard (default)   kubernetes.io/cinder   9d
+----
+[NOTE]
+
+By configuring OpenStack as the Cloud Provider, OpenShift can use Cinder as a  `Storage Class` to enable `Dynamic` storage provisioning option for the Applications
+
