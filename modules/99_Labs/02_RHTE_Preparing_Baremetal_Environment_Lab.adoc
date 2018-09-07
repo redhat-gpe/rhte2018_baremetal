@@ -26,7 +26,7 @@ In this lab students will use the same files (`ironic-python-agent` images) for 
 + 
 [%nowrap]
 ----
-workstation-<GUID>.rhpds.opentlc.com
+ssh -i <Your_Private_Key> <Your_OpenTLC_ID>@workstation-<GUID>.rhpds.opentlc.com
 ----
 . `ssh` to the `undercloud` and switch as `stack` user
 

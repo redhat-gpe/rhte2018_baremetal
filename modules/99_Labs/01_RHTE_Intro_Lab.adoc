@@ -13,8 +13,9 @@
 
 The purpose of this lab is to explore how is possible to use OpenStack director (known as well as `undercloud`) to provision bare metal servers and use them for OpenShift.
 
-OpenStack is an Infrastructure as a Service (IaaS): is a form of cloud computing that provides virtualized computing resources over the net.
-OpenShift is a Platform as a Service: is a cloud computing model in which a third-party provider delivers hardware and software tools.
+OpenStack software controls large pools of compute, storage, and networking resources throughout a datacenter, managed through a dashboard or via the OpenStack API.
+
+Red Hat® OpenShift® is a comprehensive enterprise-grade application platform, built for containers with Kubernetes.
 
 
 Through this combination, OpenShift can be installed in three different scenarios:
@@ -27,27 +28,32 @@ image:ocp_on_osp.png[]
 
 OpenShift can be as well integrated in Public Clouds or in Baremetal environments, but OpenShift and OpenStack deliver applications better together. OpenStack dynamically provisions resources, while OpenShift dynamically consumes them. Together, they provide a flexible cloud-native solution for all of your container, virtual machine and physical nodes needs.
 
-This lab demonstrates how the OpenShift deployment on OpenStack can selectively deploy `Applications` on Virtual and Baremetal nodes using `NodeSelector` specification. 
+This lab demonstrates how to use OpenStack to provision the `Cluster` infrastructure for OpenShift. The lab excersises also will help to understand , how OpenShift can selectively deploy `Applications` on Virtual and Baremetal nodes using `nodeSelector` specification. 
 
 
 === OpenStack bare metal provisioning (a.k.a _Ironic_)
 
-The main component for manage baremetal nodes is named `Ironic`: It may be used independently or as part of an OpenStack Cloud, and integrates with the OpenStack Identity (keystone), Compute (nova), Network (neutron), Image (glance), and Object (swift) services.
+The OpenStack service for manage baremetal nodes is named `Ironic`. Ironic service may be used independently or as part of an OpenStack Cloud, and integrates with the OpenStack Identity (keystone), Compute (nova), Network (neutron), Image (glance), and Object (swift) services.
 
 The Bare Metal service manages hardware through both common (eg. PXE and IPMI) and vendor-specific remote management protocols. It provides the cloud operator with a unified interface to a heterogeneous fleet of servers while also providing the Compute service with an interface that allows physical servers to be managed as though they were virtual machines.
 
+**Key Components of Ironic Service**
 
 ==== Ironic Conductor
 
-Adds/edits/deletes nodes; powers on/off nodes with IPMI or other vendor-specific protocol; provisions/deploys/cleans bare metal nodes.
+* Adds/edits/deletes nodes
+
+*  powers on/off nodes with IPMI or other vendor-specific protocol
+
+*  provisions/deploys/cleans bare metal nodes.
 
 
 ==== Ironic API
 
-A RESTful API that processes application requests by sending them to the ironic-conductor over remote procedure call (RPC).
+* A RESTful API that processes application requests by sending them to the ironic-conductor over remote procedure call (RPC).
 
 ==== Ironic IPA (_ironic-python-agent_)
-A python service which is run in a temporary ramdisk to provide ironic-conductor and ironic-inspector services with remote access, in-band hardware control, and hardware introspection.
+* A python service which is run in a temporary ramdisk to provide ironic-conductor and ironic-inspector services with remote access, in-band hardware control, and hardware introspection.
 
 
 
@@ -62,14 +68,15 @@ image:enroll.png[]
 ==== Interaction with OpenStack components
 The Bare Metal service may, depending upon configuration, interact with several other OpenStack services. This includes:
 
-* the OpenStack Identity service (keystone) for request authentication and to locate other OpenStack services
-* the OpenStack Image service (glance) from which to retrieve images and image meta-data
-* the OpenStack Networking service (neutron) for DHCP and network configuration
-* the OpenStack Compute service (nova) works with the Bare Metal service and acts as a user-facing API for instance management, while the Bare Metal service provides the admin/operator API for hardware management. The OpenStack Compute service also provides scheduling facilities (matching flavors <-> images <-> hardware), tenant quotas, IP assignment, and other services which the Bare Metal service does not, in and of itself, provide.
-* the OpenStack Object Storage (swift) provides temporary storage for the configdrive, user images, deployment logs and inspection data.
-* the OpenStack Block Storage (cinder) provides persistent storage (Currently only for Virtual nodes).
+* The OpenStack Identity service (keystone) for request authentication and to locate other OpenStack services
+* The OpenStack Image service (glance) from which to retrieve images and image meta-data
+* The OpenStack Networking service (neutron) for DHCP and network configuration
+* The OpenStack Compute service (nova) works with the Bare Metal service and acts as a user-facing API for instance management, while the Bare Metal service provides the admin/operator API for hardware management. The OpenStack Compute service also provides scheduling facilities 
+** Matching flavors,images, hardware, tenant quotas, IP assignment, and other services which the Bare Metal service does not, in and of itself, provide.
+* The OpenStack Object Storage (swift) provides temporary storage for the configdrive, user images, deployment logs and inspection data.
+* The OpenStack Block Storage (cinder) provides persistent storage (Currently only for Virtual nodes).
 [IMPORTANT]
-OpenShift Baremetal nodes systems can't consume cinder as StorageClass.
+OpenShift Baremetal nodes systems currently not supporting  cinder as StorageClass.
 It is planned for OpenShift version 4.0 to be able to consume "Standalone Cinder" (RFE: https://bugzilla.redhat.com/show_bug.cgi?id=1566388)
 If OpenStack uses Ceph it is possible to use Ceph RBD as Storageclass: https://docs.openshift.com/container-platform/3.10/install_config/persistent_storage/persistent_storage_ceph_rbd.html
 
@@ -96,15 +103,20 @@ Ironic provides two modes for node cleaning: *automated* and *manual*.
 
 When hardware is recycled from one workload to another, ironic performs automated cleaning on the node to ensure it’s ready for another workload. This ensures the tenant will get a consistent bare metal node deployed every time.
 
-With automated cleaning, nodes move to cleaning state when moving from active -> available state (when the hardware is recycled from one workload to another). Nodes also traverse cleaning when going from manageable -> available state (before the first workload is assigned to the nodes)
+With automated cleaning, nodes move to cleaning state when moving from active to available state (when the hardware is recycled from one workload to another). Nodes also traverse cleaning when going from manageable to available state (before the first workload is assigned to the nodes)
 
 image:states.png[]
 
 
 TODO:
+. Verify that the `nova-compute` service is enabled on the controller node
++
+[%nowrap]
+----
 (overcloud) [stack@undercloud ~]$ openstack compute service list --host overcloud-controller-0.example.com --service nova-compute
 +----+--------------+------------------------------------+------+---------+-------+----------------------------+
 | ID | Binary       | Host                               | Zone | Status  | State | Updated At                 |
 +----+--------------+------------------------------------+------+---------+-------+----------------------------+
 | 10 | nova-compute | overcloud-controller-0.example.com | nova | enabled | up    | 2018-08-30T09:35:51.000000 |
 +----+--------------+------------------------------------+------+---------+-------+----------------------------+
+----
