@@ -9,5 +9,5 @@
 
 == Hybrid Node OCP Cluster
 
-image::images/ocp-cluster.svg[]
+image::images/ocp-cluster.png[]
 
