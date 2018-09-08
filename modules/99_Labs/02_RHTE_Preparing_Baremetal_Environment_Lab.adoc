@@ -35,7 +35,8 @@ ssh -i <Your_Private_Key> <Your_OpenTLC_ID>@workstation-<GUID>.rhpds.opentlc.com
 ----
 [root@workstation-<GUID>~]# ssh root@undercloud
 ----
-NOTE: password = r3dh4t1!
+[NOTE]
+password = r3dh4t1!
 +
 [%nowrap]
 ----
@@ -56,7 +57,9 @@ su - stack
 ----
 
 . Start all the pre-deployed OpenStack Virtual Instances
-NOTE: For the lab scenario required OpenStack virtual instances are pre-deployed
+
+[NOTE]
+For the lab scenario required OpenStack virtual instances are pre-deployed
 +
 [%nowrap]
 ----

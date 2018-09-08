@@ -117,7 +117,7 @@ Once the flavor and host aggregate is created, all the elements are ready to pro
 
 . Check the baremetal network and subnet
 +
-.Show network details
+. Show network details
 [%nowrap]
 ----
 (overcloud) [stack@undercloud ~]$ openstack network show baremetal
@@ -161,7 +161,7 @@ Once the flavor and host aggregate is created, all the elements are ready to pro
 [NOTE]
 Notice the parameter `provider:physical_network` and `provider:network_type`
 +
-.Show subnet details
+. Show subnet details
 [%nowrap]
 ----
 (overcloud) [stack@undercloud ~]$ openstack subnet show baremetal
@@ -203,7 +203,7 @@ The `dns_nameservers` parameter points to the `openshift-dns` VM.
 +
 A keypair named `openshift` is already configured using the `id_rsa.pub` for the `stack` user.
 +
-.List the current keypairs
+. List the current keypairs
 [%nowrap]
 ----
 (overcloud) [stack@undercloud ~]$ openstack keypair list
@@ -295,7 +295,7 @@ This action will take between 10 and 15 minutes.
 [IMPORTANT]
 Ensure the `status` field is `ACTIVE`
 
-.Verify the `ip address` of the newly created server
+. Verify the ip address of the newly created server
 +
 [%nowrap]
 ----

@@ -116,10 +116,18 @@ TODO:
 =======
 === Bare Metal Service
 
-When the `Bare Metal Service` is enabled, the controller nodes will act as nova compute to be used to deploy baremetal systems.
+When the `Bare Metal Service` is enabled, the controller nodes will act as nova compute to be used to deploy baremetal systems
+
+. Verify the compute service enabled on the controller node
++
 [%nowrap]
 ----
 (overcloud) [stack@undercloud ~]$ openstack compute service list --host overcloud-controller-0.example.com --service nova-compute
+----
+.Sample Output
++
+[%nowrap]
+----
 +----+--------------+------------------------------------+------+---------+-------+----------------------------+
 | ID | Binary       | Host                               | Zone | Status  | State | Updated At                 |
 +----+--------------+------------------------------------+------+---------+-------+----------------------------+

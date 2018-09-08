@@ -52,7 +52,8 @@ ocp-node02.openshift.example.com openshift_ip=<ocp-node02-ip> ansible_host=<ocp-
 ----
 +
 .OpenShift Node Group Reference
-NOTE: The entry is for reference only and is avialbale in the custom `hosts` file provided.
+[NOTE]
+The entry is for reference only and is avialbale in the custom `hosts` file provided.
 +
 [%nowrap]
 ----

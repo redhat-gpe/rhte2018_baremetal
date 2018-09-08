@@ -11,7 +11,7 @@
 
 **Scenario:1**
 
-== Deploying the application PoDs to required types of compute nodes using `nodeSelector` specification
+== Deploying Application in  hybrid cluster using `nodeSelector` specification
 
 Assume a scenario where you required a multi-tier application, in which each of the tiers needs a particular type of compute node due to its resource utilization/security patterns.
 
