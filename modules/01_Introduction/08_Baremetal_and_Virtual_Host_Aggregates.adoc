@@ -4,12 +4,12 @@
 
 == Host Aggregate Configuration
 
-* To separate hosts for _Virtual_ and _Baremetal_, create two host aggregates (eg: *baremetal-hosts* and *virtual-hosts*)
-+
-Processing the instance creation request, Nova scheduler compares the instance flavor properties with the properties assigned to host aggregates, and ensures that the instance is provisioned on the correct compute node
+What Nova Scheduler processes a server create request, it compares the flavor properties with the host aggregates metadata and selects a suitable host
+
+* To differentiate KVM and Ironic nodes, create two host aggregates
+** For example, *baremetal-hosts* and *virtual-hosts*
 
 * Add _compute_ nodes for virtual instances to the *virtual-hosts* aggregate
-
 * Add _controller_ nodes to the *baremetal-hosts* aggregate
 
 ** By default, only controller nodes have the _NovaIronic_ service

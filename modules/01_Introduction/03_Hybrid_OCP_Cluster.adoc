@@ -2,7 +2,7 @@
 :data-uri:
 :noaudio:
 
-== Building Hybrid OCP Cluster
+== Hybrid OCP Cluster
 
 image::images/ocp-cluster.png[]
 

@@ -4,8 +4,6 @@
 
 == Shift on Stack Use Cases
 
-**A Few use cases to Consider RedHat OpenStack as the IaaS Provider for OpenShift**
-
 * End to end Infrastructure Orchestration in tandem with Container Orchestration.
 
 * Hybrid Model (On Prem + Public ) to Manage the cost.
