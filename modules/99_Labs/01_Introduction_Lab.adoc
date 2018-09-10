@@ -3,7 +3,6 @@
 :linkattrs:
 :toc2:
 :noaudio:
-:imagesdir: ./images
 
 
 = Using OpenStack Director to Provision OpenShift on Bare Metal
@@ -99,23 +98,3 @@ When hardware is recycled from one workload to another, ironic performs automate
 With automated cleaning, nodes move to cleaning state when moving from active to available state (when the hardware is recycled from one workload to another). Nodes also traverse cleaning when going from manageable to available state (before the first workload is assigned to the nodes)
 
 image:states.png[]
-
-When the _Bare Metal Service_ is enabled, the controller nodes will act as nova compute to be used to deploy bare metal systems
-
-. Verify the compute service enabled on the controller node
-+
-[%nowrap]
-----
-(overcloud) [stack@undercloud ~]$ openstack compute service list --host overcloud-controller-0.example.com --service nova-compute
-----
-+
-.Sample Output
-+
-[%nowrap]
-----
-+----+--------------+------------------------------------+------+---------+-------+----------------------------+
-| ID | Binary       | Host                               | Zone | Status  | State | Updated At                 |
-+----+--------------+------------------------------------+------+---------+-------+----------------------------+
-| 10 | nova-compute | overcloud-controller-0.example.com | nova | enabled | up    | 2018-08-30T09:35:51.000000 |
-+----+--------------+------------------------------------+------+---------+-------+----------------------------+
-----

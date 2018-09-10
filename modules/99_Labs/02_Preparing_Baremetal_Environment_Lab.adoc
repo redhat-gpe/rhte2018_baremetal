@@ -7,48 +7,41 @@
 :imagesdir: ./images
 
 
-= Red Hat Tech Exchange 2018 - Using OpenStack director to provision OpenShift on bare metal
+= Using OpenStack director to Provision OpenShift on Bare Metal
 
-== Preparing baremetal environment to be used
+== Preparing Bare Metal Environment to Be Used
 
 === Introduction
 
-In this lab students configure _Baremetal_ on the _Overcloud_ environment, configuring the images, enrolling the node and creating host aggregate dedicated to Baremetal.
+In this lab, you configure _bare metal_ node in the _overcloud_ environment, create images to be deployed on the bare metal node, and enroll the node to the overcloud's Ironic service.
 
 === Uploading images to overcloud
 
-During the installation of _Undercloud_, baremetal images were extracted to the `/home/stack/images/` directory and uploaded to undercloud's glance.
+During the _undercloud_ installation, bare metal images were extracted to the `/home/stack/images/` directory and uploaded to undercloud's Glance.
 
-In this lab students will use the same files (`ironic-python-agent` images) for the Overcloud.
+In this lab, you use the same files (`ironic-python-agent` and `overcloud-full` images) in the overcloud.
 
-
-. Login to the `workstation` node using the `terminal` app
+. Login to the `workstation` node as the `lab-user` with password `r3dh4t1!`:
 +
 [%nowrap]
 ----
-ssh -i <Your_Private_Key> <Your_OpenTLC_ID>@workstation-<GUID>.rhpds.opentlc.com
+ssh lab-user@workstation-<GUID>.rhpds.opentlc.com
 ----
-. `ssh` to the `undercloud` and switch as `stack` user
 
+. From `workstation`, login to the `undercloud` node as `stack` user with password `r3dh4t1!`:
 +
 [%nowrap]
 ----
-[root@workstation-<GUID>~]# ssh root@undercloud
-----
-[NOTE]
-password = r3dh4t1!
-+
-[%nowrap]
-----
-su - stack
+[root@workstation-<GUID>~]# ssh stack@undercloud
 ----
 
-. From `undercloud` node, source `overcloudrc` (To set the Overcloud credentials in the environment)
+. From `undercloud` node, source `overcloudrc` to set the overcloud credentials in the environment:
 +
 [%nowrap]
 ----
 [stack@undercloud ~]$ source ~/overcloudrc
 ----
++
 .Expected Output
 +
 [%nowrap]
@@ -56,7 +49,7 @@ su - stack
 (overcloud) [stack@undercloud ~]$
 ----
 
-. Verify the compute service enabled on the controller node
+. Verify the compute service enabled on the controller node:
 +
 [%nowrap]
 ----
@@ -64,7 +57,6 @@ su - stack
 ----
 +
 .Sample Output
-+
 [%nowrap]
 ----
 +----+--------------+------------------------------------+------+---------+-------+----------------------------+
@@ -74,17 +66,17 @@ su - stack
 +----+--------------+------------------------------------+------+---------+-------+----------------------------+
 ----
 
-. Start all the pre-deployed OpenStack Virtual Instances
-
-[NOTE]
-For the lab scenario required OpenStack virtual instances are pre-deployed
+. Start all the pre-deployed OpenStack virtual instances:
 +
 [%nowrap]
 ----
 (overcloud) [stack@undercloud ~]$ openstack server start `openstack server list -f value -c ID`
 ----
-. Verify that all the virtual instances are in `ACTIVE` status
-IMPORTANT: It may take 3-5 minutes to start the applications on the instances.
++
+[NOTE]
+For the lab scenario, the required OpenStack virtual instances are pre-deployed.
+
+. Verify that all the virtual instances are in `ACTIVE` status:
 +
 [%nowrap]
 ----
@@ -92,7 +84,6 @@ IMPORTANT: It may take 3-5 minutes to start the applications on the instances.
 ----
 +
 .Expected Output
-
 [%nowrap]
 ----
 +--------------------------------------+---------------+--------+----------------------------------------+-------+-----------+
@@ -105,8 +96,11 @@ IMPORTANT: It may take 3-5 minutes to start the applications on the instances.
 | e54b9606-8b14-4ff7-a2d7-81b2da591051 | ocp-bastion   | ACTIVE | baremetal=192.0.3.18                   | rhel7 | m1.small2 |
 +--------------------------------------+---------------+--------+----------------------------------------+-------+-----------+
 ----
++
+[IMPORTANT]
+It may take 3-5 minutes to start the applications on the instances.
 
-. Upload `ironic-python-agent.kernel` file
+. Upload the `ironic-python-agent.kernel` image file:
 +
 [%nowrap]
 ----
@@ -145,7 +139,7 @@ IMPORTANT: It may take 3-5 minutes to start the applications on the instances.
 +------------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 ----
 
-. Upload `ironic-python-agent.initramfs` file
+. Upload `ironic-python-agent.initramfs` ramdisk file:
 +
 [%nowrap]
 ----
@@ -154,7 +148,6 @@ IMPORTANT: It may take 3-5 minutes to start the applications on the instances.
   --disk-format ari \
   --public \
   --file ./images/ironic-python-agent.initramfs bm-deploy-ramdisk
-
 ----
 +
 .Expected output
@@ -185,11 +178,11 @@ IMPORTANT: It may take 3-5 minutes to start the applications on the instances.
 +------------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 ----
 
-=== Registering and configure baremetal node
+=== Register and Configure Bare Metal Node
 
 The file `baremetal.yaml` contents the information needed to register a physical node (name, IPMI details, MAC address and other details related to the resources).
 
-. Review `baremetal.yaml` file
+. Review `baremetal.yaml` file:
 +
 [%nowrap]
 ----
@@ -214,8 +207,8 @@ nodes:
       ports:
         - address: "2c:c2:60:01:02:07"
 ----
-+
-. Register the node to _ironic_
+
+. Register the node to Ironic service:
 +
 [%nowrap]
 ----
@@ -225,7 +218,7 @@ nodes:
 [NOTE]
 This command doesn't provide any output when is correct.
 
-. Ensure the node was registered correctly.
+. Ensure the node was registered correctly:
 +
 [%nowrap]
 ----
@@ -242,9 +235,9 @@ This command doesn't provide any output when is correct.
 +--------------------------------------+-------+---------------+-------------+--------------------+-------------+
 ----
 +
-Once the node is registered, we need to set the parameters `deploy_kernel` and `deploy_ramdisk` referencing the images previously updated.
+Once the node is registered, you need to set the parameters `deploy_kernel` and `deploy_ramdisk` referencing the images previously updated.
 
-. List the images registered previously
+. List the images registered previously:
 +
 [%nowrap]
 ----
@@ -263,46 +256,49 @@ Once the node is registered, we need to set the parameters `deploy_kernel` and `
 | 7d69b80c-341a-40d4-9f36-167b18368bc0 | rhel7                           | active |
 +--------------------------------------+---------------------------------+--------+
 ----
++
 Note down the IDs for `bm-deploy-kernel` and `bm-deploy-ramdisk` to be used in the next command.
 
-. Set _driver_ properties to the node registered.
+. Set _driver_ properties to the bare metal node:
 +
-.Update _driver-info_ values
 [%nowrap]
 ----
 (overcloud) [stack@undercloud ~]$ openstack baremetal node set bm-ocp-node02 \
    --driver-info deploy_kernel=$(openstack image show bm-deploy-kernel -f value -c id) \
    --driver-info deploy_ramdisk=$(openstack image show bm-deploy-ramdisk -f value -c id)
 ----
++
 [NOTE]
 This command doesn't provide any output when is correct.
 
-. Set _root_ disk for the registered node
-The baremetal has two disks, one will be used for the Operating System and another for _Docker_.
+. Set _root_ disk for the bare metal node:
 +
 [%nowrap]
 ----
 (overcloud) [stack@undercloud ~]$ openstack baremetal node set bm-ocp-node02 --property  root_device='{"name":"/dev/vda"}'
 ----
++
 [NOTE]
-This command doesn't provide any output when is correct.
+The bare metal has two disks, one will be used as a _root_ disk for the operating system and another for _docker storage_.
++
 [IMPORTANT]
-In production you should not use _name_ for the `root_device` parameter, it should use the _serial_ parameter.
+In production, you should not use _name_ for the `root_device` parameter; you should use the _serial_ or _wwn_ parameters.
 
-=== Managing/providing the node.
+=== Managing and Providing the Node
 
-In the previous steps we registered the node, but it is still not available to be used. We need to `manage` and `provide` the node, what it will perform an automated cleaning.
+In the previous steps, you registered the bare metal node, but it is still not available to be used. You need to change the state of the node to _manageable_ and then to _available_ state.
 
-. Set the node as _manageable_
+. Set the node to the _manageable_ state:
 +
 [%nowrap]
 ----
 (overcloud) [stack@undercloud ~]$ openstack baremetal node manage bm-ocp-node02
 ----
++
 [NOTE]
 This command doesn't provide any output when is correct.
 
-. Ensure the node is on the new status.
+. Ensure the node is in the new state:
 +
 [%nowrap]
 ----
@@ -318,7 +314,8 @@ This command doesn't provide any output when is correct.
 | e5a009cc-1935-4f03-b479-02569f37b832 | bm-ocp-node02 | None          | power off   | manageable         | False       |
 +--------------------------------------+-------+---------------+-------------+--------------------+-------------+
 ----
-. Validate the node's setup
+
+. Validate the node's setup:
 +
 [%nowrap]
 ----
@@ -345,39 +342,28 @@ This command doesn't provide any output when is correct.
 ----
 +
 [NOTE]
-Interfaces may fail validation due to missing 'ramdisk', 'kernel', and 'image_source' parameters. This result is fine, because the Compute service populates those missing parameters at the beginning of the deployment process.
+Interfaces may fail validation due to missing 'ramdisk', 'kernel', and 'image_source' parameters. This result is fine, because Compute service populates these missing parameters at the beginning of the deployment process.
 
-. Provide the node
-This task will clean the disks for the node, booting the baremetal system and booting from iPXE.
+. Provide the node:
 +
 [%nowrap]
 ----
 (overcloud) [stack@undercloud ~]$ openstack baremetal node provide bm-ocp-node02
 ----
-[NOTE]
-This command doesn't provide any output when is correct.
-
 +
-. Check the node status
+[NOTE]
+This command cleans the node's disks by PXE booting the system using the deployment kernel and ramdisk and removing file system metadata from the attached disks.
++
+This command doesn't provide any output if there are no errors.
+
+. Check the node status:
 +
 [%nowrap]
 ----
 (overcloud) [stack@undercloud ~]$ openstack baremetal node list
 ----
 +
-.Expected output
-[%nowrap]
-----
-+--------------------------------------+-------+---------------+-------------+--------------------+-------------+
-| UUID                                 | Name  | Instance UUID | Power State | Provisioning State | Maintenance |
-+--------------------------------------+-------+---------------+-------------+--------------------+-------------+
-| e5a009cc-1935-4f03-b479-02569f37b832 | bm-ocp-node02 | None          | power on    | clean wait         | False       |
-+--------------------------------------+-------+---------------+-------------+--------------------+-------------+
-----
-[NOTE]
-Repeat the command till the cleaning finishes. It takes between 5minutes and 10minutes.
-+
-.Expected output after cleaning finishes
+.Expected output after cleaning finished
 [%nowrap]
 ----
 +--------------------------------------+-------+---------------+-------------+--------------------+-------------+
@@ -387,7 +373,7 @@ Repeat the command till the cleaning finishes. It takes between 5minutes and 10m
 +--------------------------------------+-------+---------------+-------------+--------------------+-------------+
 ----
 
-. Ensure the registered now appears as _Hypervisor_
+. Ensure the registered node now appears as hypervisor with the type _ironic_:
 +
 [%nowrap]
 ----
@@ -407,5 +393,6 @@ Repeat the command till the cleaning finishes. It takes between 5minutes and 10m
 | 126 | e5a009cc-1935-4f03-b479-02569f37b832 | ironic          | 172.17.0.20 | up    |
 +-----+--------------------------------------+-----------------+-------------+-------+
 ----
++
 [NOTE]
-The ip `172.17.0.20` corresponds to the controller's internal api IP.
+The `172.17.0.20` IP address corresponds to the controller's IP address on the `internal_api` network.
