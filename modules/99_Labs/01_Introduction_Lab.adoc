@@ -3,7 +3,7 @@
 :linkattrs:
 :toc2:
 :noaudio:
-
+:imagesdir: ./images
 
 = Using OpenStack Director to Provision OpenShift on Bare Metal
 
