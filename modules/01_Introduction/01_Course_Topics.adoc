@@ -1,7 +1,8 @@
 
 :scrollbar:
 :data-uri:
-:noaudio: 
+:noaudio:
+
 == Module Topics
 
 * Course Overview

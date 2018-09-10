@@ -2,9 +2,9 @@
 :data-uri:
 :noaudio:
 
-== Lab Workflow
+== Building Hybrid OCP Cluster
 
-image::images/workflow.png[]
+image::images/ocp-cluster.png[]
 
 ifdef::showscript[]
 

@@ -1,0 +1,22 @@
+:scrollbar:
+:data-uri:
+:noaudio:
+
+== Host Aggregate Configuration
+
+* To separate hosts for _Virtual_ and _Baremetal_, create two host aggregates (eg: *baremetal-hosts* and *virtual-hosts*)
++
+Processing the instance creation request, Nova scheduler compares the instance flavor properties with the properties assigned to host aggregates, and ensures that the instance is provisioned on the correct compute node
+
+* Add _compute_ nodes for virtual instances to the *virtual-hosts* aggregate
+
+* Add _controller_ nodes to the *baremetal-hosts* aggregate
+
+** By default, only controller nodes have the _NovaIronic_ service
+** If there is composable role with the _NovaIronic_ service, add those nodes also to the *baremetal-hosts* aggregate
+
+ifdef::showscript[]
+
+=== Transcript
+
+endif::showscript[]

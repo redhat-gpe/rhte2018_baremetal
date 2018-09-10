@@ -1,13 +1,8 @@
-:sectnums!:
-:hardbreaks:
 :scrollbar:
 :data-uri:
-:showdetailed:
 :noaudio:
-:toc2:
 
-
-== Use Cases 
+== Shift on Stack Use Cases
 
 **A Few use cases to Consider RedHat OpenStack as the IaaS Provider for OpenShift**
 
@@ -25,3 +20,8 @@
 
 * Non-Containerized services can run on VM/BM managed by OpenStack in the same security domain
 
+ifdef::showscript[]
+
+=== Transcript
+
+endif::showscript[]

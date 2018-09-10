@@ -2,9 +2,9 @@
 :data-uri:
 :noaudio:
 
-== Lab Workflow
+== Lab Environment
 
-image::images/workflow.png[]
+image:images/ospd_lab.png[]
 
 ifdef::showscript[]
 

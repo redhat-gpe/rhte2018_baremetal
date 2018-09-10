@@ -4,12 +4,12 @@
 
 == Component integration between OpenStack and OpenShift
 
-image:images/ocp_osp_components.png[width=100%]
+image:images/ocp_osp_components.png[]
 
 ifdef::showscript[]
 
 === Transcript
 
-OpenShift can consume most of the components of OpenStack, what it converts this integration perfect to be able to manage completly the IaaS and the PaaS.
+OpenShift can consume most of the OpenStack services.
 
 endif::showscript[]

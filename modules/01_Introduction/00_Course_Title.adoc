@@ -9,7 +9,7 @@ ifdef::revealjs_slideshow[]
 OpenShift on Baremetal Nodes Using OpenStack Ironic
 
 [#cover-h2]
-Course Introduction
+APAC RHTE Session R1001
 
 [#cover-logo]
 image::{revealjs_cover_image}[]

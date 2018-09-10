@@ -1,15 +1,10 @@
-:sectnums!:
-:hardbreaks:
 :scrollbar:
 :data-uri:
-:showdetailed:
 :noaudio:
-:toc2:
 
 == Ironic Custom Template
 
-. Ironic custom template used for the overcloud deployment
-+
+.Deployment Template to Configure Ironic in Overcloud
 [%nowrap]
 ----
 parameter_defaults:
@@ -32,6 +27,13 @@ parameter_defaults:
 * Disk cleaning that is done before and between deployments only erases the partition table (metadata).
 
 * In a safer uni-tenant environment, you may disable the `automatic disk cleaning` to speed up the `node enroll` process.
++
 ----
-eg: automated_clean = false
+automated_clean = false
 ----
+
+ifdef::showscript[]
+
+=== Transcript
+
+endif::showscript[]
