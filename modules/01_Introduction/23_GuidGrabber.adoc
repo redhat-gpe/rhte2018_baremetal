@@ -1,0 +1,19 @@
+:noaudio:
+:scrollbar:
+:data-uri:
+
+== Access Your Lab
+
+* Login to the workstation VM using assigned GUID
+* Use the *lab-user* account with password *r3dh4t1!*
++
+----
+$ ssh lab-user@workstation-GUID.rhpds.opentlc.com
+----
+
+ifdef::showscript[]
+
+=== Transcript
+
+
+endif::showscript[]

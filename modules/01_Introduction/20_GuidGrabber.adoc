@@ -1,0 +1,19 @@
+:noaudio:
+:scrollbar:
+:data-uri:
+
+== GUID Grabber
+
+You need to get a unique ID of your lab environment -- *GUID*
+
+. Begin by navigating to http://bit.ly/rhte-guidgrabber
++
+image::images/gg1.png[GuidGrabber Landing Page]
+
+
+ifdef::showscript[]
+
+=== Transcript
+
+
+endif::showscript[]

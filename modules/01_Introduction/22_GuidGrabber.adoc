@@ -1,0 +1,17 @@
+:noaudio:
+:scrollbar:
+:data-uri:
+
+== GUID Grabber
+
+image::images/ggdedicated.png[Information Page]
+
+The resulting page displays your lab's GUID and other useful information about your lab environment
+
+
+ifdef::showscript[]
+
+=== Transcript
+
+
+endif::showscript[]

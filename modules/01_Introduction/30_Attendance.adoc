@@ -1,0 +1,14 @@
+:noaudio:
+:scrollbar:
+:data-uri:
+
+== Thank you for attending!
+
+image::images/Attendance-R1001.png[]
+
+ifdef::showscript[]
+
+=== Transcript
+
+
+endif::showscript[]

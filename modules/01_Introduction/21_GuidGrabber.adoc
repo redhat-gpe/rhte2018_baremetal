@@ -1,0 +1,19 @@
+:noaudio:
+:scrollbar:
+:data-uri:
+
+== GUID Grabber
+
+image::images/gg1.png[GuidGrabber Landing Page]
+
+[start=2]
+. From this page select the proper *Lab Code* for the current lab
+
+. Enter the *Activation Key* provided by the lab proctor and click *Next*
+
+ifdef::showscript[]
+
+=== Transcript
+
+
+endif::showscript[]

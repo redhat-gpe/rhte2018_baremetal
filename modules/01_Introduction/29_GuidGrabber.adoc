@@ -1,0 +1,26 @@
+:noaudio:
+:scrollbar:
+:data-uri:
+
+== GUID Grabber
+
+. Navigate to http://bit.ly/rhte-guidgrabber to get *GUID*
+
+. Select the proper *Lab Code* for the current lab and enter the *Activation Key* provided by the lab proctor
+
+. The resulting page will display your lab's GUID and other useful information about your lab environment
+
+. Use the assigned lab's GUID to log in to your workstation VM with user name `lab-user` and password `r3dh4t1!`
++
+----
+$ ssh lab-user@workstation-GUID.rhpds.opentlc.com
+----
+
+. When you are done with the lab, click *Reset Station*
+
+ifdef::showscript[]
+
+=== Transcript
+
+
+endif::showscript[]

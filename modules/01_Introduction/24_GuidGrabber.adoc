@@ -1,0 +1,19 @@
+:noaudio:
+:scrollbar:
+:data-uri:
+
+== Reset for the Next Lab
+
+image::images/ggdedicated.png[Information Page]
+
+When you are done with this lab, click *Reset Station*
+
+* It does not stop or delete your lab environment; it just resets a cookie
+
+
+ifdef::showscript[]
+
+=== Transcript
+
+
+endif::showscript[]
