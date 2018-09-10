@@ -56,6 +56,24 @@ su - stack
 (overcloud) [stack@undercloud ~]$
 ----
 
+. Verify the compute service enabled on the controller node
++
+[%nowrap]
+----
+(overcloud) [stack@undercloud ~]$ openstack compute service list --host overcloud-controller-0.example.com --service nova-compute
+----
++
+.Sample Output
++
+[%nowrap]
+----
++----+--------------+------------------------------------+------+---------+-------+----------------------------+
+| ID | Binary       | Host                               | Zone | Status  | State | Updated At                 |
++----+--------------+------------------------------------+------+---------+-------+----------------------------+
+| 10 | nova-compute | overcloud-controller-0.example.com | nova | enabled | up    | 2018-08-30T09:35:51.000000 |
++----+--------------+------------------------------------+------+---------+-------+----------------------------+
+----
+
 . Start all the pre-deployed OpenStack Virtual Instances
 
 [NOTE]
