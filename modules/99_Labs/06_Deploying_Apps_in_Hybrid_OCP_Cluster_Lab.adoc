@@ -9,7 +9,7 @@
 
 = Using OpenStack Director to Provision OpenShift on Bare Metal
 
-== Deploying Application in Hybrid Cluster Using the `nodeSelector` Specification
+== Deploying Application in Hybrid Cluster
 
 Assume a scenario where you required a multi-tier application, in which each of the tiers needs a particular type of compute node due to its resource utilization/security patterns.
 
