@@ -2,7 +2,7 @@
 :data-uri:
 :noaudio:
 
-== Component integration between OpenStack and OpenShift
+== OpenStack and OpenShift Integration
 
 image:images/ocp_osp_components.png[]
 
