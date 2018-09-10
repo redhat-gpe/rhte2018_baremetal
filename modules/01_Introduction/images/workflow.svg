@@ -298,117 +298,124 @@
          width="100%"
          height="100%" />
     </g>
-    <path
-       d="m 458.42,465 c 0,-2.76 2.24,-5 5,-5 h 185.15 c 2.76,0 5,2.24 5,5 v 134 c 0,2.76 -2.24,5 -5,5 H 463.42 c -2.76,0 -5,-2.24 -5,-5 z"
-       id="path38092"
-       inkscape:connector-curvature="0"
-       style="fill:#ffffff;stroke:#000000;stroke-width:5" />
     <g
-       id="g38110">
-      <use
-         xlink:href="#v"
-         transform="translate(514.3196,492.88889)"
-         id="use38094"
-         x="0"
-         y="0"
-         width="100%"
-         height="100%" />
-      <use
-         xlink:href="#w"
-         transform="translate(564.56652,492.88889)"
-         id="use38096"
-         x="0"
-         y="0"
-         width="100%"
-         height="100%" />
-      <use
-         xlink:href="#x"
-         transform="translate(497.41219,522.22222)"
-         id="use38098"
-         x="0"
-         y="0"
-         width="100%"
-         height="100%" />
-      <use
-         xlink:href="#y"
-         transform="translate(485.22392,551.55556)"
-         id="use38100"
-         x="0"
-         y="0"
-         width="100%"
-         height="100%" />
-      <use
-         xlink:href="#z"
-         transform="translate(566.5017,551.55556)"
-         id="use38102"
-         x="0"
-         y="0"
-         width="100%"
-         height="100%" />
-      <use
-         xlink:href="#A"
-         transform="translate(593.66219,551.55556)"
-         id="use38104"
-         x="0"
-         y="0"
-         width="100%"
-         height="100%" />
-      <use
-         xlink:href="#B"
-         transform="translate(484.81652,580.88889)"
-         id="use38106"
-         x="0"
-         y="0"
-         width="100%"
-         height="100%" />
-      <use
-         xlink:href="#C"
-         transform="translate(544.02639,580.88889)"
-         id="use38108"
-         x="0"
-         y="0"
-         width="100%"
-         height="100%" />
+       id="g41150">
+      <path
+         style="fill:#ffffff;stroke:#000000;stroke-width:5"
+         inkscape:connector-curvature="0"
+         id="path38092"
+         d="m 458.42,465 c 0,-2.76 2.24,-5 5,-5 h 185.15 c 2.76,0 5,2.24 5,5 v 134 c 0,2.76 -2.24,5 -5,5 H 463.42 c -2.76,0 -5,-2.24 -5,-5 z" />
+      <g
+         id="g38110">
+        <use
+           height="100%"
+           width="100%"
+           y="0"
+           x="0"
+           id="use38094"
+           transform="translate(514.3196,492.88889)"
+           xlink:href="#v" />
+        <use
+           height="100%"
+           width="100%"
+           y="0"
+           x="0"
+           id="use38096"
+           transform="translate(564.56652,492.88889)"
+           xlink:href="#w" />
+        <use
+           height="100%"
+           width="100%"
+           y="0"
+           x="0"
+           id="use38098"
+           transform="translate(497.41219,522.22222)"
+           xlink:href="#x" />
+        <use
+           height="100%"
+           width="100%"
+           y="0"
+           x="0"
+           id="use38100"
+           transform="translate(485.22392,551.55556)"
+           xlink:href="#y" />
+        <use
+           height="100%"
+           width="100%"
+           y="0"
+           x="0"
+           id="use38102"
+           transform="translate(566.5017,551.55556)"
+           xlink:href="#z" />
+        <use
+           height="100%"
+           width="100%"
+           y="0"
+           x="0"
+           id="use38104"
+           transform="translate(593.66219,551.55556)"
+           xlink:href="#A" />
+        <use
+           height="100%"
+           width="100%"
+           y="0"
+           x="0"
+           id="use38106"
+           transform="translate(484.81652,580.88889)"
+           xlink:href="#B" />
+        <use
+           height="100%"
+           width="100%"
+           y="0"
+           x="0"
+           id="use38108"
+           transform="translate(544.02639,580.88889)"
+           xlink:href="#C" />
+      </g>
     </g>
-    <path
-       d="m 180,481 c 0,-2.76 2.24,-5 5,-5 h 185.15 c 2.76,0 5,2.24 5,5 v 134 c 0,2.76 -2.24,5 -5,5 H 185 c -2.76,0 -5,-2.24 -5,-5 z"
-       id="path38112"
-       inkscape:connector-curvature="0"
-       style="fill:#ffffff;stroke:#000000;stroke-width:5" />
     <g
-       id="g38122">
-      <use
-         xlink:href="#D"
-         transform="translate(193.90432,538.22222)"
-         id="use38114"
-         x="0"
-         y="0"
-         width="100%"
-         height="100%" />
-      <use
-         xlink:href="#E"
-         transform="translate(276.60802,538.22222)"
-         id="use38116"
-         x="0"
-         y="0"
-         width="100%"
-         height="100%" />
-      <use
-         xlink:href="#F"
-         transform="translate(317.34877,538.22222)"
-         id="use38118"
-         x="0"
-         y="0"
-         width="100%"
-         height="100%" />
-      <use
-         xlink:href="#G"
-         transform="translate(211.66049,567.55556)"
-         id="use38120"
-         x="0"
-         y="0"
-         width="100%"
-         height="100%" />
+       id="g41138"
+       transform="translate(0,-16)">
+      <path
+         style="fill:#ffffff;stroke:#000000;stroke-width:5"
+         inkscape:connector-curvature="0"
+         id="path38112"
+         d="m 180,481 c 0,-2.76 2.24,-5 5,-5 h 185.15 c 2.76,0 5,2.24 5,5 v 134 c 0,2.76 -2.24,5 -5,5 H 185 c -2.76,0 -5,-2.24 -5,-5 z" />
+      <g
+         id="g38122">
+        <use
+           height="100%"
+           width="100%"
+           y="0"
+           x="0"
+           id="use38114"
+           transform="translate(193.90432,538.22222)"
+           xlink:href="#D" />
+        <use
+           height="100%"
+           width="100%"
+           y="0"
+           x="0"
+           id="use38116"
+           transform="translate(276.60802,538.22222)"
+           xlink:href="#E" />
+        <use
+           height="100%"
+           width="100%"
+           y="0"
+           x="0"
+           id="use38118"
+           transform="translate(317.34877,538.22222)"
+           xlink:href="#F" />
+        <use
+           height="100%"
+           width="100%"
+           y="0"
+           x="0"
+           id="use38120"
+           transform="translate(211.66049,567.55556)"
+           xlink:href="#G" />
+      </g>
     </g>
     <path
        d="m 1004.85,225 c 0,-2.76 2.24,-5 5,-5 H 1195 c 2.76,0 5,2.24 5,5 v 134 c 0,2.76 -2.24,5 -5,5 h -185.15 c -2.76,0 -5,-2.24 -5,-5 z"
