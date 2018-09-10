@@ -7,30 +7,32 @@
 :imagesdir: ./images
 
 
-= Red Hat Tech Exchange 2018 - Using OpenStack director to provision OpenShift on bare metal
+= Using OpenStack Director to Provision OpenShift on Bare Metal
 
-== Configure Baremetal node for OpenShift.
+== Configure Bare Metal Node for OpenShift
 
-=== Add DNS record for the baremetal node
+=== Add DNS Record for the Bare Metal Node
 
-OpenShift requires the nodes are registered to DNS for a correct functionality. This lab provides an simple playbook to add the baremetal node to the `openshift-dns` DNS server.
+OpenShift requires the nodes are registered to DNS for a correct functionality. This lab provides an simple playbook to add the bare metal node to the `openshift-dns` DNS server.
 
-. Edit file `update-dns.yaml` under the `/home/stack/` undercloud's directory, uncommenting and editing the following line
+. Update the `update-dns.yaml` file under the `/home/stack/` directory on the undercloud node, uncommenting and editing the following line using the IP address of the bare metal node obtained in the previous lab:
 +
+.Before the change
 [source,yaml]
 ----
          #- {server: "ocp-node02", ip: "192.0.3.12"}
 ----
 +
-using the IP of the previous lab output.
-+
+.After the change
 [source,yaml]
 ----
-       - {server: "ocp-node02", ip: "192.0.3.14"}
+       - {server: "ocp-node02", ip: "<insert the IP address here>"}
 ----
-Important: Please verify the `list` indentation while updating the entry in the playbook.
++
+[IMPORTANT]
+Please verify the list indentation in the YAML file while updating the entry in the playbook.
 
-. Run the the playbook without options required.
+. Run the the `update-dns.yaml` playbook:
 +
 [%nowrap]
 ----
@@ -59,31 +61,33 @@ localhost                  : ok=3    changed=1    unreachable=0    failed=0
 ----
 
 
-=== Configure Docker inside the node
-The following tasks can be performed using `user data` config during the server provisioning, in this LAB is a manual task to demonstrate the require tasks.
+=== Configure Docker Daemon
 
-. Connect to the system
+The following tasks can be performed using the `cloud-init` user data during the server provisioning. However, in this lab, this is a manual task to demonstrate the required steps.
+
+. Connect to the bare metal node:
 +
 [%nowrap]
 ----
 (overcloud) [stack@undercloud ~]$ ssh cloud-user@$(openstack server show  -f value -c addresses ocp-node02 | cut -d = -f 2)
 [cloud-user@ocp-node02 ~]$ sudo -i
 ----
-[NOTE]
-Replace the IP with the proper one.
 
-. Fix `/etc/resolv.conf` in the node
+. Fix the DNS server IP address in the `/etc/resolv.conf` file in the bare metal node:
 +
 [%nowrap]
 ----
 [root@ocp-node02 ~]# sed -i '/nameserver 192.168.122.1/d' /etc/resolv.conf
 ----
-[IMPORTANT]
-There is a bug in the image used and includes 192.168.122.1 as DNS server. [https://bugzilla.redhat.com/show_bug.cgi?id=1545842]
-
-. Configure repositories to install _Docker_
 +
-.Create a file named `open.repo` inside `/etc/yum.repos.d/`
+[IMPORTANT]
+There is a bug in the used qcow2 image (Bugzilla [https://bugzilla.redhat.com/show_bug.cgi?id=1545842]
+). The `/etc/resolv.conf` file includes 192.168.122.1 as the DNS server.
+
+. Configure repositories to install the `docker` and `openshift` packages.
+
+.. Create a file named `open.repo` inside `/etc/yum.repos.d/`:
++
 [%nowrap]
 ----
 [root@ocp-node02 ~]# cat <<EOF >/etc/yum.repos.d/open.repo
@@ -124,7 +128,7 @@ gpgcheck=0
 EOF
 ----
 
-. Ensure the repositories are reachable
+.. Ensure the repositories are reachable:
 +
 [%nowrap]
 ----
@@ -146,7 +150,7 @@ repolist: 6,059
 
 ----
 
-. Install docker
+. Install the `docker` package:
 +
 [%nowrap]
 ----
@@ -171,10 +175,8 @@ Dependency Installed:
 Complete!
 ----
 
-. Configure storage
-System has a second disk (/dev/vdb) to be used for _Docker_, in this LAB we will use it for `devicemapper`.
+. Generate the `/etc/sysconfig/docker-storage-setup` configuration:
 +
-.Generate `/etc/sysconfig/docker-storage-setup` configuration
 [%nowrap]
 ----
 [root@ocp-node02 ~]# cat <<EOF >/etc/sysconfig/docker-storage-setup
@@ -183,7 +185,10 @@ DEVS=/dev/vdb
 EOF
 ----
 +
-.Run `docker-storage-setup` to configure the storage properly
+The system has a second disk (`/dev/vdb`) to be used for docker storage.
+
+. Run `docker-storage-setup` to configure the storage properly:
++
 [%nowrap]
 ----
 [root@ocp-node02 ~]# docker-storage-setup
@@ -206,14 +211,14 @@ INFO: Device node /dev/vdb1 exists.
   Logical volume docker-vg/docker-pool changed.
 ----
 
-. Start _Docker_ daemon
+. Start docker daemon:
 +
 [%nowrap]
 ----
 [root@ocp-node02 ~]# systemctl enable docker && systemctl start docker
 ----
 
-. Ensure the correct storage is configured
+. Ensure the correct storage is configured:
 +
 [%nowrap]
 ----
@@ -234,10 +239,11 @@ Storage Driver: devicemapper
  Pool Blocksize: 524.3 kB
  Base Device Size: 10.74 GB
 ----
++
 [NOTE]
-Notice the Storage Driver and the Pool Name
+Notice the `Storage Driver` and `Pool Name`.
 
-. Exit from the `ocp-node02` instance
+. Exit from the `ocp-node02` instance:
 +
 [%nowrap]
 ----
