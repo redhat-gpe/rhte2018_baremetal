@@ -7,16 +7,18 @@
 :imagesdir: ./images
 
 
-= Red Hat Tech Exchange 2018 - Using OpenStack director to provision OpenShift on bare metal
+= Using OpenStack Director to Provision OpenShift on Bare Metal
 
-== Provisioning Baremetal node
+== Provisioning Bare Metal Node
 
-=== Create flavor and create host aggregate
+=== Create Flavor and Host Aggregate
 
-==== Create a new flavor
-Create a new flavor for baremetal systems with a custom property is recommended. This property will be used for the host aggregates to distinguish where to deploy the _server_: as a Virtual Machine or as a Bare Metal node.
+In this step, you create a new flavor intended to be used for instances requiring a bare metal node. This flavor need to be set with a custom property named `baremetal` with value `true`. This property will be used by Nova Scheduler to match metadata of the host aggregates.
 
-.The flavor defines the minimum resource values and sets property named _baremetal_
+The preinstalled OpenStack already has a host aggregate named `virtual-vms` containing compute nodes. Following the steps below, you create a new host aggregate for bare metal node and add the overcloud controller node to this host aggregate. The overcloud controller manages bare metal nodes with Ironic service.
+
+. Create a new flavor for bare metal systems with the custom property `baremetal=true`:
++
 [%nowrap]
 ----
 (overcloud) [stack@undercloud ~]$ openstack flavor create \
@@ -26,12 +28,7 @@ Create a new flavor for baremetal systems with a custom property is recommended.
     --public baremetal
 ----
 
-=== Configure host aggregate for baremetal.
-
-The preinstalled OpenStack has configured a _host aggregate_ named `virtual-vms` containing the OpenStack compute nodes.
-Following steps will create a new one for baremetal and add the controller node to it, controller nodes manages the _Ironic_ nodes.
-
-. Review previous created _host aggregate_
+. Review the `virtual-vms` host aggregate that has been pre-configured in the lab environment:
 +
 [%nowrap]
 ----
@@ -55,10 +52,11 @@ Following steps will create a new one for baremetal and add the controller node 
 | updated_at        | None                                                                                                                                             |
 +-------------------+--------------------------------------------------------------------------------------------------------------------------------------------------+
 ----
++
 [NOTE]
-Notice the list of the _hosts_ and the property named _baremetal_
+The `virtual-vms` host aggregate contains all overcloud compute nodes and the `baremetal` property set to `false`.
 
-. Create a new _host aggregate_ named _baremetal-hosts_
+. Create a new host aggregate named `baremetal-hosts`:
 +
 [%nowrap]
 ----
@@ -82,11 +80,11 @@ Notice the list of the _hosts_ and the property named _baremetal_
 | updated_at        | 2018-08-31T10:06:31.105155 |
 +-------------------+----------------------------+
 ----
++
 [NOTE]
+Please note that while creating the `baremetal` flavor we set its property as `--property baremetal=true`. This is how we link the flavor to the respective host aggregate. In other words, an admin setting (host aggregate) is presented to the users via the `flavor` property settings.
 
-Please note that while creating the flavor `baremetal` we set its property as `--property baremetal=true`. This is how we link the flavor to the respective `host aggregate`. In other words, an admin setting (host aggregate ) present to the users via the `flavor` property settings.
-
-. Add controller node to the host aggragate.
+. Add controller node to the `baremetal-hosts` host aggregate:
 +
 [%nowrap]
 ----
@@ -111,13 +109,12 @@ Please note that while creating the flavor `baremetal` we set its property as `-
 +-------------------+-----------------------------------------+
 ----
 
-=== Installing RHEL7 into the baremetal node.
+=== Installing RHEL7 into the Bare Metal Node
 
-Once the flavor and host aggregate is created, all the elements are ready to provision the node.
+Once the flavor and host aggregate are created, all the elements are ready to provision the node.
 
-. Check the baremetal network and subnet
+. Check the `baremetal` network and subnet:
 +
-. Show network details
 [%nowrap]
 ----
 (overcloud) [stack@undercloud ~]$ openstack network show baremetal
@@ -158,10 +155,12 @@ Once the flavor and host aggregate is created, all the elements are ready to pro
 | updated_at                | 2018-08-29T13:16:07Z                 |
 +---------------------------+--------------------------------------+
 ----
-[NOTE]
-Notice the parameter `provider:physical_network` and `provider:network_type`
 +
-. Show subnet details
+[NOTE]
+Notice the parameter `provider:physical_network` and `provider:network_type`.
+
+. Show the `baremetal` subnet details:
++
 [%nowrap]
 ----
 (overcloud) [stack@undercloud ~]$ openstack subnet show baremetal
@@ -196,14 +195,12 @@ Notice the parameter `provider:physical_network` and `provider:network_type`
 | updated_at        | 2018-08-29T13:16:07Z                 |
 +-------------------+--------------------------------------+
 ----
++
 [NOTE]
 The `dns_nameservers` parameter points to the `openshift-dns` VM.
 
-. Check keypair configured for OpenShift
+. Check keypair configured for OpenShift:
 +
-A keypair named `openshift` is already configured using the `id_rsa.pub` for the `stack` user.
-+
-. List the current keypairs
 [%nowrap]
 ----
 (overcloud) [stack@undercloud ~]$ openstack keypair list
@@ -218,8 +215,10 @@ A keypair named `openshift` is already configured using the `id_rsa.pub` for the
 | openshift | 1d:be:46:8d:66:aa:17:05:c4:7f:11:01:2b:a2:da:2f |
 +-----------+-------------------------------------------------+
 ----
++
+A keypair named `openshift` is already pre-configured using the `~stack/.ssh/id_rsa.pub` file.
 
-. List rules for defined security group for OpenShift
+. List the `openshift-nodes` security group rule pre-defined for OpenShift:
 +
 [%nowrap]
 ----
@@ -240,19 +239,16 @@ A keypair named `openshift` is already configured using the `id_rsa.pub` for the
 | fd356772-a8de-490a-a648-55b8cd5ac924 | None        | None     |            | None                                 |
 +--------------------------------------+-------------+----------+------------+--------------------------------------+
 ----
-[NOTE]
-UDP and TCP communication are open between the OpenShift nodes and only icmp/22 is allowed from outside.
-
-. Provision the baremetal system.
-A image named `rhel7` using the default qcow2 provided image by Red Hat is on the overcloud and can be used for VMs and Baremetal systems.
 +
-.Deploy the server with name _ocp-node02_
+[NOTE]
+UDP and TCP communication are open between the OpenShift nodes and only ICMP and SSH are allowed from outside.
+
+. Provision the `ocp-node02` bare metal system:
++
 [%nowrap]
 ----
 (overcloud) [stack@undercloud ~]$ openstack server create --network baremetal --image rhel7 --key-name openshift --flavor baremetal --security-group openshift-nodes ocp-node02 --wait
 ----
-[NOTE]
-This action will take between 10 and 15 minutes.
 +
 .Sample output
 [%nowrap]
@@ -292,22 +288,25 @@ This action will take between 10 and 15 minutes.
 | volumes_attached                    |                                                          |
 +-------------------------------------+----------------------------------------------------------+
 ----
++
+The `rhel7` image is pre-uploaded into the overcloud's Glance service. This is the same image that is used by undercloud to provision the overcloud nodes (the `overcloud-full.qcow2` image).
++
 [IMPORTANT]
-Ensure the `status` field is `ACTIVE`
+The server creation takes about 10 minutes. Ensure the `status` field is `ACTIVE` before continue to the next step.
 
-. Verify the ip address of the newly created server
+. Verify the IP address of the newly created server:
 +
 [%nowrap]
 ----
-echo $(openstack server show  -f value -c addresses ocp-node02 | cut -d = -f 2)
+(overcloud) [stack@undercloud ~]$ echo $(openstack server show  -f value -c addresses ocp-node02 | cut -d = -f 2)
 ----
-. Ensure the system is reacheable
+
+. Ensure the system is reachable:
 +
 [%nowrap]
 ----
 (overcloud) [stack@undercloud ~]$ ssh cloud-user@$(openstack server show  -f value -c addresses ocp-node02 | cut -d = -f 2) "hostname"
 ----
-[NOTE]
 +
 .Expected output
 [%nowrap]
@@ -315,7 +314,7 @@ echo $(openstack server show  -f value -c addresses ocp-node02 | cut -d = -f 2)
 ocp-node02
 ----
 
-. Show the relation between the server record and the baremetal node record.
+. Show the relation between the server and bare metal node records:
 +
 [%nowrap]
 ----
