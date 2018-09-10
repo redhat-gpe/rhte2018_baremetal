@@ -6,7 +6,7 @@ ifdef::revealjs_slideshow[]
 == &nbsp;
 
 [#cover-h1]
-OpenShift on Baremetal Nodes Using OpenStack Ironic
+Using OpenStack Director to Provision OpenShift on Bare Metal
 
 [#cover-h2]
 APAC RHTE Session R1001
