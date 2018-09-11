@@ -43,7 +43,7 @@ ocp-node01     Ready     compute   1d        v1.10.0+b81c8f8
 
 . Edit the OpenShift ansible inventory file `/root/hosts` as follow:
 
-.. Add a new section named `new_nodes` after `nodes` section:
+.. Edit the `new_nodes` section located after `nodes` section:
 +
 [%nowrap]
 ----
