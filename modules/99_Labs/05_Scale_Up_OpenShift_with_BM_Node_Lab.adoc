@@ -52,7 +52,7 @@ ocp-node02.openshift.example.com openshift_ip=<ocp-node02-ip> ansible_host=<ocp-
 ----
 +
 [NOTE]
-The `[new_nodes]` child group is already available in the provided `hosts` file. You may uncomment the line and update the IP address of the `ocp-node02` server. Also check the OpenShift Node Group configuration in the `hosts` file. We created a custom node group for the bare metal nodes with `type=bm` label. This label could be used in the Node Selector specification for the Application Pods.
+The `[new_nodes]` child group is already available in the provided `hosts` file. You may uncomment the line and update the `openshift_ip` and `ansible_host` fields with the IP address of the `ocp-node02` server. Also check the OpenShift Node Group configuration in the `hosts` file. We created a custom node group for the bare metal nodes with `type=bm` label. This label could be used in the Node Selector specification for the Application Pods.
 
 .. Review the OpenShift Node Group Reference:
 +
