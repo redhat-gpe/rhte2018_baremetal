@@ -1,3 +1,10 @@
+:scrollbar:
+:data-uri:
+:linkattrs:
+:toc2:
+:noaudio:
+:imagesdir: ./images
+
 = Quick Fix for the Ironic Problem
 
 . Login to the `undercloud` node as the `stack` user:
