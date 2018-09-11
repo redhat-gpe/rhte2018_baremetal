@@ -1,0 +1,188 @@
+= Quick Fix for the Ironic Problem
+
+. Login to the `undercloud` node as the `stack` user:
++
+[%nowrap]
+----
+[lab-user@workstation-b27d ~]$ ssh stack@undercloud
+----
+
+. Source the `stackrc` :
++
+[%nowrap]
+----
+[stack@undercloud ~]$ source stackrc
+----
+
+. List the overcloud servers:
++
+[%nowrap]
+----
+(undercloud) [stack@undercloud ~]$ openstack server list
+----
+* Get the IP address of the overcloud controller node (for example, 192.0.2.16).
+
+. Login to the overcloud controller node as the `heat-admin` user:
++
+[%nowrap]
+----
+(undercloud) [stack@undercloud ~]$ ssh heat-admin@192.0.2.16
+----
+
+. Switch to `root`:
++
+[%nowrap]
+----
+[heat-admin@overcloud-controller-0 ~]$ sudo -i
+----
+
+. Update the Ironic parameters:
++
+[%nowrap]
+----
+[root@overcloud-controller-0 ~]# crudini --set /var/lib/config-data/puppet-generated/ironic/etc/ironic/ironic.conf conductor power_state_change_timeout 90
+----
+
+. List the current `ironic_conductor` container:
++
+[%nowrap]
+----
+[root@overcloud-controller-0 ~]# docker ps -f name=ironic_conductor
+----
++
+.Sample Output
+[%nowrap]
+----
+CONTAINER ID        IMAGE                                                                  COMMAND             CREATED             STATUS                 PORTS               NAMES
+aff3d97c6ce3        registry.access.redhat.com/rhosp13/openstack-ironic-conductor:latest   "kolla_start"       2 weeks ago         Up 2 hours (healthy)                       ironic_conductor
+----
+* Note the current container's uptime (2 hours).
+
+. Restart the `ironic_conductor` container:
++
+[%nowrap]
+----
+[root@overcloud-controller-0 ~]# docker restart ironic_conductor
+----
+
+. Verify that the uptime of the `ironic_conductor` container has changed:
++
+[%nowrap]
+----
+[root@overcloud-controller-0 ~]# docker ps -f name=ironic_conductor
+----
++
+.Sample Output
+[%nowrap]
+----
+CONTAINER ID        IMAGE                                                                  COMMAND             CREATED             STATUS                             PORTS               NAMES
+aff3d97c6ce3        registry.access.redhat.com/rhosp13/openstack-ironic-conductor:latest   "kolla_start"       2 weeks ago         Up 10 seconds (health: starting)                       ironic_conductor
+----
+
+. Connect to the `ironic_container` container:
++
+[%nowrap]
+----
+[root@overcloud-controller-0 ~]# docker exec -it ironic_conductor /bin/sh
+----
+
+. Verify that the new `ironic_conductor` container is running with the updated timeout:
++
+[%nowrap]
+----
+()[ironic@overcloud-controller-0 /]$ grep ^power_state_change_timeout /etc/ironic/ironic.conf
+----
++
+.Expected Output
+[%nowrap]
+----
+power_state_change_timeout = 90
+----
+
+. Return back to the `heat-admin` user at the overcloud controller and source the `overcloudrc` file:
++
+[%nowrap]
+----
+[heat-admin@overcloud-controller-0 ~]$ source overcloudrc
+----
+
+. Get the list of the servers created in the overcloud:
++
+[%nowrap]
+----
+(overcloud) [heat-admin@overcloud-controller-0 ~]$ openstack server list
+----
+
+. If your attempt to create the bare metal server `ocp-node02` failed before, you should remove the failed server and try again:
++
+[%nowrap]
+----
+(overcloud) [heat-admin@overcloud-controller-0 ~]$ openstack server delete ocp-node02
+----
+
+. Check that the `ocp-node02` server is not in the list anymore:
++
+[%nowrap]
+----
+(overcloud) [heat-admin@overcloud-controller-0 ~]$ openstack server list
+----
++
+.Sample Output
+[%nowrap]
+----
++--------------------------------------+---------------+--------+----------------------------------------+-------+-----------+
+| ID                                   | Name          | Status | Networks                               | Image | Flavor    |
++--------------------------------------+---------------+--------+----------------------------------------+-------+-----------+
+| fa946dfd-df12-4146-83d3-b574edb99186 | openshift-dns | ACTIVE | openshift-dns=192.168.23.9, 10.0.0.121 | rhel7 | m1.small2 |
+| 0dee08a9-deca-4477-8896-a19756e21b67 | ocp-node01    | ACTIVE | baremetal=192.0.3.12                   | rhel7 | m1.large  |
+| 36c1032e-4e48-4957-b4b6-8d549f4a4312 | ocp-infra01   | ACTIVE | baremetal=192.0.3.22                   | rhel7 | m1.large  |
+| 068aaf62-1495-49d7-a5fa-7045be3c85c6 | ocp-master01  | ACTIVE | baremetal=192.0.3.16                   | rhel7 | m1.large  |
+| e54b9606-8b14-4ff7-a2d7-81b2da591051 | ocp-bastion   | ACTIVE | baremetal=192.0.3.18                   | rhel7 | m1.small2 |
++--------------------------------------+---------------+--------+----------------------------------------+-------+-----------+
+----
+
+. Try to create a new bare metal instance (the following command may take about 5-10 minutes to finish):
++
+[%nowrap]
+----
+(overcloud) [stack@undercloud ~]$ openstack server create --network baremetal --image rhel7 --key-name openshift --flavor baremetal --security-group openshift-nodes ocp-node02 --wait
+----
++
+.Sample Output
+[%nowrap]
+----
++-------------------------------------+----------------------------------------------------------+
+| Field                               | Value                                                    |
++-------------------------------------+----------------------------------------------------------+
+| OS-DCF:diskConfig                   | MANUAL                                                   |
+| OS-EXT-AZ:availability_zone         | nova                                                     |
+| OS-EXT-SRV-ATTR:host                | overcloud-controller-0.example.com                       |
+| OS-EXT-SRV-ATTR:hypervisor_hostname | aece468f-4bfa-4e96-b50c-590e7dc80583                     |
+| OS-EXT-SRV-ATTR:instance_name       | instance-0000000d                                        |
+| OS-EXT-STS:power_state              | Running                                                  |
+| OS-EXT-STS:task_state               | None                                                     |
+| OS-EXT-STS:vm_state                 | active                                                   |
+| OS-SRV-USG:launched_at              | 2018-09-11T03:46:52.000000                               |
+| OS-SRV-USG:terminated_at            | None                                                     |
+| accessIPv4                          |                                                          |
+| accessIPv6                          |                                                          |
+| addresses                           | baremetal=192.0.3.11                                     |
+| adminPass                           | snTSdtn3yK5p                                             |
+| config_drive                        | True                                                     |
+| created                             | 2018-09-11T03:41:44Z                                     |
+| flavor                              | baremetal (884fca95-d4e2-46ba-bd90-79975e19d24d)         |
+| hostId                              | 63991799ba8be0d7d8c6553c79a880bbf67dbf682eabe5949e30cfb2 |
+| id                                  | 7a022ce6-6353-4999-9e99-4a2683be2f17                     |
+| image                               | rhel7 (7d69b80c-341a-40d4-9f36-167b18368bc0)             |
+| key_name                            | openshift                                                |
+| name                                | ocp-node02                                               |
+| progress                            | 0                                                        |
+| project_id                          | da9420f4e23448bca8d958f1f37cf0d0                         |
+| properties                          |                                                          |
+| security_groups                     | name='openshift-nodes'                                   |
+| status                              | ACTIVE                                                   |
+| updated                             | 2018-09-11T03:46:52Z                                     |
+| user_id                             | 822dae013d554d968e2ed1021f2ed413                         |
+| volumes_attached                    |                                                          |
++-------------------------------------+----------------------------------------------------------+
+----
