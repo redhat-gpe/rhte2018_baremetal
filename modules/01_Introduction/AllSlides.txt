@@ -1,5 +1,5 @@
-include::00_Course_Title.adoc[]
-include::02_Course_Overview.adoc[]
+include::00_Lab_Title.adoc[]
+include::02_Overview.adoc[]
 include::03_Hybrid_OCP_Cluster.adoc[]
 include::05_Lab_Environment.adoc[]
 include::07_Host_Aggregates.adoc[]

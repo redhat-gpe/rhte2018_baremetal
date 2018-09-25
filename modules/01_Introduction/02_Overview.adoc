@@ -1,0 +1,21 @@
+:scrollbar:
+:data-uri:
+:noaudio:
+
+== Overview
+
+* Introduction to provisioning OpenShift on bare metal nodes
+* Preparing bare metal environment
+* Provisioning bare metal node
+* Configure bare metal node for OpenShift
+* Scale up OpenShift with bare metal node
+* Deploying applications in different OpenShift environments
+* How this lab was installed
+
+ifdef::showscript[]
+
+=== Transcript
+
+The lab covers provisioning of OpenShift nodes on bare metal. It demonstrates how to configure OpenStack for bare metal integration, deploy the operating system on the bare metal node, and scale up the preinstalled OpenShift cluster with the new node. The lab also demonstrates how to deploy an application on different nodes depending of the environment (for example, development or production).
+
+endif::showscript[]
