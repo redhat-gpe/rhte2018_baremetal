@@ -4,7 +4,7 @@
 
 == Lab Environment
 
-image:images/ospd_lab.png[]
+image:images/ospd_baremetal_lab.png[]
 
 ifdef::showscript[]
 
