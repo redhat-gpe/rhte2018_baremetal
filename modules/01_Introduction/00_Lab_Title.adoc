@@ -9,7 +9,7 @@ ifdef::revealjs_slideshow[]
 Using OpenStack Director to Provision OpenShift on Bare Metal
 
 [#cover-h2]
-The Americas Tech Exchange 2018
+Tech Exchange 2018
 
 [#cover-logo]
 image::{revealjs_cover_image}[]
