@@ -1,0 +1,6 @@
+parameter_defaults:
+  OctaviaAmphoraSshKeyFile: /tmp/id_rsa.pub
+  BarbicanSimpleCryptoGlobalDefault: true
+  TimeZone: 'America/New_York'
+  ServiceNetMap:
+    KeystoneAdminApiNetwork: external

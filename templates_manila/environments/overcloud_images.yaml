@@ -1,0 +1,72 @@
+# Generated with the following on 2018-08-03T07:24:46.626280
+#
+#   openstack overcloud container image prepare --namespace=classroom.example.com:5000/rhosp13 --push-destination=classroom.example.com:5000 --tag=13.0 --tag-from-label {version}-{release} --set ceph_namespace=classroom.example.com:5000/rhceph --set ceph_image=rhceph-3-rhel7 --set ceph_tag=3 --output-env-file /home/stack/templates/environments/overcloud_images.yaml --output-images-file /home/stack/local_registry_images.yaml -e /home/stack/templates/overcloud_images.yaml -e /usr/share/openstack-tripleo-heat-templates/environments/hyperconverged-ceph.yaml -e /usr/share/openstack-tripleo-heat-templates/environments/ceph-ansible/ceph-rgw.yaml -e /usr/share/openstack-tripleo-heat-templates/environments/ceph-ansible/ceph-ansible.yaml -e /usr/share/openstack-tripleo-heat-templates/environments/cinder-backup.yaml -e /home/stack/templates/network-environment.yaml -e /home/stack/templates/network-isolation.yaml -e /home/stack/templates/commandlineparams-environment.yaml -e /home/stack/templates/storage-ceph-hyperconverged-environment.yaml -e /home/stack/templates/firstboot-config-environment.yaml -e /home/stack/templates/timezone-environment.yaml -e /home/stack/templates/update-network-config-environment.yaml -e /home/stack/templates/dns-config-environment.yaml -e /home/stack/templates/configure-barbican.yaml -e /usr/share/openstack-tripleo-heat-templates/environments/services-docker/octavia.yaml -e /usr/share/openstack-tripleo-heat-templates/environments/services/barbican.yaml -e /usr/share/openstack-tripleo-heat-templates/environments/barbican-backend-simple-crypto.yaml -e /usr/share/openstack-tripleo-heat-templates/environments/disable-telemetry.yaml -e /home/stack/templates/force-config-drive-environment.yaml
+#
+
+parameter_defaults:
+  DockerBarbicanApiImage: classroom.example.com:5000/rhosp13/openstack-barbican-api:13.0-41
+  DockerBarbicanConfigImage: classroom.example.com:5000/rhosp13/openstack-barbican-api:13.0-41
+  DockerBarbicanKeystoneListenerConfigImage: classroom.example.com:5000/rhosp13/openstack-barbican-keystone-listener:13.0-43
+  DockerBarbicanKeystoneListenerImage: classroom.example.com:5000/rhosp13/openstack-barbican-keystone-listener:13.0-43
+  DockerBarbicanWorkerConfigImage: classroom.example.com:5000/rhosp13/openstack-barbican-worker:13.0-43
+  DockerBarbicanWorkerImage: classroom.example.com:5000/rhosp13/openstack-barbican-worker:13.0-43
+  DockerCephDaemonImage: classroom.example.com:5000/rhceph/rhceph-3-rhel7:3-11
+  DockerCinderApiImage: classroom.example.com:5000/rhosp13/openstack-cinder-api:13.0-46
+  DockerCinderBackupImage: classroom.example.com:5000/rhosp13/openstack-cinder-backup:13.0-46
+  DockerCinderConfigImage: classroom.example.com:5000/rhosp13/openstack-cinder-api:13.0-46
+  DockerCinderSchedulerImage: classroom.example.com:5000/rhosp13/openstack-cinder-scheduler:13.0-45
+  DockerCinderVolumeImage: classroom.example.com:5000/rhosp13/openstack-cinder-volume:13.0-45
+  DockerClustercheckConfigImage: classroom.example.com:5000/rhosp13/openstack-mariadb:13.0-47
+  DockerClustercheckImage: classroom.example.com:5000/rhosp13/openstack-mariadb:13.0-47
+  DockerCrondConfigImage: classroom.example.com:5000/rhosp13/openstack-cron:13.0-51
+  DockerCrondImage: classroom.example.com:5000/rhosp13/openstack-cron:13.0-51
+  DockerGlanceApiConfigImage: classroom.example.com:5000/rhosp13/openstack-glance-api:13.0-47
+  DockerGlanceApiImage: classroom.example.com:5000/rhosp13/openstack-glance-api:13.0-47
+  DockerHAProxyConfigImage: classroom.example.com:5000/rhosp13/openstack-haproxy:13.0-47
+  DockerHAProxyImage: classroom.example.com:5000/rhosp13/openstack-haproxy:13.0-47
+  DockerHeatApiCfnConfigImage: classroom.example.com:5000/rhosp13/openstack-heat-api-cfn:13.0-45
+  DockerHeatApiCfnImage: classroom.example.com:5000/rhosp13/openstack-heat-api-cfn:13.0-45
+  DockerHeatApiConfigImage: classroom.example.com:5000/rhosp13/openstack-heat-api:13.0-46
+  DockerHeatApiImage: classroom.example.com:5000/rhosp13/openstack-heat-api:13.0-46
+  DockerHeatConfigImage: classroom.example.com:5000/rhosp13/openstack-heat-api:13.0-46
+  DockerHeatEngineImage: classroom.example.com:5000/rhosp13/openstack-heat-engine:13.0-44
+  DockerHorizonConfigImage: classroom.example.com:5000/rhosp13/openstack-horizon:13.0-45
+  DockerHorizonImage: classroom.example.com:5000/rhosp13/openstack-horizon:13.0-45
+  DockerInsecureRegistryAddress:
+  - classroom.example.com:5000
+  DockerIscsidConfigImage: classroom.example.com:5000/rhosp13/openstack-iscsid:13.0-45
+  DockerIscsidImage: classroom.example.com:5000/rhosp13/openstack-iscsid:13.0-45
+  DockerKeystoneConfigImage: classroom.example.com:5000/rhosp13/openstack-keystone:13.0-44
+  DockerKeystoneImage: classroom.example.com:5000/rhosp13/openstack-keystone:13.0-44
+  DockerMemcachedConfigImage: classroom.example.com:5000/rhosp13/openstack-memcached:13.0-46
+  DockerMemcachedImage: classroom.example.com:5000/rhosp13/openstack-memcached:13.0-46
+  DockerMysqlClientConfigImage: classroom.example.com:5000/rhosp13/openstack-mariadb:13.0-47
+  DockerMysqlConfigImage: classroom.example.com:5000/rhosp13/openstack-mariadb:13.0-47
+  DockerMysqlImage: classroom.example.com:5000/rhosp13/openstack-mariadb:13.0-47
+  DockerNeutronApiImage: classroom.example.com:5000/rhosp13/openstack-neutron-server:13.0-48
+  DockerNeutronConfigImage: classroom.example.com:5000/rhosp13/openstack-neutron-server:13.0-48
+  DockerNeutronDHCPImage: classroom.example.com:5000/rhosp13/openstack-neutron-dhcp-agent:13.0-48
+  DockerNeutronL3AgentImage: classroom.example.com:5000/rhosp13/openstack-neutron-l3-agent:13.0-47
+  DockerNeutronMetadataImage: classroom.example.com:5000/rhosp13/openstack-neutron-metadata-agent:13.0-48
+  DockerNovaApiImage: classroom.example.com:5000/rhosp13/openstack-nova-api:13.0-48
+  DockerNovaComputeImage: classroom.example.com:5000/rhosp13/openstack-nova-compute:13.0-48
+  DockerNovaConductorImage: classroom.example.com:5000/rhosp13/openstack-nova-conductor:13.0-48
+  DockerNovaConfigImage: classroom.example.com:5000/rhosp13/openstack-nova-api:13.0-48
+  DockerNovaConsoleauthImage: classroom.example.com:5000/rhosp13/openstack-nova-consoleauth:13.0-47
+  DockerNovaLibvirtConfigImage: classroom.example.com:5000/rhosp13/openstack-nova-compute:13.0-48
+  DockerNovaLibvirtImage: classroom.example.com:5000/rhosp13/openstack-nova-libvirt:13.0-52
+  DockerNovaMetadataImage: classroom.example.com:5000/rhosp13/openstack-nova-api:13.0-48
+  DockerNovaPlacementConfigImage: classroom.example.com:5000/rhosp13/openstack-nova-placement-api:13.0-48
+  DockerNovaPlacementImage: classroom.example.com:5000/rhosp13/openstack-nova-placement-api:13.0-48
+  DockerNovaSchedulerImage: classroom.example.com:5000/rhosp13/openstack-nova-scheduler:13.0-48
+  DockerNovaVncProxyImage: classroom.example.com:5000/rhosp13/openstack-nova-novncproxy:13.0-48
+  DockerOctaviaApiImage: classroom.example.com:5000/rhosp13/openstack-octavia-api:13.0-43
+  DockerOctaviaConfigImage: classroom.example.com:5000/rhosp13/openstack-octavia-api:13.0-43
+  DockerOctaviaHealthManagerImage: classroom.example.com:5000/rhosp13/openstack-octavia-health-manager:13.0-45
+  DockerOctaviaHousekeepingImage: classroom.example.com:5000/rhosp13/openstack-octavia-housekeeping:13.0-45
+  DockerOctaviaWorkerImage: classroom.example.com:5000/rhosp13/openstack-octavia-worker:13.0-44
+  DockerOpenvswitchImage: classroom.example.com:5000/rhosp13/openstack-neutron-openvswitch-agent:13.0-48
+  DockerRabbitmqConfigImage: classroom.example.com:5000/rhosp13/openstack-rabbitmq:13.0-47
+  DockerRabbitmqImage: classroom.example.com:5000/rhosp13/openstack-rabbitmq:13.0-47
+  DockerRedisConfigImage: classroom.example.com:5000/rhosp13/openstack-redis:13.0-49
+  DockerRedisImage: classroom.example.com:5000/rhosp13/openstack-redis:13.0-49
