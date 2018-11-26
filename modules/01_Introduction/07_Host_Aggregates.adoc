@@ -5,8 +5,8 @@
 == Host Aggregates
 
 * Compute node grouping mechanism to enable enhanced Nova scheduling
-* Nova Scheduler default filters must include `AggregateInstanceExtraSpecsFilter` to enable Host Aggregates
-* Host Aggregates are created by OpenStack admin and not visible to users
+* Nova Scheduler default filters must include `AggregateInstanceExtraSpecsFilter` to enable host aggregates
+* Host aggregates are created by OpenStack administrator and not visible to users
 * Users consume host aggregates by using _flavor_ with the `aggregate_instance_extra_specs` property values matching host aggregate key-value pairs
 
 ifdef::showscript[]
