@@ -5,9 +5,9 @@
 == Register Bare Metal Nodes to Overcloud Ironic
 
 * The nodes can be registered with the `openstack baremetal create` command
-**  Node definition cab be specified in JSON or YAML file
+**  Node definition can be specified in JSON or YAML file
 
-* If the node has multiple disks, you could use `root_device` section to specify the `root` device.
+* If the node has multiple disks, you could use `root_device` section to specify the `root` device
 
 * Node template is like the `instackenv.json` template in undercloud
 
