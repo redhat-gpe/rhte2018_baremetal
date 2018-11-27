@@ -7,24 +7,24 @@
 :imagesdir: ./images
 
 
-= Using OpenStack Director to Provision OpenShift on Bare Metal
+= Using Red Hat OpenStack Platform Director to Provision Red Hat OpenShift on Bare Metal
 
 == Deploying Application in Hybrid Cluster
 
-Assume a scenario where you required a multi-tier application, in which each of the tiers needs a particular type of compute node due to its resource utilization/security patterns.
+Assume a scenario where you required a multi-tier application, in which each of the tiers needs a particular type of compute node due to its resource utilization and security patterns.
 
-In this lab, we have the `Deployment Configuration` manifest for a two-tier application (Word Press). The customer wishes to deploy the pods of the front tier (PHP) into a more flexible and horizontally scalable virtual compute nodes, whereas the `db` tier pods to a high capacity bare metal compute node.
+In this lab, we have the `Deployment Configuration` manifest for a two-tier application (WordPress). The customer wishes to deploy the pods of the front tier (PHP) to flexible and horizontally-scalable virtual compute nodes, and the database (MySQL) tier pods to a high-capacity bare-metal compute node.
 
-We have the deployment manifest for both tiers available in `/root` at the bastion node.
+We have the deployment manifest for both tiers available in the `/root` directory on the bastion node.
 
 . Verify the `nodeSelector` specification in both Deployment Configuration (dc) manifests:
 +
 [%nowrap]
 ----
-[root@ocp-bastion ~]# view frontend-app.yaml
+[root@ocp-bastion ~]# vi frontend-app.yaml
 ----
 
-. Search for the `nodeSelector` spec of the front tier manifest:
+. Search for the `nodeSelector` specification of the front tier manifest:
 +
 [%nowrap]
 ----
@@ -34,14 +34,14 @@ We have the deployment manifest for both tiers available in `/root` at the basti
 ...
 ----
 
-. View the `nodeSelector` in the db tier manifest:
+. View the `nodeSelector` in the database tier manifest:
 +
 [%nowrap]
 ----
 [root@ocp-bastion ~]# vi mysql.yaml
 ----
 
-. Search for the `nodeSelector` spec of the db tier manifest:
+. Search for the `nodeSelector` specification of the database tier manifest:
 +
 [%nowrap]
 ----
@@ -58,7 +58,7 @@ We have the deployment manifest for both tiers available in `/root` at the basti
 [root@ocp-bastion ~]# oc new-project node-selector-demo
 ----
 
-. Since the WordPress containers are running with `root` privilege, we need to add additional security privilege to the `default` service account of the project:
+. Since the WordPress containers are running with `root` privilege, we need to add an additional security privilege to the `default` service account of the project:
 +
 [%nowrap]
 ----
@@ -72,7 +72,7 @@ We have the deployment manifest for both tiers available in `/root` at the basti
 [root@ocp-bastion ~]# oc create -f frontend-app.yaml
 ----
 +
-.Expected Output
+.Expected output
 +
 [%nowrap]
 ----
@@ -81,14 +81,14 @@ deploymentconfig.apps.openshift.io "wordpress" created
 service "wordpress" created
 ----
 
-. Create the db tier Deployment Configuration using the `mysql.yaml` manifest:
+. Create the database tier Deployment Configuration using the `mysql.yaml` manifest:
 +
 [%nowrap]
 ----
 [root@ocp-bastion ~]# oc create -f  mysql.yaml
 ----
 +
-.Expected Output
+.Expected output
 +
 [%nowrap]
 ----
@@ -103,7 +103,7 @@ deploymentconfig.apps.openshift.io "db" created
 [root@ocp-bastion ~]# oc get po -o wide  -n node-selector-demo -w
 ----
 +
-.Expected Output
+.Expected output
 [%nowrap]
 ----
 NAME                READY     STATUS    RESTARTS   AGE       IP           NODE
@@ -111,4 +111,4 @@ db-1-jlm6x          1/1       Running   0          2m        10.131.0.3   ocp-no
 wordpress-1-x2snc   1/1       Running   0          2m        10.129.0.3   ocp-node01
 ----
 +
-You may note that as per the application requirement, front tier pods deployed on the virtual instance `ocp-node01` and db tier pods deployed on the bare metal node `ocp-node02`.
+You may note that as per the application requirements, the front tier pods deployed on the virtual instance `ocp-node01` and the database tier pods deployed on the bare metal node `ocp-node02`.
