@@ -7,56 +7,56 @@
 :imagesdir: ./images
 
 
-= Using OpenStack director to Provision OpenShift on Bare Metal
+= Using Red Hat OpenStack Platform Director to Provision Red Hat OpenShift on Bare Metal
 
-== Preparing Bare Metal Environment to Be Used
+== Preparing the Bare Metal Environment
 
 === Introduction
 
-In this lab, you configure _bare metal_ node in the _overcloud_ environment, create images to be deployed on the bare metal node, and enroll the node to the overcloud's Ironic service.
+In this lab, you configure a _bare metal_ node in the _overcloud_ environment, create images to be deployed on the bare metal node, and enroll the node to the overcloud's Ironic service.
 
-=== Uploading images to overcloud
+=== Uploading Images to Overcloud
 
-During the _undercloud_ installation, bare metal images were extracted to the `/home/stack/images/` directory and uploaded to undercloud's Glance.
+During the _undercloud_ installation, bare metal images were extracted to the `/home/stack/images/` directory and uploaded to the undercloud's Glance.
 
 In this lab, you use the same files (`ironic-python-agent` and `overcloud-full` images) in the overcloud.
 
-. Login to the `workstation` node as the `lab-user` with password `r3dh4t1!`:
+. Log in to the `workstation` node as the `lab-user` with password `r3dh4t1!`:
 +
 [%nowrap]
 ----
-ssh lab-user@workstation-<GUID>.rhpds.opentlc.com
+$ ssh lab-user@workstation-<GUID>.rhpds.opentlc.com
 ----
 
-. From `workstation`, login to the `undercloud` node as `stack` user with password `r3dh4t1!`:
+. From `workstation`, log in to the `undercloud` node as `stack` user with password `r3dh4t1!`:
 +
 [%nowrap]
 ----
 [root@workstation-<GUID>~]# ssh stack@undercloud
 ----
 
-. From `undercloud` node, source `overcloudrc` to set the overcloud credentials in the environment:
+. From `undercloud` node, source the `overcloudrc` file to set the overcloud credentials in the environment:
 +
 [%nowrap]
 ----
 [stack@undercloud ~]$ source ~/overcloudrc
 ----
 +
-.Expected Output
+.Expected output
 +
 [%nowrap]
 ----
 (overcloud) [stack@undercloud ~]$
 ----
 
-. Verify the compute service enabled on the controller node:
+. Verify the Compute service is enabled on the controller node:
 +
 [%nowrap]
 ----
 (overcloud) [stack@undercloud ~]$ openstack compute service list --host overcloud-controller-0.example.com --service nova-compute
 ----
 +
-.Sample Output
+.Sample output
 [%nowrap]
 ----
 +----+--------------+------------------------------------+------+---------+-------+----------------------------+
@@ -83,7 +83,7 @@ For the lab scenario, the required OpenStack virtual instances are pre-deployed.
 (overcloud) [stack@undercloud ~]$ openstack server list
 ----
 +
-.Expected Output
+.Expected output
 [%nowrap]
 ----
 +--------------------------------------+---------------+--------+----------------------------------------+-------+-----------+
@@ -139,7 +139,7 @@ It may take 3-5 minutes to start the applications on the instances.
 +------------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 ----
 
-. Upload `ironic-python-agent.initramfs` ramdisk file:
+. Upload the `ironic-python-agent.initramfs` ramdisk file:
 +
 [%nowrap]
 ----
@@ -180,16 +180,16 @@ It may take 3-5 minutes to start the applications on the instances.
 
 === Register and Configure Bare Metal Node
 
-The file `baremetal.yaml` contents the information needed to register a physical node (name, IPMI details, MAC address and other details related to the resources).
+The file `baremetal.yaml` contains the information needed to register a physical node (name, IPMI details, MAC address and other details related to the resources).
 
-. Review `baremetal.yaml` file:
+. Review the `baremetal.yaml` file:
 +
 [%nowrap]
 ----
 (overcloud) [stack@undercloud ~]$ cat baremetal.yaml
 ----
 +
-.Expected output
+.Expected Output
 [%nowrap]
 ----
 nodes:
@@ -208,7 +208,7 @@ nodes:
         - address: "2c:c2:60:01:02:07"
 ----
 
-. Register the node to Ironic service:
+. Register the node to the Ironic service:
 +
 [%nowrap]
 ----
@@ -216,9 +216,9 @@ nodes:
 ----
 +
 [NOTE]
-This command doesn't provide any output when is correct.
+This command does not provide any output if there are no errors.
 
-. Ensure the node was registered correctly:
+. Verify the node was registered correctly:
 +
 [%nowrap]
 ----
@@ -235,7 +235,7 @@ This command doesn't provide any output when is correct.
 +--------------------------------------+-------+---------------+-------------+--------------------+-------------+
 ----
 +
-Once the node is registered, you need to set the parameters `deploy_kernel` and `deploy_ramdisk` referencing the images previously updated.
+Once the node is registered, you need to set the parameters `deploy_kernel` and `deploy_ramdisk`, referencing the images previously updated.
 
 . List the images registered previously:
 +
@@ -257,7 +257,7 @@ Once the node is registered, you need to set the parameters `deploy_kernel` and 
 +--------------------------------------+---------------------------------+--------+
 ----
 +
-Note down the IDs for `bm-deploy-kernel` and `bm-deploy-ramdisk` to be used in the next command.
+Note the IDs for `bm-deploy-kernel` and `bm-deploy-ramdisk` to be used in the next command.
 
 . Set _driver_ properties to the bare metal node:
 +
@@ -269,9 +269,9 @@ Note down the IDs for `bm-deploy-kernel` and `bm-deploy-ramdisk` to be used in t
 ----
 +
 [NOTE]
-This command doesn't provide any output when is correct.
+This command does not provide any output if there are no errors.
 
-. Set _root_ disk for the bare metal node:
+. Set the _root_ disk for the bare metal node:
 +
 [%nowrap]
 ----
@@ -296,7 +296,7 @@ In the previous steps, you registered the bare metal node, but it is still not a
 ----
 +
 [NOTE]
-This command doesn't provide any output when is correct.
+This command does not provide any output if there are no errors.
 
 . Ensure the node is in the new state:
 +
@@ -342,7 +342,7 @@ This command doesn't provide any output when is correct.
 ----
 +
 [NOTE]
-Interfaces may fail validation due to missing 'ramdisk', 'kernel', and 'image_source' parameters. This result is fine, because Compute service populates these missing parameters at the beginning of the deployment process.
+Interfaces may fail validation due to missing `ramdisk`, `kernel`, and `image_source` parameters. This result is fine, because the Compute service populates these missing parameters at the beginning of the deployment process.
 
 . Provide the node:
 +
@@ -354,7 +354,7 @@ Interfaces may fail validation due to missing 'ramdisk', 'kernel', and 'image_so
 [NOTE]
 This command cleans the node's disks by PXE booting the system using the deployment kernel and ramdisk and removing file system metadata from the attached disks.
 +
-This command doesn't provide any output if there are no errors.
+This command does not provide any output if there are no errors.
 
 . Check the node status:
 +
@@ -373,7 +373,7 @@ This command doesn't provide any output if there are no errors.
 +--------------------------------------+-------+---------------+-------------+--------------------+-------------+
 ----
 
-. Ensure the registered node now appears as hypervisor with the type _ironic_:
+. Ensure the registered node now appears as a hypervisor with the type _ironic_:
 +
 [%nowrap]
 ----
