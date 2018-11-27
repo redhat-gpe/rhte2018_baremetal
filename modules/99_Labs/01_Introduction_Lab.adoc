@@ -24,7 +24,7 @@ Through this combination, Red Hat OpenShift can be installed in three different 
 
 image:ocp_on_osp.png[]
 
-Red Hat OpenShift can also be integrated in public clouds or in bare metal environments, but Red Hat OpenShift and Red hat OpenStack Platform deliver applications better together. Red hat OpenStack Platform dynamically provisions resources, while Red Hat OpenShift dynamically consumes them. Together, they provide a flexible cloud-native solution for all of your container, virtual machine and physical nodes needs.
+Red Hat OpenShift can also be integrated in public clouds or in bare metal environments, but Red Hat OpenShift and Red Hat OpenStack Platform deliver applications better together. Red hat OpenStack Platform dynamically provisions resources, while Red Hat OpenShift dynamically consumes them. Together, they provide a flexible cloud-native solution for all of your container, virtual machine and physical nodes needs.
 
 This lab demonstrates how to use Red Hat OpenStack Platform to provision a cluster infrastructure for Red Hat OpenShift. The lab exercises also help you understand how Red Hat OpenShift can selectively deploy applications on virtual and bare metal nodes using the `nodeSelector` specification.
 
