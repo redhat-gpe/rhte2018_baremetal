@@ -7,15 +7,15 @@
 :imagesdir: ./images
 
 
-= Using OpenStack Director to Provision OpenShift on Bare Metal
+= Using Red Hat OpenStack Platform Director to Provision Red Hat OpenShift on Bare Metal
 
 == Provisioning Bare Metal Node
 
 === Create Flavor and Host Aggregate
 
-In this step, you create a new flavor intended to be used for instances requiring a bare metal node. This flavor need to be set with a custom property named `baremetal` with value `true`. This property will be used by Nova Scheduler to match metadata of the host aggregates.
+In this step, you create a new flavor intended to be used for instances requiring a bare metal node. This flavor needs to be set with a custom property named `baremetal` with value `true`. This property will be used by the Nova Scheduler to match metadata of the host aggregates.
 
-The preinstalled OpenStack already has a host aggregate named `virtual-vms` containing compute nodes. Following the steps below, you create a new host aggregate for bare metal node and add the overcloud controller node to this host aggregate. The overcloud controller manages bare metal nodes with Ironic service.
+The preinstalled Red Hat OpenStack instance already has a host aggregate named `virtual-vms` containing compute nodes. Following the steps below, you create a new host aggregate for bare metal node and add the overcloud controller node to this host aggregate. The overcloud controller manages bare metal nodes with the Ironic service.
 
 . Create a new flavor for bare metal systems with the custom property `baremetal=true`:
 +
@@ -28,7 +28,7 @@ The preinstalled OpenStack already has a host aggregate named `virtual-vms` cont
     --public baremetal
 ----
 
-. Review the `virtual-vms` host aggregate that has been pre-configured in the lab environment:
+. Review the `virtual-vms` host aggregate that has been preconfigured in the lab environment:
 +
 [%nowrap]
 ----
@@ -82,9 +82,9 @@ The `virtual-vms` host aggregate contains all overcloud compute nodes and the `b
 ----
 +
 [NOTE]
-Please note that while creating the `baremetal` flavor we set its property as `--property baremetal=true`. This is how we link the flavor to the respective host aggregate. In other words, an admin setting (host aggregate) is presented to the users via the `flavor` property settings.
+While creating the `baremetal` flavor we set its property as `--property baremetal=true`. This is how we link the flavor to the respective host aggregate. In other words, an administrative setting (host aggregate) is presented to the users via the `flavor` property settings.
 
-. Add controller node to the `baremetal-hosts` host aggregate:
+. Add a controller node to the `baremetal-hosts` host aggregate:
 +
 [%nowrap]
 ----
@@ -109,7 +109,7 @@ Please note that while creating the `baremetal` flavor we set its property as `-
 +-------------------+-----------------------------------------+
 ----
 
-=== Installing RHEL7 into the Bare Metal Node
+=== Installing Red Hat Enterprise Linux 7 into the Bare Metal Node
 
 Once the flavor and host aggregate are created, all the elements are ready to provision the node.
 
@@ -197,9 +197,9 @@ Notice the parameter `provider:physical_network` and `provider:network_type`.
 ----
 +
 [NOTE]
-The `dns_nameservers` parameter points to the `openshift-dns` VM.
+The `dns_nameservers` parameter points to the `openshift-dns` virtual machine.
 
-. Check keypair configured for OpenShift:
+. Check key pair configured for Red Hat OpenShift:
 +
 [%nowrap]
 ----
@@ -216,9 +216,9 @@ The `dns_nameservers` parameter points to the `openshift-dns` VM.
 +-----------+-------------------------------------------------+
 ----
 +
-A keypair named `openshift` is already pre-configured using the `~stack/.ssh/id_rsa.pub` file.
+A key pair named `openshift` is already preconfigured using the `~stack/.ssh/id_rsa.pub` file.
 
-. List the `openshift-nodes` security group rule pre-defined for OpenShift:
+. List the `openshift-nodes` security group rule predefined for Red Hat OpenShift:
 +
 [%nowrap]
 ----
@@ -241,7 +241,7 @@ A keypair named `openshift` is already pre-configured using the `~stack/.ssh/id_
 ----
 +
 [NOTE]
-UDP and TCP communication are open between the OpenShift nodes and only ICMP and SSH are allowed from outside.
+UDP and TCP communication are open between the Red Hat OpenShift nodes and only ICMP and SSH are allowed from outside.
 
 . Provision the `ocp-node02` bare metal system:
 +
@@ -289,10 +289,10 @@ UDP and TCP communication are open between the OpenShift nodes and only ICMP and
 +-------------------------------------+----------------------------------------------------------+
 ----
 +
-The `rhel7` image is pre-uploaded into the overcloud's Glance service. This is the same image that is used by undercloud to provision the overcloud nodes (the `overcloud-full.qcow2` image).
+The `rhel7` image has already been uploaded into the overcloud's Glance service. This is the same image that is used by the undercloud to provision the overcloud nodes (the `overcloud-full.qcow2` image).
 +
 [IMPORTANT]
-The server creation takes about 10 minutes. Ensure the `status` field is `ACTIVE` before continue to the next step.
+The server creation takes about 10 minutes. Ensure the `status` field is `ACTIVE` before continuing to the next step.
 
 . Verify the IP address of the newly created server:
 +
