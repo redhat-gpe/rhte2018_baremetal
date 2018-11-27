@@ -7,9 +7,9 @@
 :imagesdir: ./images
 
 
-= Using OpenStack Director to Provision OpenShift on Bare Metal
+= Using Red Hat OpenStack Platform Director to Provision Red Hat OpenShift on Bare Metal
 
-== Review Current Nodes in OpenShift
+== Review Current Nodes in Red Hat OpenShift
 
 . Connect to the OpenShift `bastion` node:
 +
@@ -41,9 +41,9 @@ ocp-master01   Ready     master    1d        v1.10.0+b81c8f8
 ocp-node01     Ready     compute   1d        v1.10.0+b81c8f8
 ----
 
-. Edit the OpenShift ansible inventory file `/root/hosts` as follow:
+. Edit the OpenShift Ansible inventory file `/root/hosts` as follows:
 
-.. Edit the `new_nodes` section located after `nodes` section:
+.. Edit the `new_nodes` section, located after `nodes` section:
 +
 [%nowrap]
 ----
@@ -143,7 +143,7 @@ ocp-node01     Ready     compute   4d        v1.10.0+b81c8f8   beta.kubernetes.i
 [root@ocp-bastion ~]# oc get nodes -l type=vm
 ----
 +
-.Sample Output
+.Sample output
 [%nowrap]
 ----
 NAME         STATUS    ROLES     AGE       VERSION
@@ -157,7 +157,7 @@ ocp-node01   Ready     compute   4d        v1.10.0+b81c8f8
 [root@ocp-bastion ~]# oc get nodes -l type=bm
 ----
 +
-.Sample Output
+.Sample output
 +
 [%nowrap]
 ----
@@ -172,7 +172,7 @@ ocp-node02   Ready     compute   4d        v1.10.0+b81c8f8
 [root@ocp-bastion ~]# oc get sc
 ----
 +
-.Sample Output
+.Sample output
 [%nowrap]
 ----
 NAME                 PROVISIONER            AGE
