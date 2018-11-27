@@ -93,7 +93,7 @@ Ironic provides two modes for node cleaning: _automated_ and _manual_.
 
 ====== Automated Cleaning
 
-When hardware is recycled from one workload to another, `ironic` performs automated cleaning on the node to ensure it is ready for another workload. This ensures the tenant will get a consistent bare metal node deployed every time.
+When hardware is recycled from one workload to another, the Ironic service performs automated cleaning on the node to ensure it is ready for another workload. This ensures the tenant will get a consistent bare metal node deployed every time.
 
 With automated cleaning, nodes move to a cleaning state when moving from active to available state (when the hardware is recycled from one workload to another). Nodes also traverse cleaning when going from manageable to available state (before the first workload is assigned to the nodes).
 
