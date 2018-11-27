@@ -5,70 +5,70 @@
 :noaudio:
 :imagesdir: ./images
 
-= Using OpenStack Director to Provision OpenShift on Bare Metal
+= Using Red Hat OpenStack Platform Director to Provision Red Hat OpenShift on Bare Metal
 
 == Introduction
 
-The purpose of this lab is to explore how is possible to use OpenStack director (known as well as `undercloud`) to provision bare metal servers and use them for OpenShift.
+The purpose of this lab is to explore the use of Red Hat OpenStack Platform director (also known as the `undercloud`) to provision bare metal servers and use them for Red Hat OpenShift.
 
-OpenStack software controls large pools of compute, storage, and networking resources throughout a datacenter, managed through a dashboard or via the OpenStack API.
+Red Hat OpenStack Platform software controls large pools of compute, storage, and networking resources throughout a datacenter, managed through a dashboard or via the Red Hat OpenStack API.
 
 Red Hat OpenShift is a comprehensive enterprise-grade application platform, built for containers with Kubernetes.
 
 
-Through this combination, OpenShift can be installed in three different scenarios:
+Through this combination, Red Hat OpenShift can be installed in three different scenarios:
 
-* Virtual: All the nodes for OpenShift are Virtual Machines inside OpenStack.
-* Bare Metal: All the nodes for OpenShift are physical nodes.
-* Hybrid: Some nodes are Virtual Machines (for example master and infra; or development compute nodes) and some of them are Physical Nodes (for example production compute nodes).
+* Virtual: All the nodes for Red Hat OpenShift are virtual machines inside Red Hat OpenStack Platform.
+* Bare Metal: All the nodes for Red Hat OpenShift are physical nodes.
+* Hybrid: Some nodes are virtual machines (for example master and infrastructure; or development compute nodes) and some of them are physical nodes (for example production compute nodes).
 
 image:ocp_on_osp.png[]
 
-OpenShift can be as well integrated in public clouds or in bare metal environments, but OpenShift and OpenStack deliver applications better together. OpenStack dynamically provisions resources, while OpenShift dynamically consumes them. Together, they provide a flexible cloud-native solution for all of your container, virtual machine and physical nodes needs.
+Red Hat OpenShift can also be integrated in public clouds or in bare metal environments, but Red Hat OpenShift and Red hat OpenStack Platform deliver applications better together. Red hat OpenStack Platform dynamically provisions resources, while Red Hat OpenShift dynamically consumes them. Together, they provide a flexible cloud-native solution for all of your container, virtual machine and physical nodes needs.
 
-This lab demonstrates how to use OpenStack to provision a cluster infrastructure for OpenShift. The lab exercises also help to understand how OpenShift can selectively deploy applications on virtual and bare metal nodes using `nodeSelector` specification.
+This lab demonstrates how to use Red Hat OpenStack Platform to provision a cluster infrastructure for Red Hat OpenShift. The lab exercises also help you understand how Red Hat OpenShift can selectively deploy applications on virtual and bare metal nodes using the `nodeSelector` specification.
 
-=== OpenStack Bare Metal Provisioning (a.k.a _Ironic_)
+=== Red Hat OpenStack Platform Bare Metal Provisioning
 
-The OpenStack service for manage bare metal nodes is named _Ironic_. Ironic service may be used independently or as part of an OpenStack Cloud, and integrates with the OpenStack Identity (keystone), Compute (nova), Network (neutron), Image (glance), and Object (swift) services.
+The Red Hat OpenStack Platform service for managing bare metal nodes is named _Ironic_. The Ironic service may be used independently or as part of an Red Hat OpenStack Platform cloud, and integrates with the Red Hat OpenStack Platform Identity (keystone), Compute (nova), Network (neutron), Image (glance), and Object (swift) services.
 
-The Bare Metal service manages hardware through both common (eg. PXE and IPMI) and vendor-specific remote management protocols. It provides the cloud operator with a unified interface to a heterogeneous fleet of servers while also providing the Compute service with an interface that allows physical servers to be managed as though they were virtual machines.
+The Bare Metal service manages hardware through both common (for example, PXE and IPMI) and vendor-specific remote management protocols. It provides the cloud operator with a unified interface to a heterogeneous fleet of servers while also providing the Compute service with an interface that allows physical servers to be managed as though they were virtual machines.
 
 ==== Key Components of Ironic Service
 
 Ironic Conductor::
-  * Adds/edits/deletes nodes
-  * Powers on/off nodes with IPMI or other vendor-specific protocol
-  * Provisions/deploys/cleans bare metal nodes.
+  * Adds, edits, and deletes nodes
+  * Powers on or off nodes with IPMI or other vendor-specific protocol
+  * Provisions, deploys, and cleans bare metal nodes
 
 Ironic API::
-  * A RESTful API that processes application requests by sending them to the Ironic Conductor over remote procedure call (RPC).
+  * A RESTful API that processes application requests by sending them to the Ironic Conductor via remote procedure call (RPC).
 
 Ironic Python Agent::
-  * A python service which is run in a temporary ramdisk to provide Ironic Conductor and Ironic Inspector services with remote access, in-band hardware control, and hardware introspection.
+  * A Python service which is run in a temporary ramdisk to provide Ironic Conductor and Ironic Inspector services with remote access, in-band hardware control, and hardware introspection.
 
 === Deployment Architecture
 
 The Bare Metal RESTful API service is used to enroll hardware that the Bare Metal service will manage. An administrator registers a new node, usually specifying specifying their attributes such as MAC addresses and IPMI credentials.
 
-The Ironic Conductor process does the bulk of the work.
+The Ironic Conductor process does most of the work.
 
 image:enroll.png[]
 
-==== Interaction with OpenStack Components
+==== Interaction with Red Hat OpenStack Platform Components
 
 The Bare Metal service may, depending upon configuration, interact with several other OpenStack services. This includes:
 
 * The OpenStack Identity service (keystone) for request authentication and to locate other OpenStack services
-* The OpenStack Image service (glance) from which to retrieve images and image meta-data
+* The OpenStack Image service (glance) from which to retrieve images and image metadata
 * The OpenStack Networking service (neutron) for DHCP and network configuration
 * The OpenStack Compute service (nova) works with the Bare Metal service and acts as a user-facing API for instance management, while the Bare Metal service provides the admin/operator API for hardware management. The OpenStack Compute service also provides scheduling facilities
-** Matching flavors,images, hardware, tenant quotas, IP assignment, and other services which the Bare Metal service does not, in and of itself, provide.
-* The OpenStack Object Storage (swift) provides temporary storage for the _configdrive_, user images, deployment logs and inspection data.
-* The OpenStack Block Storage (cinder) provides persistent storage (Currently only for Virtual nodes).
+** Matching flavors,images, hardware, tenant quotas, IP assignment, and other services which the Bare Metal service does not provide.
+* The OpenStack Object Storage (swift) service provides temporary storage for the _configdrive_, user images, deployment logs and inspection data.
+* The OpenStack Block Storage (cinder) service provides persistent storage (Currently only for virtual nodes).
 
 [IMPORTANT]
-OpenShift Baremetal nodes systems currently not supporting  cinder as StorageClass.
+OpenShift Bare Metal nodes systems are currently not supporting cinder as a StorageClass.
 It is planned for OpenShift version 4.0 to be able to consume "Standalone Cinder" (RFE: https://bugzilla.redhat.com/show_bug.cgi?id=1566388)
 If OpenStack uses Ceph it is possible to use Ceph RBD as Storageclass: https://docs.openshift.com/container-platform/3.10/install_config/persistent_storage/persistent_storage_ceph_rbd.html
 
@@ -77,7 +77,7 @@ image:ironic_integration.png[]
 
 ==== Provisioning Bare Metal Server
 
-A user’s request to boot an instance is passed to the Compute service via the Compute API and the Compute Scheduler. The Compute service uses the ironic _virt driver_ to hand over this request to the Bare Metal service, where the request passes from the Bare Metal API, to the Conductor, to a Driver to successfully provision a physical server for the user.
+A user’s request to boot an instance is passed to the Compute service via the Compute API and the Compute Scheduler. The Compute service uses the `ironic` _virt driver_ to hand over this request to the Bare Metal service, where the request passes from the Bare Metal API, to the Conductor, to a Driver, to successfully provision a physical server for the user.
 
 Just as the Compute service talks to various OpenStack services like Image, Network, Object Store etc to provision a virtual machine instance, here the Bare Metal service talks to the same OpenStack services for image, network and other resource needs to provision a bare metal instance.
 
@@ -87,14 +87,14 @@ image:PXE_Provisioning.png[]
 
 Ironic provides two modes for node cleaning: _automated_ and _manual_.
 
-* Automated cleaning is automatically performed before the first workload has been assigned to a node and when hardware is recycled from one workload to another.
+* Automated cleaning is performed automatically before the first workload has been assigned to a node and when hardware is recycled from one workload to another.
 
 * Manual cleaning must be invoked by the operator.
 
-====== Automated cleaning
+====== Automated Cleaning
 
-When hardware is recycled from one workload to another, ironic performs automated cleaning on the node to ensure it’s ready for another workload. This ensures the tenant will get a consistent bare metal node deployed every time.
+When hardware is recycled from one workload to another, `ironic` performs automated cleaning on the node to ensure it is ready for another workload. This ensures the tenant will get a consistent bare metal node deployed every time.
 
-With automated cleaning, nodes move to cleaning state when moving from active to available state (when the hardware is recycled from one workload to another). Nodes also traverse cleaning when going from manageable to available state (before the first workload is assigned to the nodes)
+With automated cleaning, nodes move to a cleaning state when moving from active to available state (when the hardware is recycled from one workload to another). Nodes also traverse cleaning when going from manageable to available state (before the first workload is assigned to the nodes).
 
 image:states.png[]
