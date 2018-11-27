@@ -7,13 +7,13 @@
 :imagesdir: ./images
 
 
-= Using OpenStack Director to Provision OpenShift on Bare Metal
+= Using Red Hat OpenStack Platform Director to Provision Red Hat OpenShift on Bare Metal
 
-== Configure Bare Metal Node for OpenShift
+== Configure Bare Metal Node for Red Hat OpenShift
 
 === Add DNS Record for the Bare Metal Node
 
-OpenShift requires the nodes are registered to DNS for a correct functionality. This lab provides an simple playbook to add the bare metal node to the `openshift-dns` DNS server.
+Red Hat OpenShift requires the nodes to be registered to DNS to function correctly. This lab provides a simple playbook to add the bare metal node to the `openshift-dns` DNS server.
 
 . Update the `update-dns.yaml` file under the `/home/stack/` directory on the undercloud node, uncommenting and editing the following line using the IP address of the bare metal node obtained in the previous lab:
 +
@@ -39,7 +39,7 @@ Please verify the list indentation in the YAML file while updating the entry in 
 (overcloud) [stack@undercloud ~]$ ansible-playbook update-dns.yaml
 ----
 +
-.Sample Output
+.Sample output
 [%nowrap]
 ----
 PLAY [Update wildcard DNS to the floating Ip] ************************************************************************************************************************************************
@@ -73,7 +73,7 @@ The following tasks can be performed using the `cloud-init` user data during the
 [cloud-user@ocp-node02 ~]$ sudo -i
 ----
 
-. Fix the DNS server IP address in the `/etc/resolv.conf` file in the bare metal node:
+. Fix the DNS server IP address in the `/etc/resolv.conf` file on the bare metal node:
 +
 [%nowrap]
 ----
@@ -81,12 +81,12 @@ The following tasks can be performed using the `cloud-init` user data during the
 ----
 +
 [IMPORTANT]
-There is a bug in the used qcow2 image (Bugzilla [https://bugzilla.redhat.com/show_bug.cgi?id=1545842]
+There is a bug in the qcow2 image used (Bugzilla [https://bugzilla.redhat.com/show_bug.cgi?id=1545842]
 ). The `/etc/resolv.conf` file includes 192.168.122.1 as the DNS server.
 
 . Configure repositories to install the `docker` and `openshift` packages.
 
-.. Create a file named `open.repo` inside `/etc/yum.repos.d/`:
+.. Create a file named `open.repo` inside `/etc/yum.repos.d/` directory:
 +
 [%nowrap]
 ----
@@ -185,9 +185,9 @@ DEVS=/dev/vdb
 EOF
 ----
 +
-The system has a second disk (`/dev/vdb`) to be used for docker storage.
+The system has a second disk (`/dev/vdb`) to be used for Docker storage.
 
-. Run `docker-storage-setup` to configure the storage properly:
+. Run `docker-storage-setup` to configure the storage:
 +
 [%nowrap]
 ----
@@ -211,7 +211,7 @@ INFO: Device node /dev/vdb1 exists.
   Logical volume docker-vg/docker-pool changed.
 ----
 
-. Start docker daemon:
+. Start the Docker daemon:
 +
 [%nowrap]
 ----
