@@ -12,11 +12,9 @@
 
 === Red Hat OpenStack Platform Overcloud Installation
 
-In this section, you may review the templates used to deploy the overcloud.
+In this section, you may review the templates used to deploy the overcloud. Red Hat OpenStack Platform version 13 was installed in this lab.
 
-Red Hat OpenStack Platform version 13 was installed in this lab.
-
-. Parameters and templates used for the overcloud deployment
+.Parameters and templates used for the overcloud deployment
 [%nowrap]
 ----
 #!/bin/bash
@@ -60,7 +58,7 @@ Four default environment templates were used to configure the Hyper-Converged In
 
 The custom configuration for Red Hat Ceph Storage used in the lab is defined in the file `storage-ceph-hyperconverged-environment.yaml` inside the `/home/stack/templates/environments/` directory.
 
-. Review the template file storage-ceph-hyperconverged-environment.yaml
+.Review the template file storage-ceph-hyperconverged-environment.yaml
 [%nowrap]
 ----
 resource_registry:
@@ -89,8 +87,7 @@ The following parameters are defined in the template:
 * The Storage Management network configuration
 * The Storage Management port configuration for controller and compute
 * Red Hat Ceph Storage parameters to be configured in `ceph.conf` files
-
-.Parameters
++
 [cols="1,2",options="header",caption="",options="nowrap"]
 |===
 | Parameter |Description
@@ -99,18 +96,17 @@ The following parameters are defined in the template:
 | `mon_max_pg_per_osd` | Issue a HEALTH_WARN message in the cluster log if the average number of placement groups (PGs) per object storage daemon (OSD) is above this number.
 |===
 * Configuration for the ceph-ansible playbook, where the disks are defined and the scenario (collocated).
-
++
 In this lab two disks are used (/dev/vdb and /dev/vdc) for the OSD but no disks are used for the journal.
 
 ==== Ironic
 
-. Ironic deployment templates
+.Ironic deployment templates
 
 The overcloud Ironic services were deployed using the template `/usr/share/openstack-tripleo-heat-templates/environments/services/ironic.yaml`.
 
 You may find the following containerized services as part of the Ironic deployment.
 
-.Containers
 [cols="1,2",options="header",caption="",options="nowrap"]
 |===
 | Container |Description
@@ -121,7 +117,7 @@ You may find the following containerized services as part of the Ironic deployme
 | `nova_compute` | Runs the Nova compute integrated with Ironic.
 |===
 
-An `ironic custom` template, `/home/stack/templates/environments/ironic.yaml` is used in the `overcloud` deployment to provide the custom parameters.
+An `ironic custom` template, `/home/stack/templates/environments/ironic.yaml` was used in the `overcloud` deployment to provide the custom parameters.
 [source,yaml]
 ----
 parameter_defaults:
@@ -141,13 +137,12 @@ parameter_defaults:
 
 ==== Octavia
 
-.Octavia Deployment Templates
+.Octavia deployment templates
 
 The Red Hat OpenStack Platform load balancer service `Octavia` is deployed using the template `/usr/share/openstack-tripleo-heat-templates/environments/services-docker/octavia.yaml`.
  
 You may review the containerized components deployed as part of the Octavia service.
 
-.Containers
 [cols="1,2",options="header",caption="",options="nowrap"]
 |===
 | Container |Description
@@ -166,7 +161,6 @@ The template used to deploy Octavia is on the path `/usr/share/openstack-tripleo
 
 The Barbican environment template deploys three containerized services.
 
-.Containers
 [cols="1,2",options="header",caption="",options="nowrap"]
 |===
 | Container |Description
@@ -175,14 +169,14 @@ The Barbican environment template deploys three containerized services.
 | `barbican_api` | Handles incoming REST requests to Barbican. These nodes can interact with the database directly if the request can be completed synchronously (such as for GET requests), otherwise the queue supports asynchronous processing by worker nodes.
 |===
 
-==== Network configuration
+==== Network Configuration
 
-.Network Environment Templates
+.Network environment templates
 
-The following custom templates were used to define the network configurations for the overcloud in the lab environment
+The following custom templates were used to define the network configuration for the overcloud in the lab environment.
 
 `/home/stack/templates/environments/network-environment.yaml`: Defines the network ranges and the VLAN IDs for the overcloud.
-+
+
 .File content
 [%nowrap]
 ----
@@ -210,7 +204,6 @@ parameter_defaults:
   StorageMgmtNetCidr: 172.20.1.0/24
   StorageMgmtAllocationPools: [{'start': '172.20.1.20', 'end': '172.20.1.200'}]
 
-
   ExternalNetCidr: 10.0.0.0/24
   # Leave room for floating IPs in the External allocation pool (if required)
   ExternalAllocationPools: [{'start': '10.0.0.20', 'end': '10.0.0.200'}]
@@ -218,18 +211,16 @@ parameter_defaults:
   # Set to the router gateway on the external network
   ExternalInterfaceDefaultRoute: 10.0.0.1
 
-
   # CIDR subnet mask length for provisioning network
   ControlPlaneSubnetCidr: "24"
   # Gateway router for the provisioning network (or Undercloud IP)
   ControlPlaneDefaultRoute: 192.0.2.1
   # Generally the IP of the Undercloud
   EC2MetadataIp: 192.0.2.1
-
 ----
+
 `/home/stack/templates/environments/network-isolation.yaml`: Enable the creation of Neutron networks for isolated overcloud traffic and configure the roles to assign ports (related to that role) on the networks.
 
-+
 .File content
 [%nowrap]
 ----
@@ -264,7 +255,7 @@ resource_registry:
 ----
 
 `/home/stack/templates/nic-configs/compute.yaml` and `/home/stack/templates/nic-configs/controller.yaml`: Define the interfaces/bridge for the controller and the compute nodes and its attached networks.
-+
+
 .File content
 [%nowrap]
 ----
@@ -441,8 +432,8 @@ outputs:
     description: The OsNetConfigImpl resource.
     value: {get_resource: OsNetConfigImpl}
 ----
-+
-.Network Interfaces in the Overcloud Nodes
+
+.Network interfaces in the overcloud nodes
 [cols="1,1,1,2",options="header",caption="",options="nowrap"]
 |===
 | Interface | OpenStack Name |OVS Bridge |Description
@@ -457,7 +448,7 @@ outputs:
 .Additional Custom Templates Used to Provision the Lab
 
 `/home/stack/templates/environments/node-info.yaml`: Specifies the number of nodes per role and their flavors.
-+
+
 .File content
 [%nowrap]
 ----
@@ -469,7 +460,7 @@ parameter_defaults:
 ----
 
 `/home/stack/templates/heat/firstboot.yaml`: Defines the user data to be used during the first boot on all the overcloud nodes.
-+
+
 .File content
 [%nowrap]
 ----
@@ -498,7 +489,7 @@ outputs:
 ----
 
 `/home/stack/templates/environments/firstboot.yaml`: Defines the `userdata` resource, which sets the `root` password
-+
+
 .File content
 [%nowrap]
 ----
@@ -507,8 +498,8 @@ resource_registry:
 ----
 
 
-`/home/stack/templates/environments/custom-config.yaml`: Misc configuration for the Overcloud
-+
+`/home/stack/templates/environments/custom-config.yaml`: Miscellaneous configuration for the overcloud
+
 .File content
 [%nowrap]
 ----
@@ -530,7 +521,7 @@ The endpoint for the Keystone Admin was moved to external due to integration wit
 .DNS Configuration Templates
 
 `/home/stack/templates/environments/dns-network-config.yaml`: Template to configure the DNS for the overcloud nodes
-+
+
 .File content
 [%nowrap]
 ----
@@ -542,7 +533,7 @@ parameter_defaults:
 ----
 
 `/home/stack/templates/environments/fix-nova-reserved-host-memory.yaml`: Custom parameters to override the lab environment's limitation
-+
+
 .File content
 [%nowrap]
 ----
@@ -558,17 +549,17 @@ By default, the Red Hat OpenStack Platform director reserves `4 GB` of the compu
 
 The environment file `/usr/share/openstack-tripleo-heat-templates/environments/disable-telemetry.yaml` disables the Ceilometer, Gnocchi, Aodh and Panko services to restrict the overcloud resource utilization.
 
-=== Deploy a DNS instance to be used for Red Hat OpenShift
+=== Deploy a DNS instance to be used for Red Hat OpenShift Container Platform
 
 .DNS Server Node
 
 For the DNS VM's installation the playbooks hosted on `https://github.com/tomassedovic/devns` were used.
-With this DNS VM server it is possible to dynamically update the DNS using `nsupdate` and is used by the Red Hat OpenShift installation to generate the required DNS records.
 
+With this DNS VM server it is possible to dynamically update the DNS using `nsupdate` and is used by the OpenShift Container Platform installation to generate the required DNS records.
 
 The following steps were used for the DNS server's installation:
 
-. Configure file `/home/stack/devns/vars.yaml`
+. Configure file `/home/stack/devns/vars.yaml`.
 +
 .File content
 +
@@ -593,8 +584,8 @@ server_name: openshift-dns
 dns_forwarders: ["8.8.8.8"]
 ----
 +
-. Install `shade` package for python
-We need to install `shade` library as a prerequisite to install Red Hat OpenShift on Red Hat OpenStack Platform. Shade is a simple client library for interacting with Red Hat OpenStack Platform clouds.
+. Install `shade` package for Python.
+We need to install the `shade` library as a prerequisite to install Red Hat OpenShift on Red Hat OpenStack Platform. Shade is a simple client library for interacting with Red Hat OpenStack Platform clouds.
 +
 [%nowrap]
 ----
@@ -650,7 +641,7 @@ Once the `vars.yaml` file is configured, we only need to run the `deploy.yaml` p
 * Subnet with name `openshift-dns` with range `192.168.23.0/24`
 * Router connected to the `public` network with name `openshift-dns`
 * VM with name `openshift-dns`
-+
+
 .Run the `deploy.yaml` playbook
 [%nowrap]
 ----
@@ -661,18 +652,16 @@ Once the `vars.yaml` file is configured, we only need to run the `deploy.yaml` p
 When the deployment finishes, it shows the `Floating IP`, `key algorithm` and `key secret`  used to update DNS dynamically.
 
 
-=== Red Hat OpenShift Installation
+=== Red Hat OpenShift Container Platform Installation
 
-.Red Hat OpenShift Container Platform Installation
-
-In this section, you may review the installation steps used to deploy Red Hat OpenShift in the lab environment.
+In this section, you may review the installation steps used to deploy OpenShift Container Platform in the lab environment.
 
 Red Hat OpenShift Container Platform 3.10 was installed on top of Red Hat OpenStack using the `openshift-ansible` playbooks. 
 
 
-==== Review the Red Hat OpenShift Installation Variables
+==== Review the OpenShift Container Platform Installation Variables
 
-The Ansible inventory file `/root/hosts` contains the `node` configuration and parameters used for the Red Hat OpenShift installation.
+The Ansible inventory file `/root/hosts` contains the `node` configuration and parameters used for the OpenShift Container Platform  installation.
 
 .File content
 [%nowrap]
@@ -720,11 +709,11 @@ openshift_master_cert_expire_days=730
 etcd_ca_default_days=1825
 ----
 
-==== Red Hat OpenShift installation via Playbook
+==== OpenShift Container Platform Installation via Playbook
 
-Red Hat OpenShift is using the playbooks provided as `openshift-ansible` package for deployment and administration. After installing the `openshift-ansible` package you can find the playbooks for various tasks under the `/usr/share/ansible/openshift-ansible/playbooks/` directory.
+OpenShift Container Platform uses the playbooks provided in the `openshift-ansible` package for deployment and administration. After installing the `openshift-ansible` package you can find the playbooks for various tasks under the `/usr/share/ansible/openshift-ansible/playbooks/` directory.
 
-.To deploy the Red Hat OpenShift cluster you may run the playbook with the required `inventory` file (hosts) as the input.
+.To deploy the OpenShift Container Platform cluster you may run the playbook with the required `inventory` file (hosts) as the input.
 [%nowrap]
 ----
 [root@ocp-bastion ~]# ansible-playbook -i <inventory file path> /usr/share/ansible/openshift-ansible/playbooks/deploy_cluster.yml
