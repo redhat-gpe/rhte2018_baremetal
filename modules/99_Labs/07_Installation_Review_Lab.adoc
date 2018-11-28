@@ -58,7 +58,7 @@ Four default environment templates were used to configure the Hyper-Converged In
 
 The custom configuration for Red Hat Ceph Storage used in the lab is defined in the file `storage-ceph-hyperconverged-environment.yaml` inside the `/home/stack/templates/environments/` directory.
 
-.Review the template file storage-ceph-hyperconverged-environment.yaml
+*File content*
 [%nowrap]
 ----
 resource_registry:
@@ -103,7 +103,7 @@ In this lab two disks are used (/dev/vdb and /dev/vdc) for the OSD but no disks 
 
 The overcloud Ironic services were deployed using the template `/usr/share/openstack-tripleo-heat-templates/environments/services/ironic.yaml`.
 
-You may find the following containerized services as part of the Ironic deployment.
+You may find the following containerized services as part of the Ironic deployment:
 
 [cols="1,2",options="header",caption="",options="nowrap"]
 |===
@@ -135,9 +135,9 @@ parameter_defaults:
 
 ==== Octavia
 
-The Red Hat OpenStack Platform load balancer service `Octavia` is deployed using the template `/usr/share/openstack-tripleo-heat-templates/environments/services-docker/octavia.yaml`.
+The Red Hat OpenStack Platform load balancer service `Octavia` was deployed using the template `/usr/share/openstack-tripleo-heat-templates/environments/services-docker/octavia.yaml`.
  
-You may review the containerized components deployed as part of the Octavia service.
+The following containerized components were deployed as part of the Octavia service:
 
 [cols="1,2",options="header",caption="",options="nowrap"]
 |===
@@ -150,10 +150,10 @@ You may review the containerized components deployed as part of the Octavia serv
 
 ==== Barbican
 
-The template used to deploy Octavia is on the path `/usr/share/openstack-tripleo-heat-templates/environments/services/barbican.yaml` to enable the container for the API and
+The template used to deploy Barbican is on the path `/usr/share/openstack-tripleo-heat-templates/environments/services/barbican.yaml` to enable the container for the API and
 `/usr/share/openstack-tripleo-heat-templates/environments/barbican-backend-simple-crypto.yaml` to enable a simple cryptographic algorithm.
 
-The Barbican environment template deploys three containerized services.
+The Barbican environment template deploys three containerized services:
 
 [cols="1,2",options="header",caption="",options="nowrap"]
 |===
@@ -169,7 +169,7 @@ The following custom templates were used to define the network configuration for
 
 `/home/stack/templates/environments/network-environment.yaml`: Defines the network ranges and the VLAN IDs for the overcloud.
 
-.File content
+*File content*
 [%nowrap]
 ----
 resource_registry:
@@ -213,7 +213,7 @@ parameter_defaults:
 
 `/home/stack/templates/environments/network-isolation.yaml`: Enable the creation of Neutron networks for isolated overcloud traffic and configure the roles to assign ports (related to that role) on the networks.
 
-.File content
+*File content*
 [%nowrap]
 ----
 resource_registry:
@@ -248,7 +248,7 @@ resource_registry:
 
 `/home/stack/templates/nic-configs/compute.yaml` and `/home/stack/templates/nic-configs/controller.yaml`: Define the interfaces/bridge for the controller and the compute nodes and its attached networks.
 
-.File content
+*File content*
 [%nowrap]
 ----
 heat_template_version: queens
@@ -425,7 +425,7 @@ outputs:
     value: {get_resource: OsNetConfigImpl}
 ----
 
-.Network interfaces in the overcloud nodes
+*Network interfaces in the overcloud nodes*
 [cols="1,1,1,2",options="header",caption="",options="nowrap"]
 |===
 | Interface | OpenStack Name |OVS Bridge |Description
@@ -441,7 +441,7 @@ The following additional custom templates were used to provision the lab.
 
 `/home/stack/templates/environments/node-info.yaml`: Specifies the number of nodes per role and their flavors.
 
-.File content
+*File content*
 [%nowrap]
 ----
 parameter_defaults:
@@ -453,7 +453,7 @@ parameter_defaults:
 
 `/home/stack/templates/heat/firstboot.yaml`: Defines the user data to be used during the first boot on all the overcloud nodes.
 
-.File content
+*File content*
 [%nowrap]
 ----
 heat_template_version: 2014-10-16
@@ -480,9 +480,9 @@ outputs:
     value: {get_resource: userdata}
 ----
 
-`/home/stack/templates/environments/firstboot.yaml`: Defines the `userdata` resource, which sets the `root` password
+`/home/stack/templates/environments/firstboot.yaml`: Defines the `userdata` resource, which sets the `root` password.
 
-.File content
+*File content*
 [%nowrap]
 ----
 resource_registry:
@@ -490,9 +490,9 @@ resource_registry:
 ----
 
 
-`/home/stack/templates/environments/custom-config.yaml`: Miscellaneous configuration for the overcloud
+`/home/stack/templates/environments/custom-config.yaml`: Miscellaneous configuration for the overcloud.
 
-.File content
+*File content*
 [%nowrap]
 ----
 parameter_defaults:
@@ -514,7 +514,7 @@ The endpoint for the Keystone Admin was moved to external due to integration wit
 
 `/home/stack/templates/environments/dns-network-config.yaml`: Template to configure the DNS for the overcloud nodes
 
-.File content
+*File content*
 [%nowrap]
 ----
 parameter_defaults:
@@ -526,7 +526,7 @@ parameter_defaults:
 
 `/home/stack/templates/environments/fix-nova-reserved-host-memory.yaml`: Custom parameters to override the lab environment's limitation
 
-.File content
+*File content*
 [%nowrap]
 ----
 parameter_defaults:
@@ -551,7 +551,7 @@ The following steps were used for the DNS server's installation:
 
 . Configure file `/home/stack/devns/vars.yaml`.
 +
-.File content
+*File content*
 +
 [%nowrap]
 ----
@@ -583,7 +583,7 @@ We need to install the `shade` library as a prerequisite to install OpenShift Co
 (overcloud) [stack@undercloud ~]$ sudo yum install python2-shade
 ----
 +
-.Sample output
+*Sample output*
 [%nowrap]
 ----
 Loaded plugins: product-id, search-disabled-repos, subscription-manager
@@ -653,7 +653,7 @@ Red Hat OpenShift Container Platform 3.10 was installed on top of Red Hat OpenSt
 
 The Ansible inventory file `/root/hosts` contains the `node` configuration and parameters used for the OpenShift Container Platform  installation.
 
-.File content
+*File content*
 [%nowrap]
 ----
 [masters]
