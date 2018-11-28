@@ -58,7 +58,7 @@ Four default environment templates were used to configure the Hyper-Converged In
 
 The custom configuration for Red Hat Ceph Storage used in the lab is defined in the file `storage-ceph-hyperconverged-environment.yaml` inside the `/home/stack/templates/environments/` directory.
 
-*File content*
+.File content
 [%nowrap]
 ----
 resource_registry:
@@ -169,7 +169,7 @@ The following custom templates were used to define the network configuration for
 
 `/home/stack/templates/environments/network-environment.yaml`: Defines the network ranges and the VLAN IDs for the overcloud.
 
-*File content*
+.File content
 [%nowrap]
 ----
 resource_registry:
@@ -213,7 +213,7 @@ parameter_defaults:
 
 `/home/stack/templates/environments/network-isolation.yaml`: Enable the creation of Neutron networks for isolated overcloud traffic and configure the roles to assign ports (related to that role) on the networks.
 
-*File content*
+.File content
 [%nowrap]
 ----
 resource_registry:
@@ -248,7 +248,7 @@ resource_registry:
 
 `/home/stack/templates/nic-configs/compute.yaml` and `/home/stack/templates/nic-configs/controller.yaml`: Define the interfaces/bridge for the controller and the compute nodes and its attached networks.
 
-*File content*
+.File content
 [%nowrap]
 ----
 heat_template_version: queens
@@ -425,7 +425,7 @@ outputs:
     value: {get_resource: OsNetConfigImpl}
 ----
 
-*Network interfaces in the overcloud nodes*
+.Network interfaces in the overcloud nodes
 [cols="1,1,1,2",options="header",caption="",options="nowrap"]
 |===
 | Interface | OpenStack Name |OVS Bridge |Description
@@ -441,7 +441,7 @@ The following additional custom templates were used to provision the lab.
 
 `/home/stack/templates/environments/node-info.yaml`: Specifies the number of nodes per role and their flavors.
 
-*File content*
+.File content
 [%nowrap]
 ----
 parameter_defaults:
@@ -453,7 +453,7 @@ parameter_defaults:
 
 `/home/stack/templates/heat/firstboot.yaml`: Defines the user data to be used during the first boot on all the overcloud nodes.
 
-*File content*
+.File content
 [%nowrap]
 ----
 heat_template_version: 2014-10-16
@@ -482,7 +482,7 @@ outputs:
 
 `/home/stack/templates/environments/firstboot.yaml`: Defines the `userdata` resource, which sets the `root` password.
 
-*File content*
+.File content
 [%nowrap]
 ----
 resource_registry:
@@ -492,7 +492,7 @@ resource_registry:
 
 `/home/stack/templates/environments/custom-config.yaml`: Miscellaneous configuration for the overcloud.
 
-*File content*
+.File content
 [%nowrap]
 ----
 parameter_defaults:
@@ -514,7 +514,7 @@ The endpoint for the Keystone Admin was moved to external due to integration wit
 
 `/home/stack/templates/environments/dns-network-config.yaml`: Template to configure the DNS for the overcloud nodes
 
-*File content*
+.File content
 [%nowrap]
 ----
 parameter_defaults:
@@ -526,13 +526,13 @@ parameter_defaults:
 
 `/home/stack/templates/environments/fix-nova-reserved-host-memory.yaml`: Custom parameters to override the lab environment's limitation
 
-*File content*
+.File content
 [%nowrap]
 ----
 parameter_defaults:
   NovaReservedHostMemory: 1024
 ----
-+
+
 [NOTE]
 By default, the Red Hat OpenStack Platform director reserves `4 GB` of the compute nodes' memory for host processes. This may not feasible for small scale deployments. The `NovaReservedHostMemory` parameter limits the reserved host memory to `1 GB`.
 
@@ -551,7 +551,7 @@ The following steps were used for the DNS server's installation:
 
 . Configure file `/home/stack/devns/vars.yaml`.
 +
-*File content*
+.File content
 +
 [%nowrap]
 ----
@@ -575,7 +575,7 @@ dns_forwarders: ["8.8.8.8"]
 ----
 
 . Install `shade` package for Python.
-
++
 We need to install the `shade` library as a prerequisite to install OpenShift Container Platform on Red Hat OpenStack Platform. Shade is a simple client library for interacting with Red Hat OpenStack Platform clouds.
 +
 [%nowrap]
@@ -583,7 +583,7 @@ We need to install the `shade` library as a prerequisite to install OpenShift Co
 (overcloud) [stack@undercloud ~]$ sudo yum install python2-shade
 ----
 +
-*Sample output*
+.Sample output
 [%nowrap]
 ----
 Loaded plugins: product-id, search-disabled-repos, subscription-manager
@@ -626,13 +626,14 @@ Complete!
 . Deploy the VMs using Ansible Playbook
 +
 Once the `vars.yaml` file is configured, we only need to run the `deploy.yaml` playbook to create:
-
++
 * Network with name `openshift-dns`
 * Subnet with name `openshift-dns` with range `192.168.23.0/24`
 * Router connected to the `public` network with name `openshift-dns`
 * VM with name `openshift-dns`
-
-.Run the `deploy.yaml` playbook
++
+Run the `deploy.yaml` playbook
++
 [%nowrap]
 ----
 (overcloud) [stack@undercloud ~]$ cd devns/
@@ -653,7 +654,7 @@ Red Hat OpenShift Container Platform 3.10 was installed on top of Red Hat OpenSt
 
 The Ansible inventory file `/root/hosts` contains the `node` configuration and parameters used for the OpenShift Container Platform  installation.
 
-*File content*
+.File content
 [%nowrap]
 ----
 [masters]
