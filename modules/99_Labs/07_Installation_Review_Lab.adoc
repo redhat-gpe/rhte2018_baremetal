@@ -14,7 +14,7 @@
 
 In this section, you may review the templates used to deploy the overcloud. Red Hat OpenStack Platform version 13 was installed in this lab.
 
-.Parameters and templates used for the overcloud deployment
+.The following parameters and templates were used to deploy the overcloud:
 [%nowrap]
 ----
 #!/bin/bash
@@ -101,8 +101,6 @@ In this lab two disks are used (/dev/vdb and /dev/vdc) for the OSD but no disks 
 
 ==== Ironic
 
-.Ironic deployment templates
-
 The overcloud Ironic services were deployed using the template `/usr/share/openstack-tripleo-heat-templates/environments/services/ironic.yaml`.
 
 You may find the following containerized services as part of the Ironic deployment.
@@ -137,8 +135,6 @@ parameter_defaults:
 
 ==== Octavia
 
-.Octavia deployment templates
-
 The Red Hat OpenStack Platform load balancer service `Octavia` is deployed using the template `/usr/share/openstack-tripleo-heat-templates/environments/services-docker/octavia.yaml`.
  
 You may review the containerized components deployed as part of the Octavia service.
@@ -154,8 +150,6 @@ You may review the containerized components deployed as part of the Octavia serv
 
 ==== Barbican
 
-.Barbican Deployment Templates
-
 The template used to deploy Octavia is on the path `/usr/share/openstack-tripleo-heat-templates/environments/services/barbican.yaml` to enable the container for the API and
 `/usr/share/openstack-tripleo-heat-templates/environments/barbican-backend-simple-crypto.yaml` to enable a simple cryptographic algorithm.
 
@@ -170,8 +164,6 @@ The Barbican environment template deploys three containerized services.
 |===
 
 ==== Network Configuration
-
-.Network environment templates
 
 The following custom templates were used to define the network configuration for the overcloud in the lab environment.
 
@@ -551,8 +543,6 @@ The environment file `/usr/share/openstack-tripleo-heat-templates/environments/d
 
 === Deploy a DNS instance to be used for Red Hat OpenShift Container Platform
 
-.DNS Server Node
-
 For the DNS VM's installation the playbooks hosted on `https://github.com/tomassedovic/devns` were used.
 
 With this DNS VM server it is possible to dynamically update the DNS using `nsupdate` and is used by the OpenShift Container Platform installation to generate the required DNS records.
@@ -632,7 +622,6 @@ Installed:
 Complete!
 ----
 
-+
 . Deploy the VMs using Ansible Playbook
 +
 Once the `vars.yaml` file is configured, we only need to run the `deploy.yaml` playbook to create:
