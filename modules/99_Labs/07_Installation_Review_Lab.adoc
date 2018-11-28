@@ -437,7 +437,7 @@ outputs:
 
 ==== Custom Configuration Templates
 
-.Additional Custom Templates Used to Provision the Lab
+The following additional custom templates were used to provision the lab.
 
 `/home/stack/templates/environments/node-info.yaml`: Specifies the number of nodes per role and their flavors.
 
@@ -510,7 +510,7 @@ parameter_defaults:
 [IMPORTANT]
 The endpoint for the Keystone Admin was moved to external due to integration with Red Hat OpenShift.
 
-.DNS Configuration Templates
+==== DNS Configuration Templates
 
 `/home/stack/templates/environments/dns-network-config.yaml`: Template to configure the DNS for the overcloud nodes
 
@@ -573,9 +573,10 @@ server_name: openshift-dns
 
 dns_forwarders: ["8.8.8.8"]
 ----
-+
+
 . Install `shade` package for Python.
-We need to install the `shade` library as a prerequisite to install Red Hat OpenShift on Red Hat OpenStack Platform. Shade is a simple client library for interacting with Red Hat OpenStack Platform clouds.
+
+We need to install the `shade` library as a prerequisite to install OpenShift Container Platform on Red Hat OpenStack Platform. Shade is a simple client library for interacting with Red Hat OpenStack Platform clouds.
 +
 [%nowrap]
 ----
