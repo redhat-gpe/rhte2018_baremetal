@@ -7,14 +7,14 @@
 
 = Quick Fix for the Ironic Problem
 
-. Login to the `undercloud` node as the `stack` user:
+. Log in to the `undercloud` node as the `stack` user:
 +
 [%nowrap]
 ----
 [lab-user@workstation-b27d ~]$ ssh stack@undercloud
 ----
 
-. Source the `stackrc` :
+. Source the `stackrc` file:
 +
 [%nowrap]
 ----
@@ -29,14 +29,14 @@
 ----
 * Get the IP address of the overcloud controller node (for example, 192.0.2.16).
 
-. Login to the overcloud controller node as the `heat-admin` user:
+. Log in to the overcloud controller node as the `heat-admin` user:
 +
 [%nowrap]
 ----
 (undercloud) [stack@undercloud ~]$ ssh heat-admin@192.0.2.16
 ----
 
-. Switch to `root`:
+. Switch to `root` user:
 +
 [%nowrap]
 ----
@@ -106,7 +106,7 @@ aff3d97c6ce3        registry.access.redhat.com/rhosp13/openstack-ironic-conducto
 power_state_change_timeout = 90
 ----
 
-. Return back to the `heat-admin` user at the overcloud controller and source the `overcloudrc` file:
+. Return to the `heat-admin` user at the overcloud controller and source the `overcloudrc` file:
 +
 [%nowrap]
 ----
@@ -120,14 +120,14 @@ power_state_change_timeout = 90
 (overcloud) [heat-admin@overcloud-controller-0 ~]$ openstack server list
 ----
 
-. If your attempt to create the bare metal server `ocp-node02` failed before, you should remove the failed server and try again:
+. If your attempt to create the bare metal server `ocp-node02` failed before, remove the failed server and try again:
 +
 [%nowrap]
 ----
 (overcloud) [heat-admin@overcloud-controller-0 ~]$ openstack server delete ocp-node02
 ----
 
-. Check that the `ocp-node02` server is not in the list anymore:
+. Verify that the `ocp-node02` server is not in the list anymore:
 +
 [%nowrap]
 ----
