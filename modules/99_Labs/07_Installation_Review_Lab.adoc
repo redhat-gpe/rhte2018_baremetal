@@ -647,12 +647,12 @@ When the deployment finishes, it shows the `Floating IP`, `key algorithm` and `k
 
 In this section, you may review the installation steps used to deploy OpenShift Container Platform in the lab environment.
 
-Red Hat OpenShift Container Platform 3.10 was installed on top of Red Hat OpenStack using the `openshift-ansible` playbooks. 
+OpenShift Container Platform 3.10 was installed on top of Red Hat OpenStack using the `openshift-ansible` playbooks. 
 
 
 ==== Review the OpenShift Container Platform Installation Variables
 
-The Ansible inventory file `/root/hosts` contains the `node` configuration and parameters used for the OpenShift Container Platform  installation.
+The Ansible inventory file `/root/hosts` contains the `node` configuration and parameters used for the OpenShift Container Platform installation.
 
 .File content
 [%nowrap]
